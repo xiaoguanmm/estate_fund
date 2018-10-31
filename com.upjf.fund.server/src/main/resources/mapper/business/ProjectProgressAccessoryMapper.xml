@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.upjf.fund.service.impl.business.mapper.ProjectProgressAccessoryMapper" >
+  <resultMap id="BaseResultMap" type="com.upjf.fund.dto.ProjectProgressAccessory" >
+    <id column="pid" property="pid" jdbcType="VARCHAR" />
+    <result column="prj_progress_id" property="prjProgressId" jdbcType="VARCHAR" />
+    <result column="file_id" property="fileId" jdbcType="VARCHAR" />
+    <result column="status" property="status" jdbcType="INTEGER" />
+    <result column="create_date" property="createDate" jdbcType="TIMESTAMP" />
+    <result column="create_id" property="createId" jdbcType="VARCHAR" />
+    <result column="update_date" property="updateDate" jdbcType="TIMESTAMP" />
+    <result column="update_id" property="updateId" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    pid, prj_progress_id, file_id, status, create_date, create_id, update_date, update_id
+  </sql>
+  
+  
+  
+  <!-- 根据主键获取项目与文件关系信息 -->
+  <select id="getProgressAccessoryByPid" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from project_progress_accessory
+    where pid = #{pid}
+  </select>
+  
+  <!-- 根据项目进度主键查询获取是否存在处于当前进度状态且无文件关系主键的记录 -->
+  <select id="getProgressAccessoryByProgressId" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from project_progress_accessory
+    where prj_progress_id = #{progressId} and file_id IS NULL and status = 1
+  </select>
+  
+  
+  <!-- 根据条件查询获取响应的项目进度附件信息记录 -->
+  <select id="getAllProgressAccessoryByCondition" resultMap="BaseResultMap" parameterType="java.util.Map" >
+    select 
+    <include refid="Base_Column_List" />
+    from project_progress_accessory
+    <where>
+    	<if test="progressPid != null and progressPid !=''">
+    		prj_progress_id = #{progressPid}
+    	</if>
+    	<if test="status != null">
+    		and status = #{status}
+    	</if>
+    </where>
+  </select>
+  
+  <!-- 根据项目进度批量查询获取有效状态下的项目进度附件关系信息 -->
+  <select id="getProgressAccessoryByProgressPids" resultType="com.upjf.fund.dto.ProjectProgressAccessory" parameterType="java.util.Map" >
+    select 
+    	<include refid="Base_Column_List" />
+    from project_progress_accessory
+    <where>
+    	status = 1
+    	<if test="idList != null">
+    		and prj_progress_id in 
+    		<foreach collection="idList" open="(" separator="," close=")" item="progressPid">
+    			#{progressPid}
+    		</foreach>
+    	</if>
+    </where>
+  </select>
+  
+  <!-- 根据项目附件关系信息主键批量变更其状态为无效状态 -->
+  <update id="delProgressAccessoryByPids" parameterType="java.util.Map">
+    update  project_progress_accessory
+    <set>
+    	status = 0,
+    	<if test="updateDate != null">
+    		update_date=#{updateDate},
+    	</if>
+    	<if test="updateId != null and updateId !=''">
+    		update_id=#{updateId},
+    	</if>
+    </set>
+    where pid in
+    <foreach collection="idList" open="(" separator="," close=")" item="pid">
+    	#{pid}
+    </foreach>
+  </update>
+  
+  
+  <!-- 根据主键删除项目与文件关系信息 -->
+  <delete id="delProgressAccessoryByKey" parameterType="java.lang.String" >
+    delete from project_progress_accessory
+    where pid = #{pid,jdbcType=VARCHAR}
+  </delete>
+  
+  <!-- 保存项目与文件关系信息 -->
+  <insert id="saveProgressAccessory" parameterType="com.upjf.fund.dto.ProjectProgressAccessory" >
+    insert into project_progress_accessory
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="pid != null and pid !=''" >
+        pid,
+      </if>
+      <if test="prjProgressId != null and prjProgressId !=''" >
+        prj_progress_id,
+      </if>
+      <if test="fileId != null and fileId !=''" >
+        file_id,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+      <if test="createDate != null" >
+        create_date,
+      </if>
+      <if test="createId != null and createId !=''" >
+        create_id,
+      </if>
+      <if test="updateDate != null" >
+        update_date,
+      </if>
+      <if test="updateId != null and updateId !=''" >
+        update_id,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="pid != null and pid !=''" >
+        #{pid,jdbcType=VARCHAR},
+      </if>
+      <if test="prjProgressId != null and prjProgressId !=''" >
+        #{prjProgressId,jdbcType=VARCHAR},
+      </if>
+      <if test="fileId != null and fileId !=''" >
+        #{fileId,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=INTEGER},
+      </if>
+      <if test="createDate != null" >
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createId != null and createId !=''" >
+        #{createId,jdbcType=VARCHAR},
+      </if>
+      <if test="updateDate != null" >
+        #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateId != null and updateId !=''" >
+        #{updateId,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  
+  
+  <!-- 根据主键更新项目进度附件信息 -->
+  <update id="updateProgressAccessoryByKey" parameterType="com.upjf.fund.dto.ProjectProgressAccessory" >
+    update project_progress_accessory
+    <set >
+      <if test="prjProgressId != null and prjProgressId != ''" >
+        prj_progress_id = #{prjProgressId,jdbcType=VARCHAR},
+      </if>
+      <if test="fileId != null and fileId !=''" >
+        file_id = #{fileId,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=INTEGER},
+      </if>
+      <if test="createDate != null" >
+        create_date = #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createId != null and createId !=''" >
+        create_id = #{createId,jdbcType=VARCHAR},
+      </if>
+      <if test="updateDate != null" >
+        update_date = #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateId != null and updateId !=''" >
+        update_id = #{updateId,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where pid = #{pid,jdbcType=VARCHAR}
+  </update>
+</mapper>

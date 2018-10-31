@@ -1,0 +1,597 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.upjf.fund.service.impl.business.mapper.InvestSubjectMapper">
+  <resultMap id="BaseResultMap" type="com.upjf.fund.dto.InvestSubject">
+    <id column="pid" jdbcType="VARCHAR" property="pid" />
+    <result column="prj_id" jdbcType="VARCHAR" property="prjId" />
+    <result column="prj_corp_id" jdbcType="VARCHAR" property="prjCorpId" />
+    <result column="invest_type" jdbcType="CHAR" property="investType" />
+    <result column="parent_id" jdbcType="VARCHAR" property="parentId" />
+    <result column="invest_manange_id" jdbcType="VARCHAR" property="investManangeId" />
+    <result column="build_name" jdbcType="VARCHAR" property="buildName" />
+    <result column="contributive_type" jdbcType="VARCHAR" property="contributiveType" />
+    <result column="expect_contributive_amount" jdbcType="DECIMAL" property="expectContributiveAmount" />
+    <result column="invest_subject_id" jdbcType="VARCHAR" property="investSubjectId" />
+    <result column="hold_stock_rate" jdbcType="DECIMAL" property="holdStockRate" />
+    <result column="is_huilian_corp" jdbcType="VARCHAR" property="isHuilianCorp" />
+    <result column="dividend_type" jdbcType="VARCHAR" property="dividendType" />
+    <result column="level" jdbcType="VARCHAR" property="level" />
+    <result column="expect_all_receiver_account" jdbcType="DECIMAL" property="expectAllReceiverAccount" />
+    <result column="term" jdbcType="INTEGER" property="term" />
+    <result column="expect_income" jdbcType="DECIMAL" property="expectIncome" />
+    <result column="annualized_interest_rate" jdbcType="DECIMAL" property="annualizedInterestRate" />
+    <result column="expect_income_rate" jdbcType="DECIMAL" property="expectIncomeRate" />
+    <result column="invest_start_date" jdbcType="TIMESTAMP" property="investStartDate" />
+    <result column="create_date" jdbcType="TIMESTAMP" property="createDate" />
+    <result column="create_id" jdbcType="VARCHAR" property="createId" />
+    <result column="update_date" jdbcType="TIMESTAMP" property="updateDate" />
+    <result column="update_id" jdbcType="VARCHAR" property="updateId" />
+    <result column="status" jdbcType="VARCHAR" property="status" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    pid, prj_id, prj_corp_id, invest_type, parent_id, invest_manange_id, build_name, 
+    contributive_type, expect_contributive_amount, invest_subject_id, hold_stock_rate, 
+    is_huilian_corp, dividend_type, level, expect_all_receiver_account, term, expect_income, 
+    annualized_interest_rate, expect_income_rate, invest_start_date, create_date, create_id, 
+    update_date, update_id
+  </sql>
+  
+  	<!-- 查询有效的投资主体 -->
+  <select id="getInvestSubjectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from invest_subject
+    where invest_type = '1'
+    	and `status` = '1'
+    	and pid = #{pid,jdbcType=VARCHAR}
+  </select>
+  
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from invest_subject
+    where pid = #{pid,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.upjf.fund.dto.InvestSubject">
+    <selectKey keyProperty="pid" order="AFTER" resultType="java.lang.String">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into invest_subject (prj_id, prj_corp_id, invest_type, 
+      parent_id, invest_manange_id, build_name, 
+      contributive_type, expect_contributive_amount, 
+      invest_subject_id, hold_stock_rate, is_huilian_corp, 
+      dividend_type, level, expect_all_receiver_account, 
+      term, expect_income, annualized_interest_rate, 
+      expect_income_rate, invest_start_date, create_date, 
+      create_id, update_date, update_id
+      )
+    values (#{prjId,jdbcType=VARCHAR}, #{prjCorpId,jdbcType=VARCHAR}, #{investType,jdbcType=CHAR}, 
+      #{parentId,jdbcType=VARCHAR}, #{investManangeId,jdbcType=VARCHAR}, #{buildName,jdbcType=VARCHAR}, 
+      #{contributiveType,jdbcType=VARCHAR}, #{expectContributiveAmount,jdbcType=DECIMAL}, 
+      #{investSubjectId,jdbcType=VARCHAR}, #{holdStockRate,jdbcType=DECIMAL}, #{isHuilianCorp,jdbcType=VARCHAR}, 
+      #{dividendType,jdbcType=VARCHAR}, #{level,jdbcType=VARCHAR}, #{expectAllReceiverAccount,jdbcType=DECIMAL}, 
+      #{term,jdbcType=INTEGER}, #{expectIncome,jdbcType=DECIMAL}, #{annualizedInterestRate,jdbcType=DECIMAL}, 
+      #{expectIncomeRate,jdbcType=DECIMAL}, #{investStartDate,jdbcType=TIMESTAMP}, #{createDate,jdbcType=TIMESTAMP}, 
+      #{createId,jdbcType=VARCHAR}, #{updateDate,jdbcType=TIMESTAMP}, #{updateId,jdbcType=VARCHAR}
+      )
+  </insert>
+  <insert id="insertInvestSubject" parameterType="com.upjf.fund.dto.InvestSubject">
+    insert into invest_subject
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="pid != null and pid !=''">
+        pid,
+      </if>
+      <if test="prjId != null and prjId !=''">
+        prj_id,
+      </if>
+      <if test="prjCorpId != null and prjCorpId !=''">
+        prj_corp_id,
+      </if>
+      <if test="investType != null and investType !=''">
+        invest_type,
+      </if>
+      <if test="parentId != null and parentId !=''">
+        parent_id,
+      </if>
+      <if test="investManangeId != null and investManangeId !=''">
+        invest_manange_id,
+      </if>
+      <if test="buildName != null and buildName !=''">
+        build_name,
+      </if>
+      <if test="contributiveType != null and contributiveType !=''">
+        contributive_type,
+      </if>
+      <if test="expectContributiveAmount != null and expectContributiveAmount !=''">
+        expect_contributive_amount,
+      </if>
+      <if test="investSubjectId != null and investSubjectId !=''">
+        invest_subject_id,
+      </if>
+      <if test="holdStockRate != null and holdStockRate !=''">
+        hold_stock_rate,
+      </if>
+      <if test="isHuilianCorp != null and isHuilianCorp !=''">
+        is_huilian_corp,
+      </if>
+      <if test="dividendType != null and dividendType !=''">
+        dividend_type,
+      </if>
+      <if test="level != null and level !=''">
+        level,
+      </if>
+      <if test="expectAllReceiverAccount != null and expectAllReceiverAccount !=''">
+        expect_all_receiver_account,
+      </if>
+      <if test="term != null and term !=''">
+        term,
+      </if>
+      <if test="expectIncome != null and expectIncome !=''">
+        expect_income,
+      </if>
+      <if test="annualizedInterestRate != null and annualizedInterestRate !=''">
+        annualized_interest_rate,
+      </if>
+      <if test="expectIncomeRate != null and expectIncomeRate !=''">
+        expect_income_rate,
+      </if>
+      <if test="investStartDate != null">
+        invest_start_date,
+      </if>
+      <if test="createDate != null">
+        create_date,
+      </if>
+      <if test="createId != null and createId !=''">
+        create_id,
+      </if>
+      <if test="updateDate != null">
+        update_date,
+      </if>
+      <if test="updateId != null and updateId !=''">
+        update_id,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+   	  <if test="pid != null and pid !=''">
+        #{pid,jdbcType=VARCHAR},
+      </if>
+      <if test="prjId != null and prjId !=''">
+        #{prjId,jdbcType=VARCHAR},
+      </if>
+      <if test="prjCorpId != null and prjCorpId !=''">
+        #{prjCorpId,jdbcType=VARCHAR},
+      </if>
+      <if test="investType != null and investType !=''">
+        #{investType,jdbcType=CHAR},
+      </if>
+      <if test="parentId != null and parentId !=''">
+        #{parentId,jdbcType=VARCHAR},
+      </if>
+      <if test="investManangeId != null and investManangeId !=''">
+        #{investManangeId,jdbcType=VARCHAR},
+      </if>
+      <if test="buildName != null and buildName !=''">
+        #{buildName,jdbcType=VARCHAR},
+      </if>
+      <if test="contributiveType != null and contributiveType !=''">
+        #{contributiveType,jdbcType=VARCHAR},
+      </if>
+      <if test="expectContributiveAmount != null and expectContributiveAmount !=''">
+        #{expectContributiveAmount,jdbcType=DECIMAL},
+      </if>
+      <if test="investSubjectId != null and investSubjectId !=''">
+        #{investSubjectId,jdbcType=VARCHAR},
+      </if>
+      <if test="holdStockRate != null and holdStockRate !=''">
+        #{holdStockRate,jdbcType=DECIMAL},
+      </if>
+      <if test="isHuilianCorp != null and isHuilianCorp !=''">
+        #{isHuilianCorp,jdbcType=VARCHAR},
+      </if>
+      <if test="dividendType != null and dividendType !=''">
+        #{dividendType,jdbcType=VARCHAR},
+      </if>
+      <if test="level != null and level !=''">
+        #{level,jdbcType=VARCHAR},
+      </if>
+      <if test="expectAllReceiverAccount != null and expectAllReceiverAccount !=''">
+        #{expectAllReceiverAccount,jdbcType=DECIMAL},
+      </if>
+      <if test="term != null and term !=''">
+        #{term,jdbcType=INTEGER},
+      </if>
+      <if test="expectIncome != null and expectIncome !=''">
+        #{expectIncome,jdbcType=DECIMAL},
+      </if>
+      <if test="annualizedInterestRate != null and annualizedInterestRate !=''">
+        #{annualizedInterestRate,jdbcType=DECIMAL},
+      </if>
+      <if test="expectIncomeRate != null and expectIncomeRate !=''">
+        #{expectIncomeRate,jdbcType=DECIMAL},
+      </if>
+      <if test="investStartDate != null">
+        #{investStartDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createDate != null">
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createId != null and createId !=''">
+        #{createId,jdbcType=VARCHAR},
+      </if>
+      <if test="updateDate != null">
+        #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateId != null and updateId !=''">
+        #{updateId,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateInvestSubjectByPrimaryKey" parameterType="com.upjf.fund.dto.InvestSubject">
+    update invest_subject
+    <set>
+      <if test="prjId != null and prjId !=''">
+        prj_id = #{prjId,jdbcType=VARCHAR},
+      </if>
+      <if test="prjCorpId != null and prjCorpId !=''">
+        prj_corp_id = #{prjCorpId,jdbcType=VARCHAR},
+      </if>
+      <if test="investType != null and investType !=''">
+        invest_type = #{investType,jdbcType=CHAR},
+      </if>
+      <if test="parentId != null and parentId !=''">
+        parent_id = #{parentId,jdbcType=VARCHAR},
+      </if>
+      <if test="investManangeId != null and investManangeId !=''">
+        invest_manange_id = #{investManangeId,jdbcType=VARCHAR},
+      </if>
+      <if test="buildName != null and buildName !=''">
+        build_name = #{buildName,jdbcType=VARCHAR},
+      </if>
+      <if test="contributiveType != null and contributiveType !=''">
+        contributive_type = #{contributiveType,jdbcType=VARCHAR},
+      </if>
+      <if test="expectContributiveAmount != null and expectContributiveAmount !=''">
+        expect_contributive_amount = #{expectContributiveAmount,jdbcType=DECIMAL},
+      </if>
+      <if test="investSubjectId != null and investSubjectId !=''">
+        invest_subject_id = #{investSubjectId,jdbcType=VARCHAR},
+      </if>
+      <if test="holdStockRate != null and holdStockRate !=''">
+        hold_stock_rate = #{holdStockRate,jdbcType=DECIMAL},
+      </if>
+      <if test="isHuilianCorp != null and isHuilianCorp !=''">
+        is_huilian_corp = #{isHuilianCorp,jdbcType=VARCHAR},
+      </if>
+      <if test="dividendType != null and dividendType !=''">
+        dividend_type = #{dividendType,jdbcType=VARCHAR},
+      </if>
+      <if test="level != null and level !=''">
+        level = #{level,jdbcType=VARCHAR},
+      </if>
+      <if test="expectAllReceiverAccount != null and expectAllReceiverAccount !=''">
+        expect_all_receiver_account = #{expectAllReceiverAccount,jdbcType=DECIMAL},
+      </if>
+      <if test="term != null and term !=''">
+        term = #{term,jdbcType=INTEGER},
+      </if>
+      <if test="expectIncome != null and expectIncome !=''">
+        expect_income = #{expectIncome,jdbcType=DECIMAL},
+      </if>
+      <if test="annualizedInterestRate != null and annualizedInterestRate !=''">
+        annualized_interest_rate = #{annualizedInterestRate,jdbcType=DECIMAL},
+      </if>
+      <if test="expectIncomeRate != null and expectIncomeRate !=''">
+        expect_income_rate = #{expectIncomeRate,jdbcType=DECIMAL},
+      </if>
+      <if test="investStartDate != null">
+        invest_start_date = #{investStartDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createDate != null">
+        create_date = #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createId != null and createId !=''">
+        create_id = #{createId,jdbcType=VARCHAR},
+      </if>
+      <if test="updateDate != null">
+        update_date = #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateId != null and updateId !=''">
+        update_id = #{updateId,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null and status !=''">
+        status = #{status,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where pid = #{pid,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.upjf.fund.dto.InvestSubject">
+    update invest_subject
+    set prj_id = #{prjId,jdbcType=VARCHAR},
+      prj_corp_id = #{prjCorpId,jdbcType=VARCHAR},
+      invest_type = #{investType,jdbcType=CHAR},
+      parent_id = #{parentId,jdbcType=VARCHAR},
+      invest_manange_id = #{investManangeId,jdbcType=VARCHAR},
+      build_name = #{buildName,jdbcType=VARCHAR},
+      contributive_type = #{contributiveType,jdbcType=VARCHAR},
+      expect_contributive_amount = #{expectContributiveAmount,jdbcType=DECIMAL},
+      invest_subject_id = #{investSubjectId,jdbcType=VARCHAR},
+      hold_stock_rate = #{holdStockRate,jdbcType=DECIMAL},
+      is_huilian_corp = #{isHuilianCorp,jdbcType=VARCHAR},
+      dividend_type = #{dividendType,jdbcType=VARCHAR},
+      level = #{level,jdbcType=VARCHAR},
+      expect_all_receiver_account = #{expectAllReceiverAccount,jdbcType=DECIMAL},
+      term = #{term,jdbcType=INTEGER},
+      expect_income = #{expectIncome,jdbcType=DECIMAL},
+      annualized_interest_rate = #{annualizedInterestRate,jdbcType=DECIMAL},
+      expect_income_rate = #{expectIncomeRate,jdbcType=DECIMAL},
+      invest_start_date = #{investStartDate,jdbcType=TIMESTAMP},
+      create_date = #{createDate,jdbcType=TIMESTAMP},
+      create_id = #{createId,jdbcType=VARCHAR},
+      update_date = #{updateDate,jdbcType=TIMESTAMP},
+      update_id = #{updateId,jdbcType=VARCHAR}
+    where pid = #{pid,jdbcType=VARCHAR}
+  </update>
+  
+  <select id="queryInvestSubjectList" parameterType="java.lang.String" resultType="map">
+    SELECT ins.pid AS investSubjectPid,imp.pid AS investManagePlanPid,si.pid AS stockholderPid,si.corp_id AS stockholderCorpId
+		,pi.pid AS projectInfoPid,ins.invest_subject_id
+		,ins.prj_corp_id AS businessPrjInfoPid,pi.building_name,ins.`level`,ins.expect_income,ins.expect_income_rate,ins.invest_start_date
+		,ins.contributive_type,(select t1.value_des FROM dict_detail t1 WHERE t1.pid = ins.contributive_type) AS contributiveTypeName
+		,si.stockholder_type,(select t1.value_des FROM dict_detail t1 WHERE t1.pid = si.stockholder_type) AS stockholderTypeName
+		,ci.`name`,ins.is_huilian_corp,convert((ins.expect_contributive_amount/10000),decimal(18,2)) as expect_contributive_amount,ins.hold_stock_rate
+		,convert(((SELECT SUM(pay_amount) FROM payment p WHERE p.contributive_id = ins.invest_subject_id AND p.payment_type = '2')/10000),decimal(18,2)) as realInvestAmount
+		,ins.term,ins.dividend_type,(select t1.value_des FROM dict_detail t1 WHERE t1.pid = ins.dividend_type) AS dividendTypeName,ins.annualized_interest_rate
+		,convert((ins.expect_all_receiver_account/10000),decimal(18,2)) as expect_all_receiver_account
+		,convert(((SELECT SUM(pay_amount) FROM payment p WHERE p.contributive_id = ins.invest_subject_id AND p.payment_type = '2')/10000),decimal(18,2)) as receivedPrincipal
+		,convert(((SELECT SUM(pay_amount) FROM payment p WHERE p.contributive_id = ins.invest_subject_id AND p.payment_type = '2')/10000),decimal(18,2)) as receivedProfit
+		,(SELECT COUNT(1) FROM invest_subject isp 
+				WHERE isp.invest_type = '2' AND isp.parent_id = ins.pid AND isp.`status`='1') AS investPersonCount
+		FROM invest_subject ins 
+		LEFT JOIN invest_manage_plan imp ON imp.pid = ins.invest_manange_id AND imp.`status` = '1'
+		LEFT JOIN stockholder_info si ON si.pid = imp.stockholder_id AND si.`status` = '1'
+		LEFT JOIN corporation_info ci ON ci.pid = ins.invest_subject_id AND ci.`status` = 1 
+		LEFT JOIN project_info pi ON pi.pid = ins.prj_id AND pi.`STATUS` = 1
+	<where>
+		ins.invest_type = '1'
+		AND ins.`status` = '1'
+		<if test="investPlanManagePid != null and investPlanManagePid != ''">
+	       AND imp.pid = #{investPlanManagePid,jdbcType=VARCHAR}
+	    </if>
+    </where>
+	ORDER BY ins.update_date DESC,ins.create_date DESC limit ${offset},${pageRows} 	    
+  </select>
+  
+  <select id="countInvestSubjectList" parameterType="java.lang.String" resultType="integer">
+  	SELECT COUNT(1)
+		FROM invest_subject ins 
+		LEFT JOIN invest_manage_plan imp ON imp.pid = ins.invest_manange_id AND imp.`status` = '1'
+		LEFT JOIN stockholder_info si ON si.pid = imp.stockholder_id AND si.`status` = '1'
+		LEFT JOIN corporation_info ci ON ci.pid = ins.invest_subject_id AND ci.`status` = 1 
+		LEFT JOIN project_info pi ON pi.pid = ins.prj_id AND pi.`STATUS` = 1
+	<where>
+		ins.invest_type = '1'
+		AND ins.`status` = '1'
+		<if test="investPlanManagePid != null and investPlanManagePid != ''">
+	       AND imp.pid = #{investPlanManagePid,jdbcType=VARCHAR}
+	    </if>
+    </where>
+  </select>
+  
+  <select id="getInvestSubjectByInvestPlanPidAndPid" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from invest_subject ins
+    where ins.invest_type = '1'
+		and ins.`status` = '1'
+   		and ins.invest_manange_id = #{investPlanManageId,jdbcType=VARCHAR}
+   		and ins.invest_subject_id = #{investSubjectId,jdbcType=VARCHAR}
+  </select>
+  
+  <!-- 查询投资人业务管理列表 -->
+  <select id="queryInvestorBusinessManageList" resultType="map">
+    SELECT investor.pid AS investorPid,imp.pid AS investManagePlanPid,si.pid AS stockholderPid,si.corp_id AS stockholderCorpId
+		,investor.parent_id AS investSubjectPid,investor.contributive_type,investor.`level`
+		,pi.pid AS projectInfoPid,pi.project_name,pi.building_name,ins.invest_subject_id AS investSubjectCorpId
+		,(SELECT ci1.`name` FROM corporation_info ci1 WHERE ci1.pid = ins.invest_subject_id AND ci1.`status` = 1 ) AS investSubjectName
+		,investor.invest_subject_id AS investorCorpId, ci.`name` AS investorName
+		,convert((investor.expect_contributive_amount/10000),decimal(18,2)) as expect_contributive_amount,investor.hold_stock_rate
+		,convert((SELECT SUM(pay_amount) FROM payment p WHERE p.contributive_id = ins.invest_subject_id AND p.payment_type = '3'/10000),decimal(18,2)) as realInvestAmount
+		,(SELECT MAX(p.pay_term) FROM payment p WHERE p.contributive_id = ins.invest_subject_id AND p.payment_type = '3')AS pay_term
+		,investor.dividend_type,investor.expect_income,investor.invest_start_date,investor.expect_income_rate
+		,(select t1.value_des FROM dict_detail t1 WHERE t1.pid = investor.dividend_type) AS dividendTypeName
+		,investor.annualized_interest_rate
+		,convert((investor.expect_all_receiver_account/10000),decimal(18,2)) as expect_all_receiver_account
+		,convert((investor.expect_contributive_amount/10000),decimal(18,2)) as receivedPrincipal
+		,convert((investor.expect_contributive_amount/10000),decimal(18,2)) as receivedProfit
+		FROM invest_subject investor
+		LEFT JOIN invest_subject ins ON investor.parent_id = ins.pid AND ins.invest_type = '1' AND ins.`status` = '1'
+		LEFT JOIN invest_manage_plan imp ON imp.pid = investor.invest_manange_id AND imp.`status` = '1'
+		LEFT JOIN stockholder_info si ON si.pid = imp.stockholder_id AND si.`status` = '1'
+		LEFT JOIN project_info pi ON pi.pid = investor.prj_id AND pi.`STATUS` = 1
+		LEFT JOIN corporation_info ci ON ci.pid = investor.invest_subject_id AND ci.`status` = 1 
+	<where>
+		investor.invest_type = '2'
+		AND investor.`status` = '1'
+		<if test="condtions.projectInfoPid != null and condtions.projectInfoPid != ''">
+	       AND pi.pid = #{condtions.projectInfoPid,jdbcType=VARCHAR}
+	    </if>
+		<if test="condtions.investSubjectCorpId != null and condtions.investSubjectCorpId != ''">
+	       AND ins.invest_subject_id = #{condtions.investSubjectCorpId,jdbcType=VARCHAR}
+	    </if>
+		<if test="condtions.investorCorpId != null and condtions.investorCorpId != ''">
+	       AND investor.invest_subject_id = #{condtions.investorCorpId,jdbcType=VARCHAR}
+	    </if>
+		<if test="condtions.investPlanManagePid != null and condtions.investPlanManagePid != ''">
+	       AND imp.pid = #{condtions.investPlanManagePid,jdbcType=VARCHAR}
+	    </if>
+		<if test="condtions.investSubjectPid != null and condtions.investSubjectPid != ''">
+	       AND ins.pid = #{condtions.investSubjectPid,jdbcType=VARCHAR}
+	    </if>
+    </where>
+	ORDER BY investor.update_date DESC,investor.create_date DESC limit ${offset},${pageRows} 	    
+  </select>
+  
+  <select id="countInvestorBusinessManageList" resultType="integer">
+  	SELECT COUNT(1) FROM (
+  		SELECT investor.pid AS investorPid,imp.pid AS investManagePlanPid,si.pid AS stockholderPid,si.corp_id AS stockholderCorpId
+		,investor.parent_id AS investSubjectPid,investor.contributive_type,investor.`level`
+		,pi.pid AS projectInfoPid,pi.project_name,pi.building_name,ins.invest_subject_id AS investSubjectCorpId
+		,(SELECT ci1.`name` FROM corporation_info ci1 WHERE ci1.pid = ins.invest_subject_id AND ci1.`status` = 1 ) AS investSubjectName
+		,investor.invest_subject_id AS investorCorpId, ci.`name` AS investorName
+		,convert((investor.expect_contributive_amount/10000),decimal(18,2)) as expect_contributive_amount,investor.hold_stock_rate
+		,convert((SELECT SUM(pay_amount) FROM payment p WHERE p.contributive_id = ins.invest_subject_id AND p.payment_type = '3'/10000),decimal(18,2)) as realInvestAmount
+		,(SELECT MAX(p.pay_term) FROM payment p WHERE p.contributive_id = ins.invest_subject_id AND p.payment_type = '3')AS pay_term
+		,investor.dividend_type,investor.expect_income,investor.invest_start_date,investor.expect_income_rate
+		,(select t1.value_des FROM dict_detail t1 WHERE t1.pid = investor.dividend_type) AS dividendTypeName
+		,investor.annualized_interest_rate
+		,convert((investor.expect_all_receiver_account/10000),decimal(18,2)) as expect_all_receiver_account
+		,convert((investor.expect_contributive_amount/10000),decimal(18,2)) as receivedPrincipal
+		,convert((investor.expect_contributive_amount/10000),decimal(18,2)) as receivedProfit
+		FROM invest_subject investor
+		LEFT JOIN invest_subject ins ON investor.parent_id = ins.pid AND ins.invest_type = '1' AND ins.`status` = '1'
+		LEFT JOIN invest_manage_plan imp ON imp.pid = investor.invest_manange_id AND imp.`status` = '1'
+		LEFT JOIN stockholder_info si ON si.pid = imp.stockholder_id AND si.`status` = '1'
+		LEFT JOIN project_info pi ON pi.pid = investor.prj_id AND pi.`STATUS` = 1
+		LEFT JOIN corporation_info ci ON ci.pid = investor.invest_subject_id AND ci.`status` = 1 
+	<where>
+		investor.invest_type = '2'
+		AND investor.`status` = '1'
+		<if test="condtions.projectInfoPid != null and condtions.projectInfoPid != ''">
+	       AND pi.pid = #{condtions.projectInfoPid,jdbcType=VARCHAR}
+	    </if>
+		<if test="condtions.investSubjectCorpId != null and condtions.investSubjectCorpId != ''">
+	       AND ins.invest_subject_id = #{condtions.investSubjectCorpId,jdbcType=VARCHAR}
+	    </if>
+		<if test="condtions.investorCorpId != null and condtions.investorCorpId != ''">
+	       AND investor.invest_subject_id = #{condtions.investorCorpId,jdbcType=VARCHAR}
+	    </if>
+		<if test="condtions.investPlanManagePid != null and condtions.investPlanManagePid != ''">
+	       AND imp.pid = #{condtions.investPlanManagePid,jdbcType=VARCHAR}
+	    </if>
+		<if test="condtions.investSubjectPid != null and condtions.investSubjectPid != ''">
+	       AND ins.pid = #{condtions.investSubjectPid,jdbcType=VARCHAR}
+	    </if>
+    </where>
+  	) Q
+  </select>
+  
+  <select id="queryInvestSubjectAndPrjInfo" resultType="map">
+    SELECT imp.pid AS investManagePlanPid,ins.pid AS investSubjectPid,pi.pid AS projectInfoPid,pi.building_name,ci.pid AS investSubjectCorpId
+		,imp.stockholder_id,si.corp_id AS stockholderCorpPId,imp.business_prj_info_id
+		FROM invest_subject ins
+		INNER JOIN invest_manage_plan imp ON imp.pid = ins.invest_manange_id AND imp.`status` = '1'
+		INNER JOIN stockholder_info si ON si.pid = imp.stockholder_id AND si.`status` = '1'
+		INNER JOIN project_info pi ON pi.pid = ins.prj_id AND pi.`STATUS` = 1
+		INNER JOIN corporation_info ci ON ci.pid = ins.invest_subject_id AND ci.`status` = 1
+	<where>
+		ins.invest_type = '1'
+		AND ins.`status` = '1'
+		<if test="investPlanManagePid != null and investPlanManagePid != ''">
+	       AND imp.pid = #{investPlanManagePid,jdbcType=VARCHAR}
+	    </if>
+		<if test="investSubjectPid != null and investSubjectPid != ''">
+	       AND ins.pid = #{investSubjectPid,jdbcType=VARCHAR}
+	    </if>
+    </where>
+  </select>
+  
+  <select id="getInvestorByInvestPlanPidAndInvestPid" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from invest_subject investor
+    where investor.invest_type = '2'
+		and investor.`status` = '1'
+   		and investor.invest_manange_id = #{investPlanManageId,jdbcType=VARCHAR}
+   		and investor.parent_id = #{investSubjectPid,jdbcType=VARCHAR}
+   		and investor.invest_subject_id = #{investorCorPid,jdbcType=VARCHAR}
+  </select>
+  
+  <!-- 删除投资主体、投资人（可批量删除） -->
+  <update id="deleteInvestSubjectByPids" parameterType="java.util.Map">
+    update invest_subject
+    <set>
+    	<if test="status != null">
+    		status=#{status},
+    	</if>
+    	<if test="updateDate != null">
+    		update_date=#{updateDate},
+    	</if>
+    	<if test="updateId != null and updateId !=''">
+    		update_id=#{updateId}
+    	</if>
+    </set>
+    <where> 
+    	<if test="investType != null and investType !=''">
+    		invest_type=#{investType}
+    	</if>
+    	AND pid in 
+	    <foreach collection="pids" open="(" separator="," close=")" item="pid">
+	    	#{pid}
+	    </foreach>
+    </where>
+  </update>
+  
+  <select id="queryInvestSubjectBusinessManageList" resultType="map">
+    SELECT ins.pid AS investSubjectPid,imp.pid AS investManagePlanPid,si.pid AS stockholderPid,si.corp_id AS stockholderCorpId
+		,pi.project_name,pi.building_name,ins.contributive_type,pi.pid AS projectInfoPid
+		,(select t1.value_des FROM dict_detail t1 WHERE t1.pid = ins.contributive_type) AS contributiveTypeName
+		,ins.invest_subject_id AS investSubjectCorpId,ci.`name` AS investSubjectName
+		,convert((ins.expect_contributive_amount/10000),decimal(18,2)) as expect_contributive_amount,ins.hold_stock_rate
+		,convert(((SELECT SUM(pay_amount) FROM payment p WHERE p.contributive_id = ins.invest_subject_id AND p.payment_type = '2')/10000),decimal(18,2)) as realInvestAmount
+		,ins.term,ins.dividend_type,(select t1.value_des FROM dict_detail t1 WHERE t1.pid = ins.dividend_type) AS dividendTypeName
+		,ins.annualized_interest_rate,convert((ins.expect_all_receiver_account/10000),decimal(18,2)) as expect_all_receiver_account
+		,convert(((SELECT SUM(pay_amount) FROM payment p WHERE p.contributive_id = ins.invest_subject_id AND p.payment_type = '2')/10000),decimal(18,2)) as receivedPrincipal
+		,convert(((SELECT SUM(pay_amount) FROM payment p WHERE p.contributive_id = ins.invest_subject_id AND p.payment_type = '2')/10000),decimal(18,2)) as receivedProfit
+		FROM invest_subject ins 
+		LEFT JOIN invest_manage_plan imp ON imp.pid = ins.invest_manange_id AND imp.`status` = '1'
+		LEFT JOIN stockholder_info si ON si.pid = imp.stockholder_id AND si.`status` = '1'
+		LEFT JOIN corporation_info ci ON ci.pid = ins.invest_subject_id AND ci.`status` = 1 
+		LEFT JOIN project_info pi ON pi.pid = ins.prj_id AND pi.`STATUS` = 1
+	<where>
+		ins.invest_type = '1'
+		AND ins.`status` = '1'
+		<if test="conditions.projectName != null and conditions.projectName != ''">
+	       AND pi.project_name like concat('%',#{conditions.projectName,jdbcType=VARCHAR},'%')
+	    </if>
+		<if test="conditions.investSubjectCorpId != null and conditions.investSubjectCorpId != ''">
+	       AND ins.invest_subject_id = #{conditions.investSubjectCorpId,jdbcType=VARCHAR}
+	    </if>
+		<if test="conditions.contributiveType != null and conditions.contributiveType != ''">
+	       AND ins.contributive_type = #{conditions.contributiveType,jdbcType=VARCHAR}
+	    </if>
+    </where>
+	ORDER BY ins.update_date DESC,ins.create_date DESC limit ${offset},${pageRows} 	    
+  </select>
+  
+  <select id="countInvestSubjectBusinessManageList" resultType="integer">
+  	SELECT COUNT(1) FROM (
+  		SELECT ins.pid AS investSubjectPid,imp.pid AS investManagePlanPid,si.pid AS stockholderPid,si.corp_id AS stockholderCorpId
+		,pi.project_name,pi.building_name,ins.contributive_type,pi.pid AS projectInfoPid
+		,(select t1.value_des FROM dict_detail t1 WHERE t1.pid = ins.contributive_type) AS contributiveTypeName
+		,ins.invest_subject_id AS investSubjectCorpId,ci.`name` AS investSubjectName
+		,convert((ins.expect_contributive_amount/10000),decimal(18,2)) as expect_contributive_amount,ins.hold_stock_rate
+		,convert(((SELECT SUM(pay_amount) FROM payment p WHERE p.contributive_id = ins.invest_subject_id AND p.payment_type = '2')/10000),decimal(18,2)) as realInvestAmount
+		,ins.term,ins.dividend_type,(select t1.value_des FROM dict_detail t1 WHERE t1.pid = ins.dividend_type) AS dividendTypeName
+		,ins.annualized_interest_rate,convert((ins.expect_all_receiver_account/10000),decimal(18,2)) as expect_all_receiver_account
+		,convert(((SELECT SUM(pay_amount) FROM payment p WHERE p.contributive_id = ins.invest_subject_id AND p.payment_type = '2')/10000),decimal(18,2)) as receivedPrincipal
+		,convert(((SELECT SUM(pay_amount) FROM payment p WHERE p.contributive_id = ins.invest_subject_id AND p.payment_type = '2')/10000),decimal(18,2)) as receivedProfit
+		FROM invest_subject ins 
+		LEFT JOIN invest_manage_plan imp ON imp.pid = ins.invest_manange_id AND imp.`status` = '1'
+		LEFT JOIN stockholder_info si ON si.pid = imp.stockholder_id AND si.`status` = '1'
+		LEFT JOIN corporation_info ci ON ci.pid = ins.invest_subject_id AND ci.`status` = 1 
+		LEFT JOIN project_info pi ON pi.pid = ins.prj_id AND pi.`STATUS` = 1
+	<where>
+		ins.invest_type = '1'
+		AND ins.`status` = '1'
+		<if test="conditions.projectName != null and conditions.projectName != ''">
+	       AND pi.project_name like concat('%',#{conditions.projectName,jdbcType=VARCHAR},'%')
+	    </if>
+		<if test="conditions.investSubjectCorpId != null and conditions.investSubjectCorpId != ''">
+	       AND ins.invest_subject_id = #{conditions.investSubjectCorpId,jdbcType=VARCHAR}
+	    </if>
+		<if test="conditions.contributiveType != null and conditions.contributiveType != ''">
+	       AND ins.contributive_type = #{conditions.contributiveType,jdbcType=VARCHAR}
+	    </if>
+    </where>
+  	) p
+  </select>
+  
+</mapper>

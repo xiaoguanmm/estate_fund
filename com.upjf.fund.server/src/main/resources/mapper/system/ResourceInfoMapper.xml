@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.upjf.fund.service.impl.system.mapper.ResourceInfoMapper">
+  <resultMap id="BaseResultMap" type="com.upjf.fund.dto.ResourceInfo">
+    <id column="pid" jdbcType="VARCHAR" property="pid" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="url" jdbcType="VARCHAR" property="url" />
+    <result column="parent_id" jdbcType="VARCHAR" property="parentId" />
+    <result column="level" jdbcType="INTEGER" property="level" />
+    <result column="series_no" jdbcType="INTEGER" property="seriesNo" />
+    <result column="create_id" jdbcType="VARCHAR" property="createId" />
+    <result column="create_date" jdbcType="TIMESTAMP" property="createDate" />
+    <result column="status" jdbcType="CHAR" property="status" />
+    <result column="remark" jdbcType="VARCHAR" property="remark" />
+    <result column="icon" jdbcType="VARCHAR" property="icon" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    pid, name, url, parent_id, level, series_no, create_id, create_date, status, remark, icon
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from resource_info
+    where pid = #{pid,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from resource_info
+    where pid = #{pid,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.upjf.fund.dto.ResourceInfo">
+    insert into resource_info (pid, name, url, 
+      parent_id, level, series_no, 
+      create_id, create_date, status, 
+      remark,icon)
+    values (#{pid,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{url,jdbcType=VARCHAR}, 
+      #{parentId,jdbcType=VARCHAR}, #{level,jdbcType=INTEGER}, #{seriesNo,jdbcType=INTEGER}, 
+      #{createId,jdbcType=VARCHAR}, #{createDate,jdbcType=TIMESTAMP}, #{status,jdbcType=CHAR}, 
+      #{remark,jdbcType=VARCHAR}, #{icon,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.upjf.fund.dto.ResourceInfo">
+    insert into resource_info
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="pid != null">
+        pid,
+      </if>
+      <if test="name != null">
+        name,
+      </if>
+      <if test="url != null">
+        url,
+      </if>
+      <if test="parentId != null">
+        parent_id,
+      </if>
+      <if test="level != null">
+        level,
+      </if>
+      <if test="seriesNo != null">
+        series_no,
+      </if>
+      <if test="createId != null">
+        create_id,
+      </if>
+      <if test="createDate != null">
+        create_date,
+      </if>
+      <if test="status != null">
+        status,
+      </if>
+      <if test="remark != null">
+        remark,
+      </if>
+      <if test="icon != null">
+        icon,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="pid != null">
+        #{pid,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null">
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="url != null">
+        #{url,jdbcType=VARCHAR},
+      </if>
+      <if test="parentId != null">
+        #{parentId,jdbcType=VARCHAR},
+      </if>
+      <if test="level != null">
+        #{level,jdbcType=INTEGER},
+      </if>
+      <if test="seriesNo != null">
+        #{seriesNo,jdbcType=INTEGER},
+      </if>
+      <if test="createId != null">
+        #{createId,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null">
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=CHAR},
+      </if>
+      <if test="remark != null">
+        #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="icon != null">
+        #{icon,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.upjf.fund.dto.ResourceInfo">
+    update resource_info
+    <set>
+      <if test="name != null">
+        name = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="url != null">
+        url = #{url,jdbcType=VARCHAR},
+      </if>
+      <if test="parentId != null">
+        parent_id = #{parentId,jdbcType=VARCHAR},
+      </if>
+      <if test="level != null">
+        level = #{level,jdbcType=INTEGER},
+      </if>
+      <if test="seriesNo != null">
+        series_no = #{seriesNo,jdbcType=INTEGER},
+      </if>
+      <if test="createId != null">
+        create_id = #{createId,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null">
+        create_date = #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="status != null">
+        status = #{status,jdbcType=CHAR},
+      </if>
+      <if test="remark != null">
+        remark = #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="icon != null">
+        icon = #{icon,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where pid = #{pid,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.upjf.fund.dto.ResourceInfo">
+    update resource_info
+    set name = #{name,jdbcType=VARCHAR},
+      url = #{url,jdbcType=VARCHAR},
+      parent_id = #{parentId,jdbcType=VARCHAR},
+      level = #{level,jdbcType=INTEGER},
+      series_no = #{seriesNo,jdbcType=INTEGER},
+      create_id = #{createId,jdbcType=VARCHAR},
+      create_date = #{createDate,jdbcType=TIMESTAMP},
+      status = #{status,jdbcType=CHAR},
+      remark = #{remark,jdbcType=VARCHAR},
+      icon = #{icon,jdbcType=VARCHAR}
+    where pid = #{pid,jdbcType=VARCHAR}
+  </update>
+  
+  <select id="findMenusByUserPid" parameterType="string" resultType="map">
+	 select distinct resource_info.* from 
+	  resource_info,
+	  role_info,
+	  user_role,
+	  user_info,
+	  authority,
+	  role_resource_operator
+	where role_resource_operator.role_id = role_info.pid 
+	and role_resource_operator.authority_id = authority.pid
+	and authority.resource_id = resource_info.pid
+	and role_info.pid = user_role.role_id 
+	and user_role.user_id = user_info.pid
+	and user_info.pid=  #{pid,jdbcType=VARCHAR}
+	and resource_info.status = '1'
+	and authority.type = '0'
+	order by resource_info.level,resource_info.series_no;
+  </select>
+  
+  
+   <select id="findAllMenus" resultType="map">
+  	select 
+  		<include refid="Base_Column_List"/>
+  	from 
+  		resource_info
+  		order by level,series_no
+  </select>
+  
+  <select id="getMaxPidMenu" resultType="string">
+  	select max(CAST(pid AS UNSIGNED)) from resource_info
+  </select>
+  
+  <update id="reSortRecourceInfo">
+  	update resource_info set  
+  	<choose>
+  		<when test="mathParam == 'plus'.toString()">
+  			series_no=series_no+1
+  		</when>
+  		<otherwise>
+  			series_no=series_no-1
+  		</otherwise>
+  	</choose>
+  	where 
+  	parent_id = #{parentId,jdbcType=VARCHAR} 
+  	and series_no &gt;=#{seriesNo,jdbcType=INTEGER}
+  </update>
+  
+  <update id="updateMenuByParentAndSerierNo">
+  	update resource_info set 
+  		series_no = #{oriSeriesNo,jdbcType=INTEGER}
+  		where parent_id = #{parentId,jdbcType=VARCHAR}
+  		and series_no = #{seriesNo,jdbcType=INTEGER}
+  </update>
+</mapper>

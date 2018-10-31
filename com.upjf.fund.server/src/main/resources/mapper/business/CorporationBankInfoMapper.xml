@@ -1,0 +1,292 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.upjf.fund.service.impl.business.mapper.CorporationBankInfoMapper">
+  <resultMap id="BaseResultMap" type="com.upjf.fund.dto.CorporationBankInfo">
+    <id column="pid" jdbcType="VARCHAR" property="pid" />
+    <result column="corp_id" jdbcType="VARCHAR" property="corpId" />
+    <result column="account_name" jdbcType="VARCHAR" property="accountName" />
+    <result column="bank_id" jdbcType="VARCHAR" property="bankId" />
+    <result column="account" jdbcType="VARCHAR" property="account" />
+    <result column="remark" jdbcType="VARCHAR" property="remark" />
+    <result column="status" jdbcType="INTEGER" property="status" />
+    <result column="create_date" jdbcType="TIMESTAMP" property="createDate" />
+    <result column="create_id" jdbcType="VARCHAR" property="createId" />
+    <result column="update_date" jdbcType="TIMESTAMP" property="updateDate" />
+    <result column="update_id" jdbcType="VARCHAR" property="updateId" />
+    
+    <!-- 额外新增的返回值字段,非数据库拥有 -->
+    <result column="value_des" jdbcType="VARCHAR" property="bankName" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    pid, corp_id, account_name, bank_id, account, remark, status,create_date, create_id, update_date, 
+    update_id
+  </sql>
+  
+  
+  <!-- 根据主键查询获取企业银行信息 -->
+  <select id="getCorporationBankByKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from corporation_bank_info
+    where pid = #{pid}
+  </select>
+  
+  <!-- 根据企业主键查询获取该企业银行信息 -->
+  <select id="getBankInfoByComPanyPid" parameterType="java.lang.String" resultType="java.util.Map">
+    SELECT 
+	  DISTINCT(b.`pid`) AS dataValue,
+	  b.`value_des` AS dataText
+	FROM
+	  corporation_bank_info a 
+	  INNER JOIN dict_detail b 
+	    ON a.`bank_id` = b.`pid` 
+	WHERE a.`corp_id` = #{companyPid} 
+	  AND a.`status` = 1 
+  </select>
+  
+  <!-- 根据银行主键及企业主键,查询获取有效状态的企业银行账号信息 -->
+  <select id="getBankInfoByComPanyPidAndBankId" parameterType="java.lang.String" resultType="java.util.Map">
+    SELECT 
+	  a.`account` AS dataValue,
+	  a.`account` AS dataText
+	FROM
+	  corporation_bank_info a 
+	WHERE a.`corp_id` = #{companyPid} 
+	  AND a.`bank_id` = #{bankId}
+	  AND a.`status` = 1 
+  </select>
+  
+  <!-- 根据条件分页查询获取企业信息 -->
+  <select id="getCorporationBankListByPage" parameterType="java.util.Map" resultMap="BaseResultMap">
+    select 
+    	a.*,b.value_des
+    from corporation_bank_info a
+    left join dict_detail b on a.bank_id = b.pid
+    <where>
+      <if test="corpId != null and corpId != ''">
+        and a.corp_id = #{corpId}
+      </if>
+      <if test="accountName != null and accountName !=''">
+        and a.account_name like "%"#{accountName}"%"
+      </if>
+      <if test="bankId != null and bankId !=''">
+        and a.bank_id=#{bankId}
+      </if>
+      <if test="account != null and account !=''">
+        and a.account=#{account}
+      </if>
+      <if test="remark != null and remark !=''">
+        and a.remark like "%"#{remark}"%"
+      </if>
+      <if test="status != null">
+        and a.status = #{status}
+      </if>
+      <if test="createId != null and createId != ''">
+        and a.create_id = #{createId}
+      </if>
+      <if test="updateId != null and updateId != ''">
+        and a.update_id=#{updateId}
+      </if>
+    </where>
+    	order by a.update_date desc,a.create_date desc
+    <if test="startIndex != null  and pageSize != null">
+  		limit #{startIndex},#{pageSize}
+    </if>
+  </select>
+  
+  <!-- 根据条件,查询获取命中企业银行数量 -->
+  <select id="getTotalCount" parameterType="com.upjf.fund.dto.CorporationBankInfo" resultType="java.lang.Integer">
+    select 
+    	count(1)
+    from corporation_bank_info
+    <where>
+      <if test="corpId != null and corpId != ''">
+        and corp_id = #{corpId}
+      </if>
+      <if test="accountName != null and accountName !=''">
+        and account_name like "%"#{accountName}"%"
+      </if>
+      <if test="bankId != null and bankId !=''">
+        and bank_id=#{bankId}
+      </if>
+      <if test="account != null and account !=''">
+        and account=#{account}
+      </if>
+      <if test="remark != null and remark !=''">
+        and remark like "%"#{remark}"%"
+      </if>
+      <if test="status != null">
+        and status = #{status}
+      </if>
+      <if test="createId != null and createId != ''">
+        and create_id = #{createId}
+      </if>
+      <if test="updateId != null and updateId != ''">
+        and update_id = #{updateId}
+      </if>
+    </where>
+  </select>
+  
+  <!-- 根据主键删除企业银行信息 -->
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from corporation_bank_info
+    where pid = #{pid}
+  </delete>
+  
+   <!-- 批量删除企业银行信息 -->
+  <update id="updateCorBankInfoByCorPids" parameterType="java.util.Map">
+    update  corporation_bank_info
+    <set>
+    	<if test="status != null">
+    		status=#{status},
+    	</if>
+    	<if test="updateDate != null">
+    		update_date=#{updateDate},
+    	</if>
+    	<if test="updateId != null and updateId !=''">
+    		update_id=#{updateId},
+    	</if>
+    </set>
+    where corp_id in 
+    <foreach collection="pids" open="(" separator="," close=")" item="corPid">
+    	#{corPid}
+    </foreach>
+  </update>
+  
+  
+  
+  <!-- 保存企业银行信息 -->
+  <insert id="insertCorporationBank" parameterType="com.upjf.fund.dto.CorporationBankInfo">
+    insert into corporation_bank_info
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="pid != null and pid != ''">
+        pid,
+      </if>
+      <if test="corpId != null and corpId != ''">
+        corp_id,
+      </if>
+      <if test="accountName != null and accountName !=''">
+        account_name,
+      </if>
+      <if test="bankId != null and bankId !=''">
+        bank_id,
+      </if>
+      <if test="account != null and account !=''">
+        account,
+      </if>
+      <if test="remark != null and remark !=''">
+        remark,
+      </if>
+      <if test="status != null">
+        status,
+      </if>
+      <if test="createDate != null">
+        create_date,
+      </if>
+      <if test="createId != null and createId != ''">
+        create_id,
+      </if>
+      <if test="updateDate != null">
+        update_date,
+      </if>
+      <if test="updateId != null and updateId != ''">
+        update_id,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+       <if test="pid != null and pid !=''">
+        #{pid,jdbcType=VARCHAR},
+      </if>
+      <if test="corpId != null and corpId != ''">
+        #{corpId,jdbcType=VARCHAR},
+      </if>
+      <if test="accountName != null and accountName !=''">
+        #{accountName,jdbcType=VARCHAR},
+      </if>
+      <if test="bankId != null and bankId !=''">
+        #{bankId,jdbcType=VARCHAR},
+      </if>
+      <if test="account != null and account !=''">
+        #{account,jdbcType=VARCHAR},
+      </if>
+      <if test="remark != null and remark !=''">
+        #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=INTEGER},
+      </if>
+      <if test="createDate != null">
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createId != null and createId !=''">
+        #{createId,jdbcType=VARCHAR},
+      </if>
+      <if test="updateDate != null">
+        #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateId != null and updateId !=''">
+        #{updateId,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  
+  <!-- 根据主键更新企业银行信息 -->
+  <update id="updateCorporationBankByKey" parameterType="com.upjf.fund.dto.CorporationBankInfo">
+    update corporation_bank_info
+    <set>
+      <if test="corpId != null and corpId != ''">
+        corp_id = #{corpId,jdbcType=VARCHAR},
+      </if>
+      <if test="accountName != null and accountName != ''">
+        account_name = #{accountName,jdbcType=VARCHAR},
+      </if>
+      <if test="bankId != null and bankId !=''">
+        bank_id = #{bankId,jdbcType=VARCHAR},
+      </if>
+      <if test="account != null and account != ''">
+        account = #{account,jdbcType=VARCHAR},
+      </if>
+      <if test="remark != null and remark != ''">
+        remark = #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        status = #{status,jdbcType=INTEGER},
+      </if>
+      <if test="createDate != null">
+        create_date = #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createId != null and createId !=''">
+        create_id = #{createId,jdbcType=VARCHAR},
+      </if>
+      <if test="updateDate != null">
+        update_date = #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateId != null and updateId !=''">
+        update_id = #{updateId,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where pid = #{pid,jdbcType=VARCHAR}
+  </update>
+
+ <!-- 根据企业表主键获取企业银行信息  --> 
+ <select id="getSimpleCorpBankInfoByCorpId" resultType="map" parameterType="string">
+ 	select distinct 
+ 		corporation_bank_info.bank_id as pid, 
+ 		dict_detail.value_des as name
+   from corporation_bank_info corporation_bank_info 
+   		inner join 
+   		dict_detail dict_detail 
+   		on 
+   		corporation_bank_info.bank_id = dict_detail.pid
+   where corp_id = #{corpId,jdbcType=VARCHAR}
+ </select>
+ 
+ <!-- 根据corpId及bank_id查询银行账户信息 -->
+ <select id="getInvestSubjectBankAccount" parameterType="string" resultType="string">
+ 	select account from corporation_bank_info 
+ 	where corp_id = #{corpId,jdbcType=VARCHAR} 
+		<if test="bankId !=null and bankId !=''"> 	
+	 	and bank_id = #{bankId,jdbcType=VARCHAR}
+	 	</if>
+ </select>
+</mapper>

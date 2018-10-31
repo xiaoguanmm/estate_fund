@@ -1,0 +1,374 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.upjf.fund.service.impl.system.mapper.UserInfoMapper">
+  <resultMap id="BaseResultMap" type="com.upjf.fund.dto.UserInfo">
+    <id column="pid" jdbcType="VARCHAR" property="pid" />
+    <result column="user_name" jdbcType="VARCHAR" property="userName" />
+    <result column="password" jdbcType="VARCHAR" property="password" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="tel" jdbcType="VARCHAR" property="tel" />
+    <result column="duty" jdbcType="VARCHAR" property="duty" />
+    <result column="birthday" jdbcType="TIMESTAMP" property="birthday" />
+    <result column="sex" jdbcType="CHAR" property="sex" />
+    <result column="department_code" jdbcType="VARCHAR" property="departmentCode" />
+    <result column="is_new" jdbcType="VARCHAR" property="isNew" />
+    <result column="create_id" jdbcType="VARCHAR" property="createId" />
+    <result column="create_date" jdbcType="TIMESTAMP" property="createDate" />
+    <result column="update_id" jdbcType="VARCHAR" property="updateId" />
+    <result column="update_date" jdbcType="TIMESTAMP" property="updateDate" />
+    <result column="status" jdbcType="CHAR" property="status" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    pid, user_name, password, name, tel, duty, birthday, sex,department_code,is_new, create_id, create_date, update_id, update_date,status
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from user_info
+    where pid = #{pid,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from user_info
+    where pid = #{pid,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.upjf.fund.dto.UserInfo">
+    insert into user_info (pid, user_name, password, 
+      name, tel, duty, birthday, 
+      sex, department_code, is_new, create_id, create_date, update_id, update_date,
+      status)
+    values (#{pid,jdbcType=VARCHAR}, #{userName,jdbcType=VARCHAR}, #{password,jdbcType=VARCHAR}, 
+      #{name,jdbcType=VARCHAR}, #{tel,jdbcType=VARCHAR}, #{duty,jdbcType=VARCHAR}, #{birthday,jdbcType=TIMESTAMP}, 
+      #{sex,jdbcType=CHAR}, #{departmentCode,jdbcType=CHAR}, #{isNew,jdbcType=CHAR}, #{createId,jdbcType=VARCHAR}, #{createDate,jdbcType=TIMESTAMP}, #{updateId,jdbcType=VARCHAR}, #{updateDate,jdbcType=TIMESTAMP},
+      #{status,jdbcType=CHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.upjf.fund.dto.UserInfo">
+    insert into user_info
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="pid != null">
+        pid,
+      </if>
+      <if test="userName != null">
+        user_name,
+      </if>
+      <if test="password != null">
+        password,
+      </if>
+      <if test="name != null">
+        name,
+      </if>
+      <if test="tel != null">
+        tel,
+      </if>
+      <if test="duty != null">
+        duty,
+      </if>
+      <if test="birthday != null">
+        birthday,
+      </if>
+      <if test="sex != null">
+        sex,
+      </if>
+      <if test="departmentCode != null">
+        department_code,
+      </if>
+      <if test="isNew != null">
+        is_new,
+      </if>
+      <if test="createId != null">
+        create_id,
+      </if>
+      <if test="createDate != null">
+        create_date,
+      </if>
+      <if test="updateId != null">
+        update_id,
+      </if>
+      <if test="updateDate != null">
+        update_date,
+      </if>
+      <if test="status != null">
+        status,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="pid != null">
+        #{pid,jdbcType=VARCHAR},
+      </if>
+      <if test="userName != null">
+        #{userName,jdbcType=VARCHAR},
+      </if>
+      <if test="password != null">
+        #{password,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null">
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="tel != null">
+        #{tel,jdbcType=VARCHAR},
+      </if>
+      <if test="duty != null">
+        #{duty,jdbcType=VARCHAR},
+      </if>
+      <if test="birthday != null">
+        #{birthday,jdbcType=TIMESTAMP},
+      </if>
+      <if test="sex != null">
+        #{sex,jdbcType=CHAR},
+      </if>
+      <if test="departmentCode != null">
+        #{departmentCode,jdbcType=CHAR},
+      </if>
+      <if test="isNew != null">
+        #{isNew,jdbcType=CHAR},
+      </if>
+      <if test="createId != null">
+        #{createId,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null">
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateId != null">
+        #{updateId,jdbcType=VARCHAR},
+      </if>
+      <if test="updateDate != null">
+        #{update_date,jdbcType=TIMESTAMP},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=CHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.upjf.fund.dto.UserInfo">
+    update user_info
+    <set>
+      <if test="userName != null">
+        user_name = #{userName,jdbcType=VARCHAR},
+      </if>
+      <if test="password != null">
+        password = #{password,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null">
+        name = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="tel != null">
+        tel = #{tel,jdbcType=VARCHAR},
+      </if>
+      <if test="duty != null">
+        duty = #{duty,jdbcType=VARCHAR},
+      </if>
+      <if test="birthday != null">
+        birthday = #{birthday,jdbcType=TIMESTAMP},
+      </if>
+      <if test="sex != null">
+        sex = #{sex,jdbcType=CHAR},
+      </if>
+      <if test="departmentCode != null">
+        department_code = #{departmentCode,jdbcType=CHAR},
+      </if>
+      <if test="isNew != null">
+        is_new = #{isNew,jdbcType=CHAR},
+      </if>
+      <if test="createId != null">
+        create_id = #{createId,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null">
+        create_date = #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateId != null">
+        update_id = #{updateId,jdbcType=VARCHAR},
+      </if>
+      <if test="updateDate != null">
+        update_date = #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="status != null">
+        status = #{status,jdbcType=CHAR},
+      </if>
+    </set>
+    where pid = #{pid,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.upjf.fund.dto.UserInfo">
+    update user_info
+    set user_name = #{userName,jdbcType=VARCHAR},
+      password = #{password,jdbcType=VARCHAR},
+      name = #{name,jdbcType=VARCHAR},
+      tel = #{tel,jdbcType=VARCHAR},
+      duty = #{duty,jdbcType=VARCHAR},
+      birthday = #{birthday,jdbcType=TIMESTAMP},
+      sex = #{sex,jdbcType=CHAR},
+      department_code = #{departmentCode,jdbcType=CHAR},
+      is_new = #{isNew,jdbcType=CHAR},
+      create_id = #{createId,jdbcType=VARCHAR},
+      create_date = #{createDate,jdbcType=TIMESTAMP},
+      update_id = #{updateId,jdbcType=VARCHAR},
+      update_date = #{updateDate,jdbcType=TIMESTAMP},
+      status = #{status,jdbcType=CHAR}
+    where pid = #{pid,jdbcType=VARCHAR}
+  </update>
+   <select id="getUserInfoByUserName" parameterType="string" resultMap="BaseResultMap">
+  	select <include refid="Base_Column_List"/>
+  	from user_info
+  	 where user_name = #{userName,jdbcType=VARCHAR}
+  </select>
+  
+  <update id="updatePasswordByPid" parameterType="string">
+  	update user_info
+  	set password = #{password,jdbcType=VARCHAR}
+  	where pid = #{pid,jdbcType=VARCHAR}
+  </update>
+  
+<select id="getUserInfoByCondition" resultType="map">
+	select t1.pid, 
+	t1.user_name, 
+	t1.password, 
+	t1.name, 
+	t1.tel, 
+	t1.duty, 
+	t1.birthday,
+ 	t1.sex,
+ 	t1.department_code,
+ 	(select t3.value_des from dict_detail t3 inner join dict_info t2 on t3.dict_info_id = t2.pid where t2.code='DEPARTMENT' and t3.value=t1.department_code) as department,
+ (select t2.user_name from user_info t2 where t1.create_id = t2.pid) as create_user_name, 
+ 	t1.create_date, 
+(select t2.user_name from user_info t2 where t1.update_id = t2.pid) as update_user_name, update_date,
+(select t3.value_des from dict_detail t3 inner join dict_info t2 on t3.dict_info_id = t2.pid where t2.code='STATUS' and t3.value=t1.status) as status_name,
+	t1.status
+from user_info t1 where 1=1 
+	<if test="userInfo.userName != null and userInfo.userName != ''">
+       and t1.user_name like concat('%',#{userInfo.userName,jdbcType=VARCHAR},'%')
+      </if>
+      <if test="userInfo.name != null and userInfo.name != ''">
+       and t1.name like concat('%',#{userInfo.name,jdbcType=VARCHAR},'%')
+      </if>
+      <if test="userInfo.status != null and userInfo.status != ''">
+        and t1.status = #{userInfo.status,jdbcType=CHAR}
+      </if>
+      order by t1.create_date desc,t1.update_date desc limit ${offset},${pageRows}
+</select>
+
+<select id="countUserInfoByCondition" resultType="integer">
+	select count(1) from user_info
+	where 1=1
+	<if test="userName != null and userName != ''">
+       and user_name like concat('%',#{userName,jdbcType=VARCHAR},'%')
+      </if>
+      <if test="name != null and name != ''">
+       and name like concat('%',#{name,jdbcType=VARCHAR},'%')
+      </if>
+      <if test="status != null and status != ''">
+       and status = #{status,jdbcType=CHAR}
+      </if>
+</select>
+
+<insert id="addUserInfo" parameterType="com.upjf.fund.dto.UserInfo">
+insert into user_info
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+        pid,
+      <if test="userName != null">
+        user_name,
+      </if>
+      <if test="password != null">
+        password,
+      </if>
+      <if test="name != null">
+        name,
+      </if>
+      <if test="tel != null">
+        tel,
+      </if>
+      <if test="duty != null">
+        duty,
+      </if>
+      <if test="birthday != null">
+        birthday,
+      </if>
+      <if test="sex != null">
+        sex,
+      </if>
+      <if test="departmentCode != null">
+        department_code,
+      </if>
+       <if test="isNew != null">
+        is_new,
+      </if>
+      <if test="createId != null">
+        create_id,
+      </if>
+      <if test="createDate != null">
+        create_date,
+      </if>
+      <if test="updateId != null">
+        update_id,
+      </if>
+      <if test="updateDate != null">
+        update_date,
+      </if>
+      <if test="status != null">
+        status,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="pid != null">
+        #{pid,jdbcType=VARCHAR},
+      </if>
+      <if test="userName != null">
+        #{userName,jdbcType=VARCHAR},
+      </if>
+      <if test="password != null">
+        #{password,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null">
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="tel != null">
+        #{tel,jdbcType=VARCHAR},
+      </if>
+      <if test="duty != null">
+        #{duty,jdbcType=VARCHAR},
+      </if>
+      <if test="birthday != null">
+        #{birthday,jdbcType=TIMESTAMP},
+      </if>
+      <if test="sex != null">
+        #{sex,jdbcType=CHAR},
+      </if>
+      <if test="departmentCode != null">
+        #{departmentCode,jdbcType=CHAR},
+      </if>
+      <if test="isNew != null">
+        #{isNew,jdbcType=CHAR},
+      </if>
+      <if test="createId != null">
+        #{createId,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null">
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateId != null">
+        #{updateId,jdbcType=VARCHAR},
+      </if>
+      <if test="updateDate != null">
+        #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=CHAR},
+      </if>
+    </trim>
+</insert>
+
+<update id="switchStatus" parameterType="string">
+	update user_info set status = #{status,jdbcType=CHAR}
+	where pid = #{pid,jdbcType=VARCHAR} 
+</update>
+
+<update id="updateNewUserPasswordByPid">
+	update user_info
+  	set password = #{password,jdbcType=VARCHAR},
+  		is_new = #{no,jdbcType=VARCHAR}
+  	where pid = #{pid,jdbcType=VARCHAR}
+</update>
+
+<delete id="deleteUserRoleByPid">
+	delete from user_role where user_id = #{pid,jdbcType=VARCHAR}
+</delete>
+
+</mapper>

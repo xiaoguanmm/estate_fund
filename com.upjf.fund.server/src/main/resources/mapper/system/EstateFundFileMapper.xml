@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.upjf.fund.service.impl.system.mapper.EstateFundFileMapper">
+  <resultMap id="BaseResultMap" type="com.upjf.fund.dto.EstateFundFile">
+    <id column="pid" jdbcType="VARCHAR" property="pid" />
+    <result column="file_name" jdbcType="VARCHAR" property="fileName" />
+    <result column="real_name" jdbcType="VARCHAR" property="realName" />
+    <result column="file_type" jdbcType="VARCHAR" property="fileType" />
+    <result column="file_size" jdbcType="BIGINT" property="fileSize" />
+    <result column="file_url" jdbcType="VARCHAR" property="fileUrl" />
+    <result column="create_date" jdbcType="TIMESTAMP" property="createDate" />
+    <result column="create_id" jdbcType="VARCHAR" property="createId" />
+    <result column="update_date" jdbcType="TIMESTAMP" property="updateDate" />
+    <result column="update_id" jdbcType="VARCHAR" property="updateId" />
+    <result column="status" jdbcType="VARCHAR" property="status" />
+    <result column="remark" jdbcType="VARCHAR" property="remark" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    pid, file_name, real_name, file_type, file_size, file_url, create_date, create_id, 
+    update_date, update_id, status, remark
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from estate_fund_file
+    where pid = #{pid,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from estate_fund_file
+    where pid = #{pid,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.upjf.fund.dto.EstateFundFile">
+    <selectKey keyProperty="pid" order="AFTER" resultType="java.lang.String">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into estate_fund_file (file_name, real_name, file_type, 
+      file_size, file_url, create_date, 
+      create_id, update_date, update_id, 
+      status, remark)
+    values (#{fileName,jdbcType=VARCHAR}, #{realName,jdbcType=VARCHAR}, #{fileType,jdbcType=VARCHAR}, 
+      #{fileSize,jdbcType=BIGINT}, #{fileUrl,jdbcType=VARCHAR}, #{createDate,jdbcType=TIMESTAMP}, 
+      #{createId,jdbcType=VARCHAR}, #{updateDate,jdbcType=TIMESTAMP}, #{updateId,jdbcType=VARCHAR}, 
+      #{status,jdbcType=VARCHAR}, #{remark,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.upjf.fund.dto.EstateFundFile">
+    <selectKey keyProperty="pid" order="AFTER" resultType="java.lang.String">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into estate_fund_file
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="fileName != null">
+        file_name,
+      </if>
+      <if test="realName != null">
+        real_name,
+      </if>
+      <if test="fileType != null">
+        file_type,
+      </if>
+      <if test="fileSize != null">
+        file_size,
+      </if>
+      <if test="fileUrl != null">
+        file_url,
+      </if>
+      <if test="createDate != null">
+        create_date,
+      </if>
+      <if test="createId != null">
+        create_id,
+      </if>
+      <if test="updateDate != null">
+        update_date,
+      </if>
+      <if test="updateId != null">
+        update_id,
+      </if>
+      <if test="status != null">
+        status,
+      </if>
+      <if test="remark != null">
+        remark,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="fileName != null">
+        #{fileName,jdbcType=VARCHAR},
+      </if>
+      <if test="realName != null">
+        #{realName,jdbcType=VARCHAR},
+      </if>
+      <if test="fileType != null">
+        #{fileType,jdbcType=VARCHAR},
+      </if>
+      <if test="fileSize != null">
+        #{fileSize,jdbcType=BIGINT},
+      </if>
+      <if test="fileUrl != null">
+        #{fileUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null">
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createId != null">
+        #{createId,jdbcType=VARCHAR},
+      </if>
+      <if test="updateDate != null">
+        #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateId != null">
+        #{updateId,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=VARCHAR},
+      </if>
+      <if test="remark != null">
+        #{remark,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  
+  <!-- 根据主键变更文件信息 -->
+  <update id="updateByPrimaryKeySelective" parameterType="com.upjf.fund.dto.EstateFundFile">
+    update estate_fund_file
+    <set>
+      <if test="fileName != null and fileName !=''">
+        file_name = #{fileName,jdbcType=VARCHAR},
+      </if>
+      <if test="realName != null and realName !=''">
+        real_name = #{realName,jdbcType=VARCHAR},
+      </if>
+      <if test="fileType != null and fileType !=''">
+        file_type = #{fileType,jdbcType=VARCHAR},
+      </if>
+      <if test="fileSize != null">
+        file_size = #{fileSize,jdbcType=BIGINT},
+      </if>
+      <if test="fileUrl != null and fileUrl !=''">
+        file_url = #{fileUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null">
+        create_date = #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createId != null and createId !=''">
+        create_id = #{createId,jdbcType=VARCHAR},
+      </if>
+      <if test="updateDate != null">
+        update_date = #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateId != null and updateId !=''">
+        update_id = #{updateId,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null and status !=''">
+        status = #{status,jdbcType=VARCHAR},
+      </if>
+      <if test="remark != null and remark !=''">
+        remark = #{remark,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where pid = #{pid,jdbcType=VARCHAR}
+  </update>
+  
+  
+  
+  <update id="updateByPrimaryKey" parameterType="com.upjf.fund.dto.EstateFundFile">
+    update estate_fund_file
+    set file_name = #{fileName,jdbcType=VARCHAR},
+      real_name = #{realName,jdbcType=VARCHAR},
+      file_type = #{fileType,jdbcType=VARCHAR},
+      file_size = #{fileSize,jdbcType=BIGINT},
+      file_url = #{fileUrl,jdbcType=VARCHAR},
+      create_date = #{createDate,jdbcType=TIMESTAMP},
+      create_id = #{createId,jdbcType=VARCHAR},
+      update_date = #{updateDate,jdbcType=TIMESTAMP},
+      update_id = #{updateId,jdbcType=VARCHAR},
+      status = #{status,jdbcType=VARCHAR},
+      remark = #{remark,jdbcType=VARCHAR}
+    where pid = #{pid,jdbcType=VARCHAR}
+  </update>
+  <insert id="batchInsertFiles" parameterType="com.upjf.fund.dto.EstateFundFile">
+	  	insert into estate_fund_file(
+	  		  pid, 
+	  		  file_name, 
+	  		  real_name,
+	  		  file_type, 
+	  		  file_size, 
+	  		  file_url, 
+	  		  create_date, 
+	  		  create_id
+	  	)
+	  	values
+	  	<foreach collection="files" item="file" separator=",">
+	  		(
+	  			#{file.pid},
+	  			#{file.fileName},
+	  			#{file.realName},
+	  			#{file.fileType},
+	  			#{file.fileSize},
+	  			#{file.fileUrl},
+	  			#{file.createDate},
+	  			#{file.createId}
+	  		)
+	  	</foreach>
+  </insert>
+  <update id="updateFileStatus" parameterType="string">
+  	update estate_fund_file
+    set status = #{status,jdbcType=VARCHAR}
+    where pid = #{pid,jdbcType=VARCHAR}
+  </update>
+  
+  <!-- 根据文件主键批量变更文件状态(伪删除) -->
+  <update id="delEstateFundFileByPids" parameterType="java.util.Map">
+    update  estate_fund_file a
+    SET
+  		a.`status` = '0',
+    	a.`update_date` = #{updateDate},
+    	a.`update_id` = #{updateId}
+    where a.`pid` in 
+    <foreach collection="idList" open="(" separator="," close=")" item="pid">
+    	#{pid}
+    </foreach>
+  </update>
+</mapper>

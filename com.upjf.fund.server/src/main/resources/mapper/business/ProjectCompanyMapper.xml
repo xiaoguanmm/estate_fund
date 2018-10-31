@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.upjf.fund.service.impl.business.mapper.ProjectCompanyMapper">
+  <resultMap id="BaseResultMap" type="com.upjf.fund.dto.ProjectCompany">
+    <id column="pid" jdbcType="VARCHAR" property="pid" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="simple_name" jdbcType="VARCHAR" property="simpleName" />
+    <result column="org_code_cert" jdbcType="DECIMAL" property="orgCodeCert" />
+    <result column="business_licence_code" jdbcType="DECIMAL" property="businessLicenceCode" />
+    <result column="legal_representative" jdbcType="VARCHAR" property="legalRepresentative" />
+    <result column="register_capital" jdbcType="DECIMAL" property="registerCapital" />
+    <result column="customer_manager" jdbcType="VARCHAR" property="customerManager" />
+    <result column="phone" jdbcType="VARCHAR" property="phone" />
+    <result column="corp_quality" jdbcType="VARCHAR" property="corpQuality" />
+    <result column="create_date" jdbcType="TIMESTAMP" property="createDate" />
+    <result column="create_id" jdbcType="VARCHAR" property="createId" />
+    <result column="update_date" jdbcType="TIMESTAMP" property="updateDate" />
+    <result column="update_id" jdbcType="VARCHAR" property="updateId" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    pid, name, simple_name, org_code_cert, business_licence_code, legal_representative, 
+    register_capital, customer_manager, phone, corp_quality, create_date, create_id, 
+    update_date, update_id
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from project_company
+    where pid = #{pid,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from project_company
+    where pid = #{pid,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.upjf.fund.dto.ProjectCompany">
+    <selectKey keyProperty="pid" order="AFTER" resultType="java.lang.String">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into project_company (name, simple_name, org_code_cert, 
+      business_licence_code, legal_representative, 
+      register_capital, customer_manager, phone, 
+      corp_quality, create_date, create_id, 
+      update_date, update_id)
+    values (#{name,jdbcType=VARCHAR}, #{simpleName,jdbcType=VARCHAR}, #{orgCodeCert,jdbcType=DECIMAL}, 
+      #{businessLicenceCode,jdbcType=DECIMAL}, #{legalRepresentative,jdbcType=VARCHAR}, 
+      #{registerCapital,jdbcType=DECIMAL}, #{customerManager,jdbcType=VARCHAR}, #{phone,jdbcType=VARCHAR}, 
+      #{corpQuality,jdbcType=VARCHAR}, #{createDate,jdbcType=TIMESTAMP}, #{createId,jdbcType=VARCHAR}, 
+      #{updateDate,jdbcType=TIMESTAMP}, #{updateId,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.upjf.fund.dto.ProjectCompany">
+    <selectKey keyProperty="pid" order="AFTER" resultType="java.lang.String">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into project_company
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="name != null">
+        name,
+      </if>
+      <if test="simpleName != null">
+        simple_name,
+      </if>
+      <if test="orgCodeCert != null">
+        org_code_cert,
+      </if>
+      <if test="businessLicenceCode != null">
+        business_licence_code,
+      </if>
+      <if test="legalRepresentative != null">
+        legal_representative,
+      </if>
+      <if test="registerCapital != null">
+        register_capital,
+      </if>
+      <if test="customerManager != null">
+        customer_manager,
+      </if>
+      <if test="phone != null">
+        phone,
+      </if>
+      <if test="corpQuality != null">
+        corp_quality,
+      </if>
+      <if test="createDate != null">
+        create_date,
+      </if>
+      <if test="createId != null">
+        create_id,
+      </if>
+      <if test="updateDate != null">
+        update_date,
+      </if>
+      <if test="updateId != null">
+        update_id,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="name != null">
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="simpleName != null">
+        #{simpleName,jdbcType=VARCHAR},
+      </if>
+      <if test="orgCodeCert != null">
+        #{orgCodeCert,jdbcType=DECIMAL},
+      </if>
+      <if test="businessLicenceCode != null">
+        #{businessLicenceCode,jdbcType=DECIMAL},
+      </if>
+      <if test="legalRepresentative != null">
+        #{legalRepresentative,jdbcType=VARCHAR},
+      </if>
+      <if test="registerCapital != null">
+        #{registerCapital,jdbcType=DECIMAL},
+      </if>
+      <if test="customerManager != null">
+        #{customerManager,jdbcType=VARCHAR},
+      </if>
+      <if test="phone != null">
+        #{phone,jdbcType=VARCHAR},
+      </if>
+      <if test="corpQuality != null">
+        #{corpQuality,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null">
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createId != null">
+        #{createId,jdbcType=VARCHAR},
+      </if>
+      <if test="updateDate != null">
+        #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateId != null">
+        #{updateId,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.upjf.fund.dto.ProjectCompany">
+    update project_company
+    <set>
+      <if test="name != null">
+        name = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="simpleName != null">
+        simple_name = #{simpleName,jdbcType=VARCHAR},
+      </if>
+      <if test="orgCodeCert != null">
+        org_code_cert = #{orgCodeCert,jdbcType=DECIMAL},
+      </if>
+      <if test="businessLicenceCode != null">
+        business_licence_code = #{businessLicenceCode,jdbcType=DECIMAL},
+      </if>
+      <if test="legalRepresentative != null">
+        legal_representative = #{legalRepresentative,jdbcType=VARCHAR},
+      </if>
+      <if test="registerCapital != null">
+        register_capital = #{registerCapital,jdbcType=DECIMAL},
+      </if>
+      <if test="customerManager != null">
+        customer_manager = #{customerManager,jdbcType=VARCHAR},
+      </if>
+      <if test="phone != null">
+        phone = #{phone,jdbcType=VARCHAR},
+      </if>
+      <if test="corpQuality != null">
+        corp_quality = #{corpQuality,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null">
+        create_date = #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createId != null">
+        create_id = #{createId,jdbcType=VARCHAR},
+      </if>
+      <if test="updateDate != null">
+        update_date = #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateId != null">
+        update_id = #{updateId,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where pid = #{pid,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.upjf.fund.dto.ProjectCompany">
+    update project_company
+    set name = #{name,jdbcType=VARCHAR},
+      simple_name = #{simpleName,jdbcType=VARCHAR},
+      org_code_cert = #{orgCodeCert,jdbcType=DECIMAL},
+      business_licence_code = #{businessLicenceCode,jdbcType=DECIMAL},
+      legal_representative = #{legalRepresentative,jdbcType=VARCHAR},
+      register_capital = #{registerCapital,jdbcType=DECIMAL},
+      customer_manager = #{customerManager,jdbcType=VARCHAR},
+      phone = #{phone,jdbcType=VARCHAR},
+      corp_quality = #{corpQuality,jdbcType=VARCHAR},
+      create_date = #{createDate,jdbcType=TIMESTAMP},
+      create_id = #{createId,jdbcType=VARCHAR},
+      update_date = #{updateDate,jdbcType=TIMESTAMP},
+      update_id = #{updateId,jdbcType=VARCHAR}
+    where pid = #{pid,jdbcType=VARCHAR}
+  </update>
+</mapper>

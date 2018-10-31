@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd   
+       http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.3.xsd   
+       http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.3.xsd   
+       http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd
+       http://code.alibabatech.com/schema/dubbo
+       http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
+	
+	 <!-- 企业信息服务接口 -->
+     <dubbo:service interface="com.upjf.fund.service.business.CorporationService"  ref="corporationService" />  
+     <!-- 企业项目关系服务端 -->
+     <dubbo:service interface="com.upjf.fund.service.business.BusinessPrjInfoService"  ref="businessPrjInfoService" /> 
+     <!-- 企业资料扫描件服务端 -->
+     <dubbo:service interface="com.upjf.fund.service.business.CorporationDataInfoService"  ref="corporationDataInfoService" /> 
+     <!-- 企业银行信息服务接口 -->
+     <dubbo:service interface="com.upjf.fund.service.business.CorporationBankService"  ref="corporationBankService" /> 
+     <!-- 项目基本信息服务接口 -->
+     <dubbo:service interface="com.upjf.fund.service.business.ProjectInfoService"  ref="projectInfoService" /> 
+     <!-- 项目业态组成服务接口 -->
+     <dubbo:service interface="com.upjf.fund.service.business.BusinessCompositionService"  ref="businessCompositionService" /> 
+     <!-- 项目公司股东信息服务端 -->
+     <dubbo:service interface="com.upjf.fund.service.business.StockholderInfoService"  ref="stockholderInfoService" /> 
+     <!-- 股权变更历史服务端 -->
+     <dubbo:service interface="com.upjf.fund.service.business.StockRightsChangeService"  ref="stockRightsChangeService" /> 
+     <!-- 项目进度信息服务接口 -->
+     <dubbo:service interface="com.upjf.fund.service.business.ProjectProgressService"  ref="projectProgressService" /> 
+     <!-- 项目进度与文件关系信息服务接口 -->
+     <dubbo:service interface="com.upjf.fund.service.business.ProjectProgressAccessoryService"  ref="projectProgressAccessoryService" /> 
+     <!-- 项目公司合同附件服务端 -->
+     <dubbo:service interface="com.upjf.fund.service.business.PrjCompanyContractService"  ref="prjCompanyContractService" /> 
+     <!-- 项目合同附件服务接口 -->
+     <dubbo:service interface="com.upjf.fund.service.business.ProjectContractService"  ref="projectContractService" />
+     <!-- 项目预算信息服务接口 -->
+     <dubbo:service interface="com.upjf.fund.service.business.ProjectBudgetService"  ref="projectBudgetService" />
+     <!-- 项目预算附件信息服务接口  -->
+     <dubbo:service interface="com.upjf.fund.service.business.ProjectBudgetAccessoryService"  ref="projectBudgetAccessoryService" /> 
+     <!-- 资管计划管理服务接口 -->
+     <dubbo:service interface="com.upjf.fund.service.business.InvestPlanManageService"  ref="investPlanManageService" /> 
+     <!-- 投资主体、投资人服务接口 -->
+     <dubbo:service interface="com.upjf.fund.service.business.InvestSubjectService"  ref="investSubjectService" /> 
+</beans>

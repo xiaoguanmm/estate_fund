@@ -1,0 +1,231 @@
+.a-delete-modify-red {
+	color: orange;
+}
+
+.sys_btn {
+	margin-left: 10px;
+	padding: 8px 13px 8px;
+}
+
+.sys_btn img {
+	vertical-align: middle;
+}
+
+.sys_btn span {
+	color: #fff;
+	font-size: 14px;
+	font-weight: 400;
+	letter-spacing: 1px;
+	padding: 0px;
+}
+
+
+/*****************************************用户管理***************************************************/
+.fillbox-select-searh{
+    height: 30px;
+    width: 210px;
+    margin-right: 40px;
+    vertical-align: middle;
+}
+.user-management-newuser{
+    display:none;
+    position:absolute;
+    vertical-align: middle;
+    top: 50%;
+    left: 50%;
+    -webkit-transform: translate(-50%, -50%);
+    -moz-transform: translate(-50%, -50%);
+    -ms-transform: translate(-50%, -50%);
+    -o-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+    width:640px;
+}
+.user-name-84{
+    width:84px;
+    padding-top: 7px;
+    margin-bottom: 0;
+    text-align: right;
+    margin-right: 10px;
+}
+.modify-sure-reset-206{
+    margin-left: 194px;
+    padding-bottom: 30px;
+}
+.user-management-revise-main{
+    display:none;
+    position:absolute;
+    vertical-align: middle;
+    top: 50%;
+    left: 50%;
+    -webkit-transform: translate(-50%, -50%);
+    -moz-transform: translate(-50%, -50%);
+    -ms-transform: translate(-50%, -50%);
+    -o-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+    width:660px;
+}
+
+.user-management-revise-reset{
+    border: 1px solid #1fbba6;
+    border-radius: 4px;
+    color: #1fbba6;
+    font-size: 14px;
+    padding: 4px 10px;
+    display: inline-block;
+    margin-left: 10px;
+    background-color: #fff;
+}
+.user-management-revise-reset:hover{
+    border:1px solid #1b9f8d;
+    background-color:#e3f3f1;
+    color:#1b9f8d;
+}
+.user-management-authorization{
+    display:none;
+    position:absolute;
+    vertical-align: middle;
+    top: 50%;
+    left: 50%;
+    -webkit-transform: translate(-50%, -50%);
+    -moz-transform: translate(-50%, -50%);
+    -ms-transform: translate(-50%, -50%);
+    -o-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+    width:660px;
+}
+.a-delete-modify-red{
+    color: #ed7020;
+}
+.a-delete-modify-bg{
+  background-color: #f0f0f0;
+}
+
+.a-delete-modify-red:hover{
+    color: #c3540e;
+    text-decoration: none;
+}
+
+/*****************************************角色数据授权***************************************************/
+.role-management-empower-inpo{
+   color:#323232;
+    font-size:16px;
+    margin-bottom:20px;
+}
+.role-management-empower-frame{
+    border:1px solid #daf2ef;
+    border-radius:0 0 5px 5px;
+    box-shadow:0 3px 4px #ddd;
+    margin-bottom: 40px;
+}
+.role-management-empower-title{
+    background-color: #daf2ef;
+    box-shadow:0 3px 4px #ddd;
+    margin:0;
+    border-radius:5px 5px 0 0;
+    vertical-align: middle;
+    padding:4px 0 0 20px
+
+}
+.role-management-empower-title label{
+    font-weight: bold;
+    color:#323232;
+}
+.role-management-empower-main{
+    margin:20px;
+}
+.role-management-empower-field{
+    position: absolute;
+}
+.role-management-empower-field label{
+    color:#1f9086;
+    font-weight: bold;
+}
+.empower-div{
+    display: inline-block;
+    position: absolute;
+    /*border-left:1px solid #ddd;*/
+    box-sizing: border-box
+}
+.empower-div-line{
+    display: inline-block;
+    border-right:1px solid #ddd;
+}
+.empower-div-line1{
+    display: inline-block;
+}
+.empower-div-li{
+    margin:20px 0 32px 0;
+}
+.role-management-empower-left{
+    margin-left:79px;
+    margin-top: 40px;
+}
+
+
+.save-success2{
+    display:none;
+    position:absolute;
+    vertical-align: middle;
+    text-align: center;
+    top: 100%;
+    left: 50%;
+    -webkit-transform: translate(-50%, -50%);
+    -moz-transform: translate(-50%, -50%);
+    -ms-transform: translate(-50%, -50%);
+    -o-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+    z-index: 9999;
+}
+
+.modify-sure-reset-auto{
+    padding-bottom: 30px;
+    width: 283px;
+    margin: 0 auto;
+}
+
+/***************************************************菜单管理********************************************************/
+.menu-name{
+    color:#969696;
+    margin-left: 30px;
+}
+.menu-name-text{
+    color:#323232;
+    font-size:14px;
+}
+
+.menu-rulecoding{
+    display: none;
+    border:1px solid #daf2ef;
+    border-radius:0 5px;
+    padding:20px 0 20px 30px;
+}
+.menu-addmenu1{
+    display:none;
+    position:absolute;
+    vertical-align: middle;
+    top: 50%;
+    left: 50%;
+    -webkit-transform: translate(-50%, -50%);
+    -moz-transform: translate(-50%, -50%);
+    -ms-transform: translate(-50%, -50%);
+    -o-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+    width:620px;
+}
+
+.menu-modify1{
+    display:none;
+    position:absolute;
+    vertical-align: middle;
+    top: 50%;
+    left: 50%;
+    -webkit-transform: translate(-50%, -50%);
+    -moz-transform: translate(-50%, -50%);
+    -ms-transform: translate(-50%, -50%);
+    -o-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+    width:620px;
+}
+.targetfield-list-bottom:last-child{
+    margin-bottom:50px;
+}

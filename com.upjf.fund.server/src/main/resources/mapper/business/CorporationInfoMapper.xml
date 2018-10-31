@@ -1,0 +1,412 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.upjf.fund.service.impl.business.mapper.CorporationInfoMapper">
+  <resultMap id="BaseResultMap" type="com.upjf.fund.dto.CorporationInfo">
+	    <id column="pid" property="pid" jdbcType="VARCHAR" />
+	    <result column="name" property="name" jdbcType="VARCHAR" />
+	    <result column="simple_name" property="simpleName" jdbcType="VARCHAR" />
+	    <result column="org_code_cert" property="orgCodeCert" jdbcType="VARCHAR" />
+	    <result column="business_licence_code" property="businessLicenceCode" jdbcType="VARCHAR" />
+	    <result column="legal_representative" property="legalRepresentative" jdbcType="VARCHAR" />
+	    <result column="register_capital" property="registerCapital" jdbcType="DECIMAL" />
+	    <result column="customer_manager" property="customerManager" jdbcType="VARCHAR" />
+	    <result column="phone" property="phone" jdbcType="VARCHAR" />
+	    <result column="corp_quality" property="corpQuality" jdbcType="VARCHAR" />
+	    <result column="status" property="status" jdbcType="INTEGER" />
+	    <result column="create_date" property="createDate" jdbcType="TIMESTAMP" />
+	    <result column="create_id" property="createId" jdbcType="VARCHAR" />
+	    <result column="update_date" property="updateDate" jdbcType="TIMESTAMP" />
+	    <result column="update_id" property="updateId" jdbcType="VARCHAR" />
+  </resultMap>
+  
+  <sql id="Base_Column_List">
+     pid, name, simple_name, org_code_cert, business_licence_code, legal_representative, 
+     CONVERT(register_capital/10000,DECIMAL(18,2)) as register_capital, customer_manager, phone, corp_quality, status, create_date, create_id, 
+     update_date, update_id
+  </sql>
+  
+  <!-- 根据条件分页查询获取企业信息 -->
+  <select id="getCorporationListByPage" parameterType="java.util.Map" resultMap="BaseResultMap">
+    select 
+    	<include refid="Base_Column_List" />
+    from corporation_info
+    <where>
+    	<if test="status != null">
+			status = #{status}
+		</if>
+    	<if test="name != null and name !=''">
+	        and name like "%"#{name}"%"
+		</if>
+		<if test="simpleName != null and simpleName !=''">
+		  and simple_name like "%"#{simpleName}"%"
+		</if>
+		<if test="orgCodeCert != null and orgCodeCert != ''">
+		  and org_code_cert like "%"#{orgCodeCert}"%"
+		</if>
+		<if test="businessLicenceCode != null and businessLicenceCode != ''">
+		  and business_licence_code like "%"#{businessLicenceCode}"%"
+		</if>
+		<if test="customerManager != null and customerManager !=''">
+		  and customer_manager like "%"#{customerManager}"%"
+		</if>
+    </where>
+    	order by create_date desc , update_date desc
+    <if test="startIndex != null and pageSize != null">
+    	limit #{startIndex},#{pageSize}
+    </if>
+  </select>
+  
+  <!-- 根据条件,查询获取命中数量 -->
+  <select id="getTotalCount" parameterType="java.util.Map" resultType="java.lang.Integer">
+    select 
+    	count(1)
+    from corporation_info
+    <where>
+    	<if test="status != null">
+			status = #{status}
+		</if>
+    	<if test="name != null and name !=''">
+	        and name like "%"#{name}"%"
+		</if>
+		<if test="simpleName != null and simpleName !=''">
+		  and simple_name like "%"#{simpleName}"%"
+		</if>
+		<if test="orgCodeCert != null and orgCodeCert != ''">
+		  and org_code_cert like "%"#{orgCodeCert}"%"
+		</if>
+		<if test="businessLicenceCode != null and businessLicenceCode != ''">
+		  and business_licence_code like "%"#{businessLicenceCode}"%"
+		</if>
+		<if test="customerManager != null and customerManager !=''">
+		  and customer_manager like "%"#{customerManager}"%"
+		</if>
+    </where>
+  </select>
+  
+  <!-- 批量删除企业信息(伪删除) -->
+  <update id="delCorporationByPids" parameterType="java.util.Map">
+    update  corporation_info
+    <set>
+    	<if test="status != null">
+    		status=#{status},
+    	</if>
+    	<if test="updateDate != null">
+    		update_date=#{updateDate},
+    	</if>
+    	<if test="updateId != null and updateId !=''">
+    		update_id=#{updateId},
+    	</if>
+    </set>
+    where pid in 
+    <foreach collection="pids" open="(" separator="," close=")" item="pid">
+    	#{pid}
+    </foreach>
+  </update>
+  
+  <!-- 根据主键查询获取有效状态的企业信息 -->
+  <select id="getCorByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from corporation_info
+    where pid = #{pid,jdbcType=VARCHAR} and status = 1
+  </select>
+  
+  
+  <!-- 根据主键,关联字典查询获取企业信息 -->
+  <select id="getCorporationByKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+     a.*,
+     b.value_des as corpQualityName 
+    from corporation_info a
+    left join dict_detail b
+    on a.corp_quality = b.pid
+    where a.pid = #{pid} and status = 1
+  </select>
+  
+  
+  <!-- 根据状态获取所有该状态的所有企业信息 -->
+  <select id="getAllCorInfoList" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from corporation_info
+    where status = #{status}
+  </select>
+  
+  
+  
+  <!-- 根据主键物理删除企业基本信息 -->
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from corporation_info
+    where pid = #{pid,jdbcType=VARCHAR}
+  </delete>
+ 
+ 
+ 
+ <!-- 根据组织机构代码证号查询获取对应的企业信息 -->
+ <select id="getCorByOrgCodeCert" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from corporation_info
+    where org_code_cert = #{orgCodeCert} and status = 1
+  </select>
+ 
+  <!-- 保存企业基础信息 -->
+  <insert id="insertCorporation" parameterType="com.upjf.fund.dto.CorporationInfo">
+    insert into corporation_info
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="pid != null and pid !=''">
+      	pid,
+      </if>
+      <if test="name != null and name !=''">
+        name,
+      </if>
+      <if test="simpleName != null and simpleName != ''">
+        simple_name,
+      </if>
+      <if test="orgCodeCert != null and orgCodeCert != ''">
+        org_code_cert,
+      </if>
+      <if test="businessLicenceCode != null and businessLicenceCode !=''">
+        business_licence_code,
+      </if>
+      <if test="legalRepresentative != null and legalRepresentative !=''">
+        legal_representative,
+      </if>
+      <if test="registerCapital != null">
+        register_capital,
+      </if>
+      <if test="customerManager != null and customerManager !=''">
+        customer_manager,
+      </if>
+      <if test="phone != null and phone !=''">
+        phone,
+      </if>
+      <if test="corpQuality != null and corpQuality !=''">
+        corp_quality,
+      </if>
+      <if test="status != null">
+      	status,
+      </if>
+      <if test="createDate != null">
+        create_date,
+      </if>
+      <if test="createId != null and createId !=''">
+        create_id,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="pid != null and pid !=''">
+      	#{pid,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null and name !=''">
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="simpleName != null and simpleName !=''">
+        #{simpleName,jdbcType=VARCHAR},
+      </if>
+      <if test="orgCodeCert != null and orgCodeCert!=''">
+        #{orgCodeCert,jdbcType=INTEGER},
+      </if>
+      <if test="businessLicenceCode != null and businessLicenceCode !=''">
+        #{businessLicenceCode,jdbcType=INTEGER},
+      </if>
+      <if test="legalRepresentative != null and legalRepresentative !=''">
+        #{legalRepresentative,jdbcType=VARCHAR},
+      </if>
+      <if test="registerCapital != null">
+        #{registerCapital,jdbcType=DECIMAL},
+      </if>
+      <if test="customerManager != null and customerManager !=''">
+        #{customerManager,jdbcType=VARCHAR},
+      </if>
+      <if test="phone != null and phone !=''">
+        #{phone,jdbcType=VARCHAR},
+      </if>
+      <if test="corpQuality != null and corpQuality !=''">
+        #{corpQuality,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+      	#{status,jdbcType=INTEGER}
+      </if>
+      <if test="createDate != null">
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createId != null and createId !=''">
+        #{createId,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  
+  
+  <!-- 根据主键更新企业基本信息 -->
+  <update id="updateCorInfoByKey" parameterType="com.upjf.fund.dto.CorporationInfo">
+    update corporation_info
+    <set>
+      <if test="name != null ">
+        name = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="simpleName != null ">
+        simple_name = #{simpleName,jdbcType=VARCHAR},
+      </if>
+      <if test="orgCodeCert != null and orgCodeCert !=''">
+        org_code_cert = #{orgCodeCert,jdbcType=VARCHAR},
+      </if>
+      <if test="businessLicenceCode != null and businessLicenceCode !=''">
+        business_licence_code = #{businessLicenceCode,jdbcType=VARCHAR},
+      </if>
+      <if test="legalRepresentative != null ">
+        legal_representative = #{legalRepresentative,jdbcType=VARCHAR},
+      </if>
+      <if test="registerCapital != null">
+        register_capital = #{registerCapital,jdbcType=DECIMAL},
+      </if>
+      <if test="customerManager != null ">
+        customer_manager = #{customerManager,jdbcType=VARCHAR},
+      </if>
+      <if test="phone != null ">
+        phone = #{phone,jdbcType=VARCHAR},
+      </if>
+      <if test="corpQuality != null ">
+        corp_quality = #{corpQuality,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        status = #{status,jdbcType=INTEGER},
+      </if>
+      <if test="updateDate != null">
+        update_date = #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateId != null and updateId !=''">
+        update_id = #{updateId,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where pid = #{pid,jdbcType=VARCHAR}
+  </update>
+  
+  <!-- 获取项目对应的股东信息 -->
+  <select id="getProjectStockholder" resultType="map" parameterType="string">
+  	select 
+	  	stockholder_info.pid,
+	  	stockholder_info.corp_id,
+	  	corporation_info.name
+	from 
+		corporation_info corporation_info 
+		
+		inner join stockholder_info stockholder_info
+		
+		on corporation_info.pid = stockholder_info.corp_id
+		
+		inner join business_prj_info business_prj_info
+		
+		on business_prj_info.pid = stockholder_info.business_prj_info_id
+		
+		inner join project_info project_info
+		
+		on project_info.business_prj_info_id = business_prj_info.pid
+		
+	where project_info.pid = #{prjId,jdbcType=VARCHAR}
+  </select>
+  
+  
+  <!-- 获取项目对应的股东公司 -->
+  <select id="getProjectStockholderCorp" resultType="map" parameterType="string">
+  	select 
+  		stockholder_info.pid as stockholder_id,
+	  	corporation_info.pid,
+	  	corporation_info.name
+	from 
+		corporation_info corporation_info 
+		
+		inner join stockholder_info stockholder_info
+		
+		on corporation_info.pid = stockholder_info.corp_id
+		
+		inner join business_prj_info business_prj_info
+		
+		on business_prj_info.pid = stockholder_info.business_prj_info_id
+		
+		inner join project_info project_info
+		
+		on project_info.business_prj_info_id = business_prj_info.pid
+		
+	where project_info.pid = #{prjId,jdbcType=VARCHAR}
+  </select>
+  
+  <!-- 根据收款公司(项目股东)和项目公司加载出资主体(关联资管计划表) -->
+  <select id="getInvestSubjectCorp" resultType="map" parameterType="string">
+  	select 
+	  	corporation_info.pid,
+	  	corporation_info.name,
+	  	invest_subject.pid as parentId
+	from 
+		corporation_info corporation_info
+		
+		inner join invest_subject invest_subject
+		
+		on corporation_info.pid= invest_subject.invest_subject_id
+		
+		inner join invest_manage_plan invest_manage_plan
+		
+		on invest_subject.invest_manange_id = invest_manage_plan.pid
+		
+		inner join stockholder_info stockholder_info
+		
+		on invest_manage_plan.stockholder_id = stockholder_info.pid
+		
+		inner join project_info project_info
+		
+		on invest_manage_plan.prj_id = project_info.pid
+		
+	where  project_info.pid = #{prjId,jdbcType=VARCHAR} 
+	and stockholder_info.corp_id = #{corpId,jdbcType=VARCHAR} 
+	and invest_subject.invest_type = #{investType,jdbcType=VARCHAR}
+  
+  </select>
+  
+  <!-- 获取项目下投资主体公司 (直接关联投资主体表(不关联资管计划表)，项目表，企业表)-->
+  <select id="getInvestSubjectCorpByPrjId" resultType="map" parameterType="string">
+  	select 
+	  	corporation_info.pid,
+	  	corporation_info.name,
+	  	invest_subject.pid as parentId
+	from 
+		corporation_info corporation_info
+		
+		inner join invest_subject invest_subject
+		
+		on corporation_info.pid= invest_subject.invest_subject_id
+		
+		inner join project_info project_info
+		
+		on invest_subject.prj_id = project_info.pid
+		
+	where  project_info.pid = #{prjId,jdbcType=VARCHAR} and invest_subject.invest_type = #{investType,jdbcType=CHAR}
+  
+  </select>
+   <!-- 获取投资主体下投资人公司 (关联投资主体表，企业表)-->
+  <select id="getInvestorCorpByInvestSubjectPid" resultType="map" parameterType="string">
+  	select 
+	  	corporation_info.pid,
+	  	corporation_info.name
+	from 
+		corporation_info corporation_info
+		
+		inner join invest_subject invest_subject
+		
+		on corporation_info.pid= invest_subject.invest_subject_id
+		
+	where  invest_subject.parent_id = #{parentId,jdbcType=VARCHAR} and invest_subject.invest_type = #{investType,jdbcType=CHAR}
+  
+  </select>
+  
+  <!-- 根据股东pid 加载投资主体公司-->
+  <select id="getInvestSubjectCorpByStockCorpId" resultType="map" parameterType="string">
+	  SELECT ci.pid AS investSubjectCorpId,ci.`name`
+	  		FROM corporation_info ci
+		LEFT JOIN stockholder_info si ON ci.pid = si.corp_id
+		LEFT JOIN invest_manage_plan imp ON imp.stockholder_id = si.pid
+		LEFT JOIN invest_subject ins ON ins.invest_manange_id = imp.pid 
+			  AND ins.invest_subject_id = ci.pid
+	  where si.pid = #{stockholderPid,jdbcType=VARCHAR}
+  </select>
+  
+</mapper>

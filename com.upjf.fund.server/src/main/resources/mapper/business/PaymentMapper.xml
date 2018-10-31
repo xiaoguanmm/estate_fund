@@ -1,0 +1,736 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.upjf.fund.service.impl.business.mapper.PaymentMapper">
+  <resultMap id="BaseResultMap" type="com.upjf.fund.dto.Payment">
+    <id column="pid" jdbcType="VARCHAR" property="pid" />
+    <result column="payment_type" jdbcType="CHAR" property="paymentType" />
+    <result column="stockholder_id" jdbcType="VARCHAR" property="stockholderId" />
+    <result column="prj_id" jdbcType="VARCHAR" property="prjId" />
+    <result column="receiver_id" jdbcType="VARCHAR" property="receiverId" />
+    <result column="contributive_id" jdbcType="VARCHAR" property="contributiveId" />
+    <result column="receiver_bank_id" jdbcType="VARCHAR" property="receiverBankId" />
+    <result column="pay_bank_id" jdbcType="VARCHAR" property="payBankId" />
+    <result column="receiver_account" jdbcType="VARCHAR" property="receiverAccount" />
+    <result column="pay_account" jdbcType="VARCHAR" property="payAccount" />
+    <result column="pay_term" jdbcType="INTEGER" property="payTerm" />
+    <result column="pay_amount" jdbcType="DECIMAL" property="payAmount" />
+    <result column="pay_date" jdbcType="TIMESTAMP" property="payDate" />
+    <result column="pay_remark" jdbcType="VARCHAR" property="payRemark" />
+    <result column="receiver_amount" jdbcType="DECIMAL" property="receiverAmount" />
+    <result column="receiver_date" jdbcType="TIMESTAMP" property="receiverDate" />
+    <result column="reveiver_remark" jdbcType="VARCHAR" property="reveiverRemark" />
+    <result column="finance_confirm_status" jdbcType="VARCHAR" property="financeConfirmStatus" />
+    <result column="investor_op" jdbcType="VARCHAR" property="investorOp" />
+    <result column="investor_op_date" jdbcType="TIMESTAMP" property="investorOpDate" />
+    <result column="investor_confirm" jdbcType="VARCHAR" property="investorConfirm" />
+    <result column="investor_confirm_date" jdbcType="TIMESTAMP" property="investorConfirmDate" />
+    <result column="status" jdbcType="CHAR" property="status" />
+    <result column="create_date" jdbcType="TIMESTAMP" property="createDate" />
+    <result column="create_id" jdbcType="VARCHAR" property="createId" />
+    <result column="update_date" jdbcType="TIMESTAMP" property="updateDate" />
+    <result column="update_id" jdbcType="VARCHAR" property="updateId" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    pid, payment_type, stockholder_id, prj_id, receiver_id, contributive_id, receiver_bank_id, 
+    pay_bank_id, receiver_account, pay_account, pay_term, pay_amount, pay_date, pay_remark, 
+    receiver_amount, receiver_date, reveiver_remark, finance_confirm_status, investor_op, 
+    investor_op_date, investor_confirm, investor_confirm_date, status, create_date, create_id, 
+    update_date, update_id
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from payment
+    where pid = #{pid,jdbcType=VARCHAR}
+  </select>
+  
+  <!-- 根据付款主键获取该主键对应的相关信息及关联信息 -->
+  <select id="getStockHolderPayByPid" parameterType="java.lang.String" resultType="java.util.Map">
+   SELECT 
+	  a.`pid`,
+	  a.`prj_id`,
+	  a.`stockholder_id`,
+	  a.`receiver_id`,
+	  a.`contributive_id`,
+	  a.`receiver_bank_id`,
+	  a.`pay_bank_id`,
+	  a.`receiver_account`,
+	  a.`pay_account`,
+	  a.`pay_term`,
+	  a.`pay_amount`,
+	  CONVERT(a.`pay_amount`/10000,DECIMAL(18,2)) AS show_pay_amount,
+	  a.`pay_date`,
+	  a.pay_remark,
+	  b.`corporation_info_id`  
+	FROM
+	  payment a 
+	  INNER JOIN business_prj_info b 
+	    ON a.`receiver_id` = b.`pid` 
+	    AND b.`status` = 1 
+	WHERE a.`pid` = #{payMentPid} 
+	  AND a.`status` = '1' 
+  </select>
+  
+  
+  <!-- 批量更改股东付款请求信息状态 (伪删除)-->
+  <update id="delStockHolderPayByPids" parameterType="java.util.List" >
+    update  payment
+    	set status = '0'
+    where pid in 
+    <foreach collection="idList" open="(" separator="," close=")" item="pid">
+    	#{pid}
+    </foreach>
+  </update>
+  
+  
+  
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from payment
+    where pid = #{pid,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.upjf.fund.dto.Payment">
+    <selectKey keyProperty="pid" order="AFTER" resultType="java.lang.String">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into payment (payment_type, stockholder_id, prj_id, 
+      receiver_id, contributive_id, receiver_bank_id, 
+      pay_bank_id, receiver_account, pay_account, 
+      pay_term, pay_amount, pay_date, 
+      pay_remark, receiver_amount, receiver_date, 
+      reveiver_remark, finance_confirm_status, investor_op, 
+      investor_op_date, investor_confirm, investor_confirm_date, 
+      status, create_date, create_id, 
+      update_date, update_id)
+    values (#{paymentType,jdbcType=CHAR}, #{stockholderId,jdbcType=VARCHAR}, #{prjId,jdbcType=VARCHAR}, 
+      #{receiverId,jdbcType=VARCHAR}, #{contributiveId,jdbcType=VARCHAR}, #{receiverBankId,jdbcType=VARCHAR}, 
+      #{payBankId,jdbcType=VARCHAR}, #{receiverAccount,jdbcType=VARCHAR}, #{payAccount,jdbcType=VARCHAR}, 
+      #{payTerm,jdbcType=INTEGER}, #{payAmount,jdbcType=DECIMAL}, #{payDate,jdbcType=TIMESTAMP}, 
+      #{payRemark,jdbcType=VARCHAR}, #{receiverAmount,jdbcType=DECIMAL}, #{receiverDate,jdbcType=TIMESTAMP}, 
+      #{reveiverRemark,jdbcType=VARCHAR}, #{financeConfirmStatus,jdbcType=VARCHAR}, #{investorOp,jdbcType=VARCHAR}, 
+      #{investorOpDate,jdbcType=TIMESTAMP}, #{investorConfirm,jdbcType=VARCHAR}, #{investorConfirmDate,jdbcType=TIMESTAMP}, 
+      #{status,jdbcType=CHAR}, #{createDate,jdbcType=TIMESTAMP}, #{createId,jdbcType=VARCHAR}, 
+      #{updateDate,jdbcType=TIMESTAMP}, #{updateId,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.upjf.fund.dto.Payment">
+    insert into payment
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+	  	pid,
+      <if test="paymentType != null">
+        payment_type,
+      </if>
+      <if test="stockholderId != null">
+        stockholder_id,
+      </if>
+      <if test="prjId != null">
+        prj_id,
+      </if>
+      <if test="receiverId != null">
+        receiver_id,
+      </if>
+      <if test="contributiveId != null">
+        contributive_id,
+      </if>
+      <if test="receiverBankId != null">
+        receiver_bank_id,
+      </if>
+      <if test="payBankId != null">
+        pay_bank_id,
+      </if>
+      <if test="receiverAccount != null">
+        receiver_account,
+      </if>
+      <if test="payAccount != null">
+        pay_account,
+      </if>
+      <if test="payTerm != null">
+        pay_term,
+      </if>
+      <if test="payAmount != null">
+        pay_amount,
+      </if>
+      <if test="payDate != null">
+        pay_date,
+      </if>
+      <if test="payRemark != null">
+        pay_remark,
+      </if>
+      <if test="receiverAmount != null">
+        receiver_amount,
+      </if>
+      <if test="receiverDate != null">
+        receiver_date,
+      </if>
+      <if test="reveiverRemark != null">
+        reveiver_remark,
+      </if>
+      <if test="financeConfirmStatus != null">
+        finance_confirm_status,
+      </if>
+      <if test="investorOp != null">
+        investor_op,
+      </if>
+      <if test="investorOpDate != null">
+        investor_op_date,
+      </if>
+      <if test="investorConfirm != null">
+        investor_confirm,
+      </if>
+      <if test="investorConfirmDate != null">
+        investor_confirm_date,
+      </if>
+      <if test="status != null">
+        status,
+      </if>
+      <if test="createDate != null">
+        create_date,
+      </if>
+      <if test="createId != null">
+        create_id,
+      </if>
+      <if test="updateDate != null">
+        update_date,
+      </if>
+      <if test="updateId != null">
+        update_id,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+    	#{pid,jdbcType=VARCHAR},
+      <if test="paymentType != null">
+        #{paymentType,jdbcType=CHAR},
+      </if>
+      <if test="stockholderId != null">
+        #{stockholderId,jdbcType=VARCHAR},
+      </if>
+      <if test="prjId != null">
+        #{prjId,jdbcType=VARCHAR},
+      </if>
+      <if test="receiverId != null">
+        #{receiverId,jdbcType=VARCHAR},
+      </if>
+      <if test="contributiveId != null">
+        #{contributiveId,jdbcType=VARCHAR},
+      </if>
+      <if test="receiverBankId != null">
+        #{receiverBankId,jdbcType=VARCHAR},
+      </if>
+      <if test="payBankId != null">
+        #{payBankId,jdbcType=VARCHAR},
+      </if>
+      <if test="receiverAccount != null">
+        #{receiverAccount,jdbcType=VARCHAR},
+      </if>
+      <if test="payAccount != null">
+        #{payAccount,jdbcType=VARCHAR},
+      </if>
+      <if test="payTerm != null">
+        #{payTerm,jdbcType=INTEGER},
+      </if>
+      <if test="payAmount != null">
+        #{payAmount,jdbcType=DECIMAL},
+      </if>
+      <if test="payDate != null">
+        #{payDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="payRemark != null">
+        #{payRemark,jdbcType=VARCHAR},
+      </if>
+      <if test="receiverAmount != null">
+        #{receiverAmount,jdbcType=DECIMAL},
+      </if>
+      <if test="receiverDate != null">
+        #{receiverDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="reveiverRemark != null">
+        #{reveiverRemark,jdbcType=VARCHAR},
+      </if>
+      <if test="financeConfirmStatus != null">
+        #{financeConfirmStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="investorOp != null">
+        #{investorOp,jdbcType=VARCHAR},
+      </if>
+      <if test="investorOpDate != null">
+        #{investorOpDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="investorConfirm != null">
+        #{investorConfirm,jdbcType=VARCHAR},
+      </if>
+      <if test="investorConfirmDate != null">
+        #{investorConfirmDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=CHAR},
+      </if>
+      <if test="createDate != null">
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createId != null">
+        #{createId,jdbcType=VARCHAR},
+      </if>
+      <if test="updateDate != null">
+        #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateId != null">
+        #{updateId,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.upjf.fund.dto.Payment">
+    update payment
+    <set>
+      <if test="paymentType != null">
+        payment_type = #{paymentType,jdbcType=CHAR},
+      </if>
+      <if test="stockholderId != null">
+        stockholder_id = #{stockholderId,jdbcType=VARCHAR},
+      </if>
+      <if test="prjId != null">
+        prj_id = #{prjId,jdbcType=VARCHAR},
+      </if>
+      <if test="receiverId != null">
+        receiver_id = #{receiverId,jdbcType=VARCHAR},
+      </if>
+      <if test="contributiveId != null">
+        contributive_id = #{contributiveId,jdbcType=VARCHAR},
+      </if>
+      <if test="receiverBankId != null">
+        receiver_bank_id = #{receiverBankId,jdbcType=VARCHAR},
+      </if>
+      <if test="payBankId != null">
+        pay_bank_id = #{payBankId,jdbcType=VARCHAR},
+      </if>
+      <if test="receiverAccount != null">
+        receiver_account = #{receiverAccount,jdbcType=VARCHAR},
+      </if>
+      <if test="payAccount != null">
+        pay_account = #{payAccount,jdbcType=VARCHAR},
+      </if>
+      <if test="payTerm != null">
+        pay_term = #{payTerm,jdbcType=INTEGER},
+      </if>
+      <if test="payAmount != null">
+        pay_amount = #{payAmount,jdbcType=DECIMAL},
+      </if>
+      <if test="payDate != null">
+        pay_date = #{payDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="payRemark != null">
+        pay_remark = #{payRemark,jdbcType=VARCHAR},
+      </if>
+      <if test="receiverAmount != null">
+        receiver_amount = #{receiverAmount,jdbcType=DECIMAL},
+      </if>
+      <if test="receiverDate != null">
+        receiver_date = #{receiverDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="reveiverRemark != null">
+        reveiver_remark = #{reveiverRemark,jdbcType=VARCHAR},
+      </if>
+      <if test="financeConfirmStatus != null">
+        finance_confirm_status = #{financeConfirmStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="investorOp != null">
+        investor_op = #{investorOp,jdbcType=VARCHAR},
+      </if>
+      <if test="investorOpDate != null">
+        investor_op_date = #{investorOpDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="investorConfirm != null">
+        investor_confirm = #{investorConfirm,jdbcType=VARCHAR},
+      </if>
+      <if test="investorConfirmDate != null">
+        investor_confirm_date = #{investorConfirmDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="status != null">
+        status = #{status,jdbcType=CHAR},
+      </if>
+      <if test="createDate != null">
+        create_date = #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createId != null">
+        create_id = #{createId,jdbcType=VARCHAR},
+      </if>
+      <if test="updateDate != null">
+        update_date = #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateId != null">
+        update_id = #{updateId,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where pid = #{pid,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.upjf.fund.dto.Payment">
+    update payment
+    set payment_type = #{paymentType,jdbcType=CHAR},
+      stockholder_id = #{stockholderId,jdbcType=VARCHAR},
+      prj_id = #{prjId,jdbcType=VARCHAR},
+      receiver_id = #{receiverId,jdbcType=VARCHAR},
+      contributive_id = #{contributiveId,jdbcType=VARCHAR},
+      receiver_bank_id = #{receiverBankId,jdbcType=VARCHAR},
+      pay_bank_id = #{payBankId,jdbcType=VARCHAR},
+      receiver_account = #{receiverAccount,jdbcType=VARCHAR},
+      pay_account = #{payAccount,jdbcType=VARCHAR},
+      pay_term = #{payTerm,jdbcType=INTEGER},
+      pay_amount = #{payAmount,jdbcType=DECIMAL},
+      pay_date = #{payDate,jdbcType=TIMESTAMP},
+      pay_remark = #{payRemark,jdbcType=VARCHAR},
+      receiver_amount = #{receiverAmount,jdbcType=DECIMAL},
+      receiver_date = #{receiverDate,jdbcType=TIMESTAMP},
+      reveiver_remark = #{reveiverRemark,jdbcType=VARCHAR},
+      finance_confirm_status = #{financeConfirmStatus,jdbcType=VARCHAR},
+      investor_op = #{investorOp,jdbcType=VARCHAR},
+      investor_op_date = #{investorOpDate,jdbcType=TIMESTAMP},
+      investor_confirm = #{investorConfirm,jdbcType=VARCHAR},
+      investor_confirm_date = #{investorConfirmDate,jdbcType=TIMESTAMP},
+      status = #{status,jdbcType=CHAR},
+      create_date = #{createDate,jdbcType=TIMESTAMP},
+      create_id = #{createId,jdbcType=VARCHAR},
+      update_date = #{updateDate,jdbcType=TIMESTAMP},
+      update_id = #{updateId,jdbcType=VARCHAR}
+    where pid = #{pid,jdbcType=VARCHAR}
+  </update>
+  
+  <!-- 根据条件获取付款信息列表 -->
+  <select id="getPaymentsByConditions" resultType="map">
+  	select 
+  	 payment.pid,
+  	 payment.prj_id,
+  	 payment.stockholder_id,
+  	 <!-- 股东公司 -->
+  	 (select corporation_info.name from corporation_info corporation_info where corporation_info.pid=(select corp_id from stockholder_info where pid = payment.stockholder_id)) as stockholder_name,
+  	 (select 
+  		dict_detail.value 
+  	from dict_detail dict_detail 
+  		 inner join project_progress 
+  		 on dict_detail.pid = project_progress.project_progress
+  	where project_progress.prj_id = payment.prj_id
+  	order by project_progress.create_date desc limit 1) as project_status,
+  	 (select project_info.project_name from project_info project_info where project_info.pid = payment.prj_id) as project_name,
+  	 payment.pay_date,
+  	 payment.receiver_id,
+  	 <if test="payment.paymentType == '1'.toString()">
+  	 (select business_prj_info.prj_corp_name from business_prj_info business_prj_info where business_prj_info.pid = payment.receiver_id) as receiver_name,
+  	 </if>
+  	 <if test="payment.paymentType != '1'.toString()">
+  	 (select corporation_info.name from corporation_info corporation_info where corporation_info.pid = payment.receiver_id) as receiver_name,
+  	 </if>
+  	 convert((payment.receiver_amount/10000),decimal(18,2)) as receiver_amount,
+  	 payment.receiver_account,
+  	 payment.receiver_date,
+  	 payment.pay_term,
+  	 convert((payment.pay_amount/10000),decimal(18,2)) as pay_amount,
+  	 payment.pay_account,
+  	 payment.contributive_id,
+  	 (select corporation_info.name from corporation_info corporation_info where corporation_info.pid = payment.contributive_id) as contributive_name,
+  	 payment.pay_remark,
+  	 case payment.finance_confirm_status when '0' then '未确认' when '1' then '已确认' end as finance_confirm_status,
+  	 (select user_info.user_name from user_info user_info where user_info.pid = payment.investor_op) as investor_op_name,
+  	 payment.investor_op_date,
+  	 (select user_info.user_name from user_info user_info where user_info.pid = payment.investor_confirm) as investor_confirm_name,
+  	 payment.investor_confirm_date
+  	 from payment payment
+  	 
+  	 <if test="payment.accessType == '1'.toString()">
+  	 	LEFT JOIN invest_manage_plan imp ON imp.stockholder_id = payment.stockholder_id AND imp.`status` = '1'
+		LEFT JOIN invest_subject ins ON ins.invest_manange_id = imp.pid 
+			  AND payment.contributive_id = ins.invest_subject_id AND payment.payment_type = '2'
+			  AND ins.invest_type = '1' AND ins.`status` = '1'
+  	 </if>
+  	 
+  	 where 1=1
+  	 	and payment.status = '1'
+  	 <if test="payment.paymentType !=null and payment.paymentType != ''">
+  	 	and payment.payment_type = #{payment.paymentType,jdbcType=CHAR}
+  	 </if> 
+  	 <if test="payment.prjId != null and payment.prjId != ''">
+  	 	and payment.prj_id = #{payment.prjId,jdbcType=VARCHAR}
+  	 </if>
+  	 <if test="payment.contributiveId != null and payment.contributiveId != ''">
+  	 	and payment.contributive_id =  #{payment.contributiveId,jdbcType=VARCHAR}
+  	 </if>
+  	 <if test="payment.receiverId != null and payment.receiverId != ''">
+  	 	and payment.receiver_id = #{payment.receiverId,jdbcType=VARCHAR}
+  	 </if>
+  	 <if test="payment.financeConfirmStatus != null and payment.financeConfirmStatus != ''">
+  	 	and payment.finance_confirm_status = #{payment.financeConfirmStatus,jdbcType=VARCHAR}
+  	 </if>
+  	 
+  	 <if test="payment.accessType == '1'.toString()">
+	  	 <if test="payment.investPlanManagePid != null and payment.investPlanManagePid != ''">
+	  	 	and imp.pid = #{payment.investPlanManagePid,jdbcType=VARCHAR}
+	  	 </if>
+	  	 <if test="payment.investSubjectPid != null and payment.investSubjectPid != ''">
+	  	 	and ins.pid = #{payment.investSubjectPid,jdbcType=VARCHAR}
+	  	 </if>
+  	 </if>
+  	 
+  	 <choose>
+  	 	<when test="payment.payDateStart != null">
+  	 		<if test="payment.payDateEnd != null">
+  	 			and payment.pay_date between #{payment.payDateStart,jdbcType=TIMESTAMP} and #{payment.payDateEnd,jdbcType=TIMESTAMP}
+  	 		</if>
+  	 		<if test="payment.payDateEnd == null">
+  	 			and payment.pay_date &gt;= #{payment.payDateStart,jdbcType=TIMESTAMP}
+  	 		</if>
+  	 	</when>
+  	 	<when test="payment.payDateStart == null">
+  	 		<if test="payment.payDateEnd != null">
+  	 			and payment.pay_date &lt;= #{payment.payDateEnd,jdbcType=TIMESTAMP}
+  	 		</if>
+  	 	</when>
+  	 </choose>
+  	 <choose>
+  	 	<when test="payment.receiverDateStart != null">
+  	 		<if test="payment.receiverDateEnd != null">
+  	 			and payment.receiver_date between #{payment.receiverDateStart,jdbcType=TIMESTAMP} and #{payment.receiverDateEnd,jdbcType=TIMESTAMP}
+  	 		</if>
+  	 		<if test="payment.receiverDateEnd == null">
+  	 			and payment.receiver_date &gt;= #{payment.receiverDateStart,jdbcType=TIMESTAMP}
+  	 		</if>
+  	 	</when>
+  	 	<when test="payment.receiverDateStart == null">
+  	 		<if test="payment.receiverDateEnd != null">
+  	 			and receiver_date &lt;= #{payment.receiverDateEnd,jdbcType=TIMESTAMP}
+  	 		</if>
+  	 	</when>
+  	 </choose>
+  	  order by payment.create_date desc,payment.update_date desc limit ${offset},${pageRows} 
+  </select>
+  
+  <!-- 根据条件统计付款信息 -->
+  <select id="countPaymentsByConditions" resultType="integer">
+  	select count(1) from 
+  		payment payment
+  		 <if test="payment.accessType == '1'.toString()">
+	  	 	LEFT JOIN invest_manage_plan imp ON imp.stockholder_id = payment.stockholder_id AND imp.`status` = '1'
+			LEFT JOIN invest_subject ins ON ins.invest_manange_id = imp.pid 
+				  AND payment.contributive_id = ins.invest_subject_id AND payment.payment_type = '2'
+				  AND ins.invest_type = '1' AND ins.`status` = '1'
+	  	 </if>
+  		 where 1=1
+  		 and payment.status = '1'
+  	 <if test="payment.paymentType !=null and payment.paymentType != ''">
+  	 	and payment.payment_type = #{payment.paymentType,jdbcType=CHAR}
+  	 </if> 
+  	 <if test="payment.prjId != null and payment.prjId != ''">
+  	 	and payment.prj_id = #{payment.prjId,jdbcType=VARCHAR}
+  	 </if>
+  	 <if test="payment.contributiveId != null and payment.contributiveId != ''">
+  	 	and payment.contributive_id =  #{payment.contributiveId,jdbcType=VARCHAR}
+  	 </if>
+  	 <if test="payment.receiverId != null and payment.receiverId != ''">
+  	 	and payment.receiver_id = #{payment.receiverId,jdbcType=VARCHAR}
+  	 </if>
+  	 <if test="payment.financeConfirmStatus != null and payment.financeConfirmStatus != ''">
+  	 	and payment.finance_confirm_status = #{payment.financeConfirmStatus,jdbcType=VARCHAR}
+  	 </if>
+  	 <if test="payment.accessType == '1'.toString()">
+	  	 <if test="payment.investPlanManagePid != null and payment.investPlanManagePid != ''">
+	  	 	and imp.pid = #{payment.investPlanManagePid,jdbcType=VARCHAR}
+	  	 </if>
+	  	 <if test="payment.investSubjectPid != null and payment.investSubjectPid != ''">
+	  	 	and ins.pid = #{payment.investSubjectPid,jdbcType=VARCHAR}
+	  	 </if>
+  	 </if>
+  	 <choose>
+  	 	<when test="payment.payDateStart != null">
+  	 		<if test="payment.payDateEnd != null">
+  	 			and payment.pay_date between #{payment.payDateStart,jdbcType=TIMESTAMP} and #{payment.payDateEnd,jdbcType=TIMESTAMP}
+  	 		</if>
+  	 		<if test="payment.payDateEnd == null">
+  	 			and payment.pay_date &gt;= #{payment.payDateStart,jdbcType=TIMESTAMP}
+  	 		</if>
+  	 	</when>
+  	 	<when test="payment.payDateStart == null">
+  	 		<if test="payment.payDateEnd != null">
+  	 			and payment.pay_date &lt;= #{payment.payDateEnd,jdbcType=TIMESTAMP}
+  	 		</if>
+  	 	</when>
+  	 </choose>
+  	 <choose>
+  	 	<when test="payment.receiverDateStart != null">
+  	 		<if test="payment.receiverDateEnd != null">
+  	 			and payment.receiver_date between #{payment.receiverDateStart,jdbcType=TIMESTAMP} and #{payment.receiverDateEnd,jdbcType=TIMESTAMP}
+  	 		</if>
+  	 		<if test="payment.receiverDateEnd == null">
+  	 			and payment.receiver_date &gt;= #{payment.receiverDateStart,jdbcType=TIMESTAMP}
+  	 		</if>
+  	 	</when>
+  	 	<when test="payment.receiverDateStart == null">
+  	 		<if test="payment.receiverDateEnd != null">
+  	 			and receiver_date &lt;= #{payment.receiverDateEnd,jdbcType=TIMESTAMP}
+  	 		</if>
+  	 	</when>
+  	 </choose>
+  </select>
+  
+  <select id="statisticsAmount" resultType="map">
+  	select 
+	  	ifnull(convert((sum(pay_amount)/10000),decimal(18,2)),0) as pay_amount,
+	  	ifnull(convert((sum(receiver_amount)/10000),decimal(18,2)),0) as receiver_amount 
+	from payment where 1=1 
+		and status = '1'
+	<if test="paymentType !=null and paymentType != ''">
+		and payment_type = #{paymentType,jdbcType=CHAR} 
+	</if>
+  </select>
+  
+  <select id="statisticsAmountByCondition" resultType="map">
+  	select 
+	  	ifnull(convert((sum(pay_amount)/10000),decimal(18,2)),0) as pay_amount,
+	  	ifnull(convert((sum(receiver_amount)/10000),decimal(18,2)),0) as receiver_amount 
+	from payment payment
+	<if test="conditions.accessType == '1'.toString()">
+		LEFT JOIN invest_manage_plan imp ON imp.stockholder_id = payment.stockholder_id AND imp.`status` = '1'
+		LEFT JOIN invest_subject ins ON ins.invest_manange_id = imp.pid 
+			  AND payment.contributive_id = ins.invest_subject_id AND payment.payment_type = '2'
+			  AND ins.invest_type = '1' AND ins.`status` = '1'
+	</if>
+	where 1=1 
+		and payment.status = '1'
+	<if test="conditions.paymentType !=null and conditions.paymentType != ''">
+		and payment.payment_type = #{conditions.paymentType,jdbcType=CHAR} 
+	</if>
+	<if test="conditions.accessType == '1'.toString()">
+	  	 <if test="conditions.investPlanManagePid != null and conditions.investPlanManagePid != ''">
+	  	 	and imp.pid = #{conditions.investPlanManagePid,jdbcType=VARCHAR}
+	  	 </if>
+	  	 <if test="conditions.investSubjectPid != null and conditions.investSubjectPid != ''">
+	  	 	and ins.pid = #{conditions.investSubjectPid,jdbcType=VARCHAR}
+	  	 </if>
+  	 </if>
+	
+  </select>
+  
+    <select id="getPaymentByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+	    pid, 
+	    payment_type,
+	    stockholder_id, 
+	    prj_id, 
+	    receiver_id,
+	    contributive_id, 
+	    receiver_bank_id, 
+	    pay_bank_id, 
+	    receiver_account, 
+	    pay_account, 
+	    pay_term, 
+	    convert((pay_amount/10000),decimal(18,2)) as pay_amount,  
+	    pay_date, 
+	    pay_remark, 
+	    convert((receiver_amount/10000),decimal(18,2)) as receiver_amount, 
+	    receiver_date, 
+	    reveiver_remark, 
+	    finance_confirm_status, 
+	    investor_op, 
+	    investor_op_date, 
+	    investor_confirm, 
+	    investor_confirm_date, 
+	    create_date, 
+	    create_id, 
+	    update_date, 
+	    update_id
+    from payment
+    where pid = #{pid,jdbcType=VARCHAR}
+  </select>
+  
+  <update id="updatePaymentStatus" parameterType="string">
+  	update payment set status = #{status,jdbcType=CHAR} where pid = #{pid,jdbcType=VARCHAR}
+  </update>
+  
+  
+  <!-- 查询股东付款请求信息列表 -->
+  <select id="queryStockPaymentInfoList" resultType="map">
+  	select p.pid,
+  		  p.prj_id,
+	  	 (select dd.`value` from dict_detail dd inner join project_progress pp on dd.pid = pp.project_progress
+					where pp.prj_id = p.prj_id AND pp.`status` = 1 order by pp.create_date desc limit 1) as project_status,
+	  	 (select pi.project_name from project_info pi where pi.pid = p.prj_id AND pi.`status` = 1) as project_name,
+	  	 p.pay_date,
+	  	 p.receiver_id,
+	  	 p.receiver_bank_id,
+	  	 p.pay_bank_id,
+		 (select bpi.corporation_info_id from business_prj_info bpi where bpi.pid = p.receiver_id AND bpi.`status` = '1') as businessPrjInfoCorpPid,
+	  	 (select bpi.prj_corp_name from business_prj_info bpi where bpi.pid = p.receiver_id AND bpi.`status` = '1') as receiver_name,
+	  	 convert((p.receiver_amount/10000),decimal(18,2)) as receiver_amount,
+	  	 p.receiver_account,
+	  	 p.receiver_date,
+	  	 p.pay_term,
+	  	 convert((p.pay_amount/10000),decimal(18,2)) as pay_amount,
+	  	 p.pay_account,
+	  	 p.contributive_id,
+	  	 (select ci.`name` from corporation_info ci where ci.pid = p.contributive_id AND ci.`status` = 1) as contributive_name,
+		 p.pay_remark,
+		 p.finance_confirm_status,
+		 p.reveiver_remark,
+	  	 (select ui.name from user_info ui where ui.pid = p.investor_op AND ui.`status` = '1') as investor_op_name,
+	  	 p.investor_op_date,
+	  	 (select ui.name from user_info ui where ui.pid = p.investor_confirm AND ui.`status` = '1') as investor_confirm_name,
+	  	 p.investor_confirm_date
+	 from payment p
+  	 	where 1=1 
+  	 	AND p.status = '1'
+  	 	AND p.payment_type = '1'
+  	 <if test="condtions.corp_id !=null and condtions.corp_id != ''">
+  	 	and p.contributive_id = #{condtions.corp_id,jdbcType=CHAR}
+  	 </if> 
+  	 <if test="condtions.prjId != null and condtions.prjId != ''">
+  	 	and p.prj_id = #{condtions.prjId,jdbcType=VARCHAR}
+  	 </if>
+  	 <if test="condtions.financeConfirmStatus != null and condtions.financeConfirmStatus != ''">
+  	 	and p.finance_confirm_status = #{condtions.financeConfirmStatus,jdbcType=VARCHAR}
+  	 </if>
+  	  order by p.create_date desc,p.update_date desc limit ${offset},${pageRows} 
+  </select>
+  
+  <select id="countStockPaymentInfoList" resultType="integer">
+  	select count(1) from payment p
+  		 where 1=1
+  		 AND p.status = '1'
+  		 AND p.payment_type = '1'
+  	 <if test="condtions.corp_id !=null and condtions.corp_id != ''">
+  	 	and p.contributive_id = #{condtions.corp_id,jdbcType=CHAR}
+  	 </if> 
+  	 <if test="condtions.prjId != null and condtions.prjId != ''">
+  	 	and p.prj_id = #{condtions.prjId,jdbcType=VARCHAR}
+  	 </if>
+  	 <if test="condtions.financeConfirmStatus != null and condtions.financeConfirmStatus != ''">
+  	 	and p.finance_confirm_status = #{condtions.financeConfirmStatus,jdbcType=VARCHAR}
+  	 </if>
+  </select>
+  
+  <select id="queryPaymentList" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from payment
+    where prj_id = #{prjId,jdbcType=VARCHAR}
+  </select>
+  
+  <select id="getPaymentByParams" resultType="com.upjf.fund.dto.Payment" parameterType="com.upjf.fund.dto.Payment">
+  	select <include refid="Base_Column_List"/> from payment payment
+  	where 1=1
+  	 <if test="payment.paymentType !=null and payment.paymentType != ''">
+  	 	and payment.payment_type = #{payment.paymentType,jdbcType=CHAR}
+  	 </if>
+  	 <if test="payment.prjId != null and payment.prjId != ''">
+  	 	and payment.prj_id = #{payment.prjId,jdbcType=VARCHAR}
+  	 </if>
+  	 <if test="payment.stockholderId != null and payment.stockholderId != ''">
+  	 	and payment.stockholder_id = #{payment.stockholderId,jdbcType=VARCHAR}
+  	 </if>
+  	 <if test="payment.contributiveId != null and payment.contributiveId != ''">
+  	 	and payment.contributive_id =  #{payment.contributiveId,jdbcType=VARCHAR}
+  	 </if>
+  	 <if test="payment.receiverId != null and payment.receiverId != ''">
+  	 	and payment.receiver_id = #{payment.receiverId,jdbcType=VARCHAR}
+  	 </if>
+  	 <if test="payment.payTerm !=null and payment.payTerm>0">
+  	 	and payment.pay_term = #{payment.payTerm,jdbcType=INTEGER}
+  	 </if>
+  	 <if test="payment.pid !=null and payment.pid !=''">
+  	 	and payment.pay_term != (select pay_term from payment where pid = #{payment.pid,jdbcType=VARCHAR})
+  	 </if>
+  </select>
+  
+</mapper>

@@ -1,0 +1,377 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.upjf.fund.service.impl.business.mapper.InvestPlanManageMapper">
+  <resultMap id="BaseResultMap" type="com.upjf.fund.dto.InvestManagePlan">
+    <id column="pid" jdbcType="VARCHAR" property="pid" />
+    <result column="prj_id" jdbcType="VARCHAR" property="prjId" />
+    <result column="business_prj_info_id" jdbcType="VARCHAR" property="businessPrjInfoId" />
+    <result column="stockholder_id" jdbcType="VARCHAR" property="stockholderId" />
+    <result column="invest_start_date" jdbcType="TIMESTAMP" property="investStartDate" />
+    <result column="invest_type" jdbcType="VARCHAR" property="investType" />
+    <result column="term" jdbcType="INTEGER" property="term" />
+    <result column="expect_invest_amount" jdbcType="DECIMAL" property="expectInvestAmount" />
+    <result column="expect_all_receiver_account" jdbcType="DECIMAL" property="expectAllReceiverAccount" />
+    <result column="reality_invest_amount" jdbcType="DECIMAL" property="realityInvestAmount" />
+    <result column="receivered_principal" jdbcType="DECIMAL" property="receiveredPrincipal" />
+    <result column="receivered_payback" jdbcType="DECIMAL" property="receiveredPayback" />
+    <result column="customer_manager" jdbcType="VARCHAR" property="customerManager" />
+    <result column="create_date" jdbcType="TIMESTAMP" property="createDate" />
+    <result column="create_id" jdbcType="VARCHAR" property="createId" />
+    <result column="update_date" jdbcType="TIMESTAMP" property="updateDate" />
+    <result column="update_id" jdbcType="VARCHAR" property="updateId" />
+    <result column="phone" jdbcType="VARCHAR" property="phone" />
+    <result column="status" jdbcType="VARCHAR" property="status" />
+    <result column="returned_profit" jdbcType="VARCHAR" property="returnedProfit" />
+  </resultMap>
+  
+  <sql id="Base_Column_List">
+    pid, prj_id, business_prj_info_id, stockholder_id, invest_start_date, invest_type, 
+    term, expect_invest_amount, expect_all_receiver_account, reality_invest_amount, receivered_principal, 
+    receivered_payback, customer_manager, create_date, create_id, update_date, update_id, 
+    phone, status,returned_profit
+  </sql>
+  
+  <select id="getInvestPlanManageByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from invest_manage_plan
+    where pid = #{pid,jdbcType=VARCHAR}
+  </select>
+  
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from invest_manage_plan
+    where pid = #{pid,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.upjf.fund.dto.InvestManagePlan">
+    <selectKey keyProperty="pid" order="AFTER" resultType="java.lang.String">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into invest_manage_plan (prj_id, business_prj_info_id, stockholder_id, 
+      invest_start_date, invest_type, term, 
+      expect_invest_amount, expect_all_receiver_account, 
+      reality_invest_amount, receivered_principal, 
+      receivered_payback, customer_manager, create_date, 
+      create_id, update_date, update_id, 
+      phone)
+    values (#{prjId,jdbcType=VARCHAR}, #{businessPrjInfoId,jdbcType=VARCHAR}, #{stockholderId,jdbcType=VARCHAR}, 
+      #{investStartDate,jdbcType=TIMESTAMP}, #{investType,jdbcType=VARCHAR}, #{term,jdbcType=INTEGER}, 
+      #{expectInvestAmount,jdbcType=DECIMAL}, #{expectAllReceiverAccount,jdbcType=DECIMAL}, 
+      #{realityInvestAmount,jdbcType=DECIMAL}, #{receiveredPrincipal,jdbcType=DECIMAL}, 
+      #{receiveredPayback,jdbcType=DECIMAL}, #{customerManager,jdbcType=VARCHAR}, #{createDate,jdbcType=TIMESTAMP}, 
+      #{createId,jdbcType=VARCHAR}, #{updateDate,jdbcType=TIMESTAMP}, #{updateId,jdbcType=VARCHAR}, 
+      #{phone,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertInvestPlanManageByPid" parameterType="com.upjf.fund.dto.InvestManagePlan">
+    insert into invest_manage_plan
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="pid != null and pid != ''">
+        pid,
+      </if>
+      <if test="prjId != null and prjId != ''">
+        prj_id,
+      </if>
+      <if test="businessPrjInfoId != null and businessPrjInfoId != ''">
+        business_prj_info_id,
+      </if>
+      <if test="stockholderId != null and stockholderId != ''">
+        stockholder_id,
+      </if>
+      <if test="investStartDate != null">
+        invest_start_date,
+      </if>
+      <if test="investType != null and investType != ''">
+        invest_type,
+      </if>
+      <if test="term != null and term != ''">
+        term,
+      </if>
+      <if test="expectInvestAmount != null and expectInvestAmount != ''">
+        expect_invest_amount,
+      </if>
+      <if test="expectAllReceiverAccount != null and expectAllReceiverAccount != ''">
+        expect_all_receiver_account,
+      </if>
+      <if test="realityInvestAmount != null and realityInvestAmount != ''">
+        reality_invest_amount,
+      </if>
+      <if test="receiveredPrincipal != null and receiveredPrincipal != ''">
+        receivered_principal,
+      </if>
+      <if test="receiveredPayback != null and receiveredPayback != ''">
+        receivered_payback,
+      </if>
+      <if test="customerManager != null and customerManager != ''">
+        customer_manager,
+      </if>
+      <if test="createDate != null">
+        create_date,
+      </if>
+      <if test="createId != null and createId != ''">
+        create_id,
+      </if>
+      <if test="updateDate != null">
+        update_date,
+      </if>
+      <if test="updateId != null and updateId != ''">
+        update_id,
+      </if>
+      <if test="phone != null and phone != ''">
+        phone,
+      </if>
+      <if test="returnedProfit != null and returnedProfit != ''">
+        returned_profit,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="pid != null and pid != ''">
+        #{pid,jdbcType=VARCHAR},
+      </if>
+      <if test="prjId != null and prjId != ''">
+        #{prjId,jdbcType=VARCHAR},
+      </if>
+      <if test="businessPrjInfoId != null and businessPrjInfoId != ''">
+        #{businessPrjInfoId,jdbcType=VARCHAR},
+      </if>
+      <if test="stockholderId != null and stockholderId != ''">
+        #{stockholderId,jdbcType=VARCHAR},
+      </if>
+      <if test="investStartDate != null">
+        #{investStartDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="investType != null and investType != ''">
+        #{investType,jdbcType=VARCHAR},
+      </if>
+      <if test="term != null and term != ''">
+        #{term,jdbcType=INTEGER},
+      </if>
+      <if test="expectInvestAmount != null and expectInvestAmount != ''">
+        #{expectInvestAmount,jdbcType=DECIMAL},
+      </if>
+      <if test="expectAllReceiverAccount != null and expectAllReceiverAccount != ''">
+        #{expectAllReceiverAccount,jdbcType=DECIMAL},
+      </if>
+      <if test="realityInvestAmount != null and realityInvestAmount != ''">
+        #{realityInvestAmount,jdbcType=DECIMAL},
+      </if>
+      <if test="receiveredPrincipal != null and receiveredPrincipal != ''">
+        #{receiveredPrincipal,jdbcType=DECIMAL},
+      </if>
+      <if test="receiveredPayback != null and receiveredPayback != ''">
+        #{receiveredPayback,jdbcType=DECIMAL},
+      </if>
+      <if test="customerManager != null and customerManager != ''">
+        #{customerManager,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null">
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createId != null and createId != ''">
+        #{createId,jdbcType=VARCHAR},
+      </if>
+      <if test="updateDate != null">
+        #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateId != null and updateId != ''">
+        #{updateId,jdbcType=VARCHAR},
+      </if>
+      <if test="phone != null and phone != ''">
+        #{phone,jdbcType=VARCHAR},
+      </if>
+      <if test="returnedProfit != null and returnedProfit != ''">
+        #{returnedProfit,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateInvestPlanManageByPid" parameterType="com.upjf.fund.dto.InvestManagePlan">
+    update invest_manage_plan
+    <set>
+      <if test="prjId != null and prjId != ''">
+        prj_id = #{prjId,jdbcType=VARCHAR},
+      </if>
+      <if test="businessPrjInfoId != null and businessPrjInfoId != ''">
+        business_prj_info_id = #{businessPrjInfoId,jdbcType=VARCHAR},
+      </if>
+      <if test="stockholderId != null and stockholderId != ''">
+        stockholder_id = #{stockholderId,jdbcType=VARCHAR},
+      </if>
+      <if test="investStartDate != null">
+        invest_start_date = #{investStartDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="investType != null and investType != ''">
+        invest_type = #{investType,jdbcType=VARCHAR},
+      </if>
+      <if test="term != null and term != ''">
+        term = #{term,jdbcType=INTEGER},
+      </if>
+      <if test="expectInvestAmount != null and expectInvestAmount != ''">
+        expect_invest_amount = #{expectInvestAmount,jdbcType=DECIMAL},
+      </if>
+      <if test="expectAllReceiverAccount != null and expectAllReceiverAccount != ''">
+        expect_all_receiver_account = #{expectAllReceiverAccount,jdbcType=DECIMAL},
+      </if>
+      <if test="realityInvestAmount != null and realityInvestAmount != ''">
+        reality_invest_amount = #{realityInvestAmount,jdbcType=DECIMAL},
+      </if>
+      <if test="receiveredPrincipal != null and receiveredPrincipal != ''">
+        receivered_principal = #{receiveredPrincipal,jdbcType=DECIMAL},
+      </if>
+      <if test="receiveredPayback != null and receiveredPayback != ''">
+        receivered_payback = #{receiveredPayback,jdbcType=DECIMAL},
+      </if>
+      <if test="customerManager != null and customerManager != ''">
+        customer_manager = #{customerManager,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null">
+        create_date = #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createId != null and createId != ''">
+        create_id = #{createId,jdbcType=VARCHAR},
+      </if>
+      <if test="updateDate != null">
+        update_date = #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateId != null and updateId != ''">
+        update_id = #{updateId,jdbcType=VARCHAR},
+      </if>
+      <if test="phone != null and phone != ''">
+        phone = #{phone,jdbcType=VARCHAR},
+      </if>
+      <if test="returnedProfit != null and returnedProfit != ''">
+        returned_profit = #{returnedProfit,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where pid = #{pid,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.upjf.fund.dto.InvestManagePlan">
+    update invest_manage_plan
+    set prj_id = #{prjId,jdbcType=VARCHAR},
+      business_prj_info_id = #{businessPrjInfoId,jdbcType=VARCHAR},
+      stockholder_id = #{stockholderId,jdbcType=VARCHAR},
+      invest_start_date = #{investStartDate,jdbcType=TIMESTAMP},
+      invest_type = #{investType,jdbcType=VARCHAR},
+      term = #{term,jdbcType=INTEGER},
+      expect_invest_amount = #{expectInvestAmount,jdbcType=DECIMAL},
+      expect_all_receiver_account = #{expectAllReceiverAccount,jdbcType=DECIMAL},
+      reality_invest_amount = #{realityInvestAmount,jdbcType=DECIMAL},
+      receivered_principal = #{receiveredPrincipal,jdbcType=DECIMAL},
+      receivered_payback = #{receiveredPayback,jdbcType=DECIMAL},
+      customer_manager = #{customerManager,jdbcType=VARCHAR},
+      create_date = #{createDate,jdbcType=TIMESTAMP},
+      create_id = #{createId,jdbcType=VARCHAR},
+      update_date = #{updateDate,jdbcType=TIMESTAMP},
+      update_id = #{updateId,jdbcType=VARCHAR},
+      phone = #{phone,jdbcType=VARCHAR}
+    where pid = #{pid,jdbcType=VARCHAR}
+  </update>
+  
+  <select id="getInvestPlanManageByConditon" resultType="map">
+    SELECT imp.pid AS investManagePlanPid,pi.pid AS projectPid,bpi.pid AS businessPrjPid,ci.pid AS corporationPid
+    		,si.pid AS stockholderPid,pi.project_name,bpi.prj_corp_name,ci.`name` AS stockholderName,imp.invest_start_date
+    		,imp.term,imp.invest_type,convert((imp.expect_invest_amount/10000),decimal(18,2)) as expect_invest_amount
+			,convert((imp.reality_invest_amount/10000),decimal(18,2)) as reality_invest_amount
+			,convert((imp.receivered_principal/10000),decimal(18,2)) as receivered_principal
+			,convert((imp.receivered_payback/10000),decimal(18,2)) as receivered_payback
+			,convert((imp.expect_all_receiver_account/10000),decimal(18,2)) as expect_all_receiver_account
+	FROM invest_manage_plan imp
+	LEFT JOIN project_info pi ON pi.pid = imp.prj_id AND pi.`status` = 1
+	LEFT JOIN business_prj_info bpi ON bpi.pid = imp.business_prj_info_id AND bpi.`status` = '1'
+	LEFT JOIN stockholder_info si ON si.pid = imp.stockholder_id AND si.`status` = '1'
+	LEFT JOIN corporation_info ci ON si.corp_id = ci.pid AND ci.`status` = 1
+	<where>
+		imp.status = '1'
+		<if test="condtions.project_info_pid != null and condtions.project_info_pid != ''">
+	       AND pi.pid = #{condtions.project_info_pid,jdbcType=VARCHAR}
+	    </if>
+	    <if test="condtions.business_prj_info_pid != null and condtions.business_prj_info_pid != ''">
+	       AND bpi.pid = #{condtions.business_prj_info_pid,jdbcType=VARCHAR}
+	    </if>
+	    <if test="condtions.corporation_info_pid != null and condtions.corporation_info_pid != ''">
+	       AND ci.pid = #{condtions.corporation_info_pid,jdbcType=VARCHAR}
+	    </if>
+    </where>
+	ORDER BY imp.update_date DESC,imp.create_date DESC limit ${offset},${pageRows} 	    
+  </select>
+  
+  <select id="countInvestPlanManageByConditon" resultType="integer">
+  	SELECT COUNT(1)
+		FROM invest_manage_plan imp
+		LEFT JOIN project_info pi ON pi.pid = imp.prj_id AND pi.`status` = 1
+		LEFT JOIN business_prj_info bpi ON bpi.pid = imp.business_prj_info_id AND bpi.`status` = '1'
+		LEFT JOIN stockholder_info si ON si.pid = imp.stockholder_id AND si.`status` = '1'
+		LEFT JOIN corporation_info ci ON si.corp_id = ci.pid AND ci.`status` = 1
+		<where>
+			imp.status = '1'
+			<if test="condtions.project_info_pid != null and condtions.project_info_pid != ''">
+		       AND pi.pid = #{condtions.project_info_pid,jdbcType=VARCHAR}
+		    </if>
+		    <if test="condtions.business_prj_info_pid != null and condtions.business_prj_info_pid != ''">
+		       AND bpi.pid = #{condtions.business_prj_info_pid,jdbcType=VARCHAR}
+		    </if>
+		    <if test="condtions.corporation_info_pid != null and condtions.corporation_info_pid != ''">
+		       AND ci.pid = #{condtions.corporation_info_pid,jdbcType=VARCHAR}
+		    </if>
+	    </where>
+  </select>
+  
+  <select id="getInvestPlanManageByAllPid" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from invest_manage_plan imp
+    where imp.`status` = '1'
+		<if test="stockholderInfoPid != null and stockholderInfoPid != ''">
+    		and imp.stockholder_id = #{stockholderInfoPid,jdbcType=VARCHAR}
+    	</if>
+		<if test="businessPrjInfoPid != null and businessPrjInfoPid != ''">
+    		and imp.business_prj_info_id = #{businessPrjInfoPid,jdbcType=VARCHAR}
+    	</if>
+		<if test="projectInfoPid != null and projectInfoPid != ''">
+    		and imp.prj_id = #{projectInfoPid,jdbcType=VARCHAR}
+    	</if>
+  </select>
+  
+  <!-- 更新资管计划已收回款字段 -->
+  <update id="updateReceivedPayback" parameterType="string">
+  	update invest_manage_plan 
+  		set receivered_payback = (select sum(receiver_amount+profit) 
+  		from received where 
+  		prj_id = #{prjId,jdbcType=VARCHAR} 
+  		and received_type = '1' 
+  		and receiver_id = #{receiverId,jdbcType=VARCHAR}
+  		and contributive_id = #{contributiveId,jdbcType=VARCHAR}
+  		and status='1')
+  	where 
+  		prj_id = #{prjId,jdbcType=VARCHAR}
+  		and stockholder_id = (select pid from 
+  		stockholder_info where 
+  		corp_id = #{receiverId,jdbcType=VARCHAR} 
+  		and business_prj_info_id= #{contributiveId,jdbcType=VARCHAR})
+  </update>
+  
+  <!-- 更新资管计划已收本金字段 -->
+  <update id="updateReceiveredPrincipal">
+  	update invest_manage_plan 
+  		set receivered_principal = #{receiverAmount,jdbcType=DECIMAL}
+  	where 
+  		prj_id = #{prjId,jdbcType=VARCHAR}
+  		and stockholder_id = (select pid from 
+  		stockholder_info where 
+  		corp_id = #{contributiveId,jdbcType=VARCHAR} 
+  		and business_prj_info_id= #{receiverId,jdbcType=VARCHAR})
+  </update>
+  
+  <!-- 根据条件查询资管计划信息 -->
+  <select id="getInvestManagePlanByParams" parameterType="com.upjf.fund.dto.InvestManagePlan" resultType="com.upjf.fund.dto.InvestManagePlan">
+  	select <include refid="Base_Column_List" /> from invest_manage_plan
+  	where 1=1
+  	  <if test="investManagePlan.prjId != null and investManagePlan.prjId != ''">
+        and prj_id = #{investManagePlan.prjId,jdbcType=VARCHAR}
+      </if>
+      <if test="investManagePlan.businessPrjInfoId != null and investManagePlan.businessPrjInfoId != ''">
+        and business_prj_info_id = #{investManagePlan.businessPrjInfoId,jdbcType=VARCHAR}
+      </if>
+      <if test="investManagePlan.stockholderId != null and investManagePlan.stockholderId != ''">
+        and stockholder_id = #{investManagePlan.stockholderId,jdbcType=VARCHAR}
+      </if>
+  </select>
+  
+</mapper>

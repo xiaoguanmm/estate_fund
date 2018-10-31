@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.upjf.fund.service.impl.business.mapper.PrjCompanyContractMapper">
+  <resultMap id="BaseResultMap" type="com.upjf.fund.dto.PrjCompanyContract">
+    <id column="pid" jdbcType="VARCHAR" property="pid" />
+    <result column="business_prj_info_id" jdbcType="VARCHAR" property="businessPrjInfoId" />
+    <result column="file_id" jdbcType="VARCHAR" property="fileId" />
+    <result column="contract_name" jdbcType="VARCHAR" property="contractName" />
+    <result column="create_date" jdbcType="TIMESTAMP" property="createDate" />
+    <result column="create_id" jdbcType="VARCHAR" property="createId" />
+    <result column="update_date" jdbcType="TIMESTAMP" property="updateDate" />
+    <result column="update_id" jdbcType="VARCHAR" property="updateId" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    pid, business_prj_info_id, file_id, contract_name, create_date, create_id, update_date, 
+    update_id
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from prj_company_contract
+    where pid = #{pid,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from prj_company_contract
+    where pid = #{pid,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.upjf.fund.dto.PrjCompanyContract">
+    <selectKey keyProperty="pid" order="AFTER" resultType="java.lang.String">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into prj_company_contract (business_prj_info_id, file_id, contract_name, 
+      create_date, create_id, update_date, 
+      update_id)
+    values (#{businessPrjInfoId,jdbcType=VARCHAR}, #{fileId,jdbcType=VARCHAR}, #{contractName,jdbcType=VARCHAR}, 
+      #{createDate,jdbcType=TIMESTAMP}, #{createId,jdbcType=VARCHAR}, #{updateDate,jdbcType=TIMESTAMP}, 
+      #{updateId,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.upjf.fund.dto.PrjCompanyContract">
+    <selectKey keyProperty="pid" order="AFTER" resultType="java.lang.String">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into prj_company_contract
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="businessPrjInfoId != null">
+        business_prj_info_id,
+      </if>
+      <if test="fileId != null">
+        file_id,
+      </if>
+      <if test="contractName != null">
+        contract_name,
+      </if>
+      <if test="createDate != null">
+        create_date,
+      </if>
+      <if test="createId != null">
+        create_id,
+      </if>
+      <if test="updateDate != null">
+        update_date,
+      </if>
+      <if test="updateId != null">
+        update_id,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="businessPrjInfoId != null">
+        #{businessPrjInfoId,jdbcType=VARCHAR},
+      </if>
+      <if test="fileId != null">
+        #{fileId,jdbcType=VARCHAR},
+      </if>
+      <if test="contractName != null">
+        #{contractName,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null">
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createId != null">
+        #{createId,jdbcType=VARCHAR},
+      </if>
+      <if test="updateDate != null">
+        #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateId != null">
+        #{updateId,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.upjf.fund.dto.PrjCompanyContract">
+    update prj_company_contract
+    <set>
+      <if test="businessPrjInfoId != null">
+        business_prj_info_id = #{businessPrjInfoId,jdbcType=VARCHAR},
+      </if>
+      <if test="fileId != null">
+        file_id = #{fileId,jdbcType=VARCHAR},
+      </if>
+      <if test="contractName != null">
+        contract_name = #{contractName,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null">
+        create_date = #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createId != null">
+        create_id = #{createId,jdbcType=VARCHAR},
+      </if>
+      <if test="updateDate != null">
+        update_date = #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateId != null">
+        update_id = #{updateId,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where pid = #{pid,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.upjf.fund.dto.PrjCompanyContract">
+    update prj_company_contract
+    set business_prj_info_id = #{businessPrjInfoId,jdbcType=VARCHAR},
+      file_id = #{fileId,jdbcType=VARCHAR},
+      contract_name = #{contractName,jdbcType=VARCHAR},
+      create_date = #{createDate,jdbcType=TIMESTAMP},
+      create_id = #{createId,jdbcType=VARCHAR},
+      update_date = #{updateDate,jdbcType=TIMESTAMP},
+      update_id = #{updateId,jdbcType=VARCHAR}
+    where pid = #{pid,jdbcType=VARCHAR}
+  </update>
+  
+  <insert id="batchInsertPrjCompanyContract" parameterType="com.upjf.fund.dto.PrjCompanyContract">
+  	insert into prj_company_contract (
+  		pid, 
+  		business_prj_info_id, 
+  		file_id, 
+  		contract_name,
+  		create_date,
+  		create_id
+  	) values
+  	<foreach collection="accessoryList" item="accessory" separator=",">
+  		(
+			#{accessory.pid},
+			#{accessory.businessPrjInfoId},
+			#{accessory.fileId},
+			#{accessory.contractName},
+			#{accessory.createDate},
+			#{accessory.createId}
+  		)
+  	</foreach>
+  </insert>
+  
+  <select id="getPrjCompContractByBusPrjInfoId" resultType="map">
+  	select 
+	  	pcc.pid,
+	  	pcc.business_prj_info_id,
+  		pcc.file_id,
+  		pcc.contract_name,
+  		pcc.create_date,
+  		concat(eff.file_name,'.',eff.file_type) as file_all_name,
+  	    (select ui.user_name from user_info ui where ui.pid = eff.create_id) as user_name,
+  		eff.file_url
+  	from prj_company_contract pcc inner join estate_fund_file eff on pcc.file_id = eff.pid
+  	where pcc.business_prj_info_id = #{businessPrjInfoId,jdbcType=VARCHAR}
+		order by create_date desc 
+	limit ${offset},${pageRows}
+  </select>
+  
+  <select id="countPrjCompContractByBusPrjInfoId" resultType="integer" parameterType="string">
+  	select
+  		count(1) 
+  	from prj_company_contract pcc inner join estate_fund_file eff on pcc.file_id = eff.pid
+  	where pcc.business_prj_info_id = #{businessPrjInfoId,jdbcType=VARCHAR}
+  </select>
+  
+</mapper>

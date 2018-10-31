@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.upjf.fund.service.impl.business.mapper.CorporationDataInfoMapper" >
+  <resultMap id="BaseResultMap" type="com.upjf.fund.dto.CorporationDataInfo" >
+    <id column="pid" property="pid" jdbcType="VARCHAR" />
+    <result column="corp_id" property="corpId" jdbcType="VARCHAR" />
+    <result column="cor_data_type" property="corDataType" jdbcType="VARCHAR" />
+    <result column="file_type_name" property="fileTypeName" jdbcType="VARCHAR" />
+    <result column="file_id" property="fileId" jdbcType="VARCHAR" />
+    <result column="status" property="status" jdbcType="INTEGER" />
+    <result column="create_date" property="createDate" jdbcType="TIMESTAMP" />
+    <result column="create_id" property="createId" jdbcType="VARCHAR" />
+    <result column="update_date" property="updateDate" jdbcType="TIMESTAMP" />
+    <result column="update_id" property="updateId" jdbcType="VARCHAR" />
+    
+    
+    <!-- 非数据拥有字段,仅为满足业务引入 -->
+    <result column="file_url" property="fileUrl" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    pid, corp_id, cor_data_type, file_type_name, file_id, status, create_date, create_id, 
+    update_date, update_id
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from corporation_data_info
+    where pid = #{pid,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from corporation_data_info
+    where pid = #{pid,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.upjf.fund.dto.CorporationDataInfo" >
+    insert into corporation_data_info (pid, corp_id, cor_data_type, 
+      file_type_name, file_id, status, 
+      create_date, create_id, update_date, 
+      update_id)
+    values (#{pid,jdbcType=VARCHAR}, #{corpId,jdbcType=VARCHAR}, #{corDataType,jdbcType=VARCHAR}, 
+      #{fileTypeName,jdbcType=VARCHAR}, #{fileId,jdbcType=VARCHAR}, #{status,jdbcType=INTEGER}, 
+      #{createDate,jdbcType=TIMESTAMP}, #{createId,jdbcType=VARCHAR}, #{updateDate,jdbcType=TIMESTAMP}, 
+      #{updateId,jdbcType=VARCHAR})
+  </insert>
+  
+  
+  
+  <!-- 保存企业资料扫描件 -->
+  <insert id="saveCorporationDataInfo" parameterType="com.upjf.fund.dto.CorporationDataInfo" >
+    insert into corporation_data_info
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="pid != null and pid !=''" >
+        pid,
+      </if>
+      <if test="corpId != null and corpId !=''" >
+        corp_id,
+      </if>
+      <if test="corDataType != null and corDataType !=''" >
+        cor_data_type,
+      </if>
+      <if test="fileTypeName != null and fileTypeName !=''" >
+        file_type_name,
+      </if>
+      <if test="fileId != null and fileId !=''" >
+        file_id,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+      <if test="createDate != null" >
+        create_date,
+      </if>
+      <if test="createId != null and createId !=''" >
+        create_id,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="pid != null and pid !=''" >
+        #{pid,jdbcType=VARCHAR},
+      </if>
+      <if test="corpId != null and corpId !=''" >
+        #{corpId,jdbcType=VARCHAR},
+      </if>
+      <if test="corDataType != null and corDataType !=''" >
+        #{corDataType,jdbcType=VARCHAR},
+      </if>
+      <if test="fileTypeName != null and fileTypeName !=''" >
+        #{fileTypeName,jdbcType=VARCHAR},
+      </if>
+      <if test="fileId != null and fileId !=''" >
+        #{fileId,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=INTEGER},
+      </if>
+      <if test="createDate != null" >
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createId != null and createId !=''" >
+        #{createId,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  
+  <!-- 根据企业主键和文件类型查询获取处于有效状态的企业资料扫描件信息 -->
+  <select id="getDataInfoByCondition" resultMap="BaseResultMap" parameterType="java.util.Map" >
+    select 
+    <include refid="Base_Column_List" />
+    from corporation_data_info
+    where corp_id = #{corpId} and cor_data_type = #{corDataType} and status = 1
+  </select>
+  
+  
+  
+  <!-- 根据企业主键获取处于有效状态的企业资料扫描件信息 -->
+  <select id="getCorDataInfoByCorPid" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    SELECT 
+	  a.*,
+	  b.`file_url` as fileUrl
+	FROM
+	  corporation_data_info a 
+	  LEFT JOIN estate_fund_file b 
+	    ON a.`file_id` = b.`pid` 
+	WHERE a.`corp_id` = #{corPid} 
+	  AND a.`status` = 1 
+	  AND b.`status` = '1' 
+  </select>
+  
+  
+  <!-- 根据企业基本信息主键和文件类型主键变更企业资料扫描件状态(伪删除 -->
+  <update id="delCorDataInfoByCondition" parameterType="java.util.Map" >
+    update corporation_data_info
+    <set >
+      status = 0,
+      <if test="updateDate != null" >
+        update_date = #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateId != null and updateId !=''" >
+        update_id = #{updateId,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where corp_id = #{corpId} and cor_data_type = #{corDataType} and status = 1
+  </update>
+  
+  
+  <update id="updateByPrimaryKeySelective" parameterType="com.upjf.fund.dto.CorporationDataInfo" >
+    update corporation_data_info
+    <set >
+      <if test="corpId != null" >
+        corp_id = #{corpId,jdbcType=VARCHAR},
+      </if>
+      <if test="corDataType != null" >
+        cor_data_type = #{corDataType,jdbcType=VARCHAR},
+      </if>
+      <if test="fileTypeName != null" >
+        file_type_name = #{fileTypeName,jdbcType=VARCHAR},
+      </if>
+      <if test="fileId != null" >
+        file_id = #{fileId,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=INTEGER},
+      </if>
+      <if test="createDate != null" >
+        create_date = #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createId != null" >
+        create_id = #{createId,jdbcType=VARCHAR},
+      </if>
+      <if test="updateDate != null" >
+        update_date = #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateId != null" >
+        update_id = #{updateId,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where pid = #{pid,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.upjf.fund.dto.CorporationDataInfo" >
+    update corporation_data_info
+    set corp_id = #{corpId,jdbcType=VARCHAR},
+      cor_data_type = #{corDataType,jdbcType=VARCHAR},
+      file_type_name = #{fileTypeName,jdbcType=VARCHAR},
+      file_id = #{fileId,jdbcType=VARCHAR},
+      status = #{status,jdbcType=INTEGER},
+      create_date = #{createDate,jdbcType=TIMESTAMP},
+      create_id = #{createId,jdbcType=VARCHAR},
+      update_date = #{updateDate,jdbcType=TIMESTAMP},
+      update_id = #{updateId,jdbcType=VARCHAR}
+    where pid = #{pid,jdbcType=VARCHAR}
+  </update>
+</mapper>

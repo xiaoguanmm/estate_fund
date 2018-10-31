@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd   
+       http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.3.xsd   
+       http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.3.xsd   
+       http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd
+       http://code.alibabatech.com/schema/dubbo
+       http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
+	
+	 <!-- 用户提供服务接口 -->
+     <dubbo:service interface="com.upjf.fund.service.system.UserInfoService"  ref="userInfoService" />  
+     
+     <!-- 角色提供服务接口 -->
+     <dubbo:service interface="com.upjf.fund.service.system.RoleInfoService"  ref="roleInfoService" />
+     
+     <!-- 菜单资源提供服务接口 -->  
+     <dubbo:service interface="com.upjf.fund.service.system.ResourceInfoService"  ref="resourceInfoService" />
+     
+     <!-- 权限信息服务接口 -->  
+     <dubbo:service interface="com.upjf.fund.service.system.AuthorityService"  ref="authorityService" />
+     
+     <!-- 字典信息服务接口 -->
+     <dubbo:service interface="com.upjf.fund.service.system.DictInfoService"  ref="dictInfoService" />
+     <!-- 自定义标签信息服务接口 -->
+     <dubbo:service interface="com.upjf.fund.service.system.FundTagService"  ref="fundTagService" />
+     
+     <!-- 省市区资源提供服务接口(旧,废弃,待删除) -->  
+     <dubbo:service interface="com.upjf.fund.service.system.AreaInfoService"  ref="areaInfoService" />
+     
+     <!-- 系统地区信息服务接口 -->  
+     <dubbo:service interface="com.upjf.fund.service.system.SysAreaInfoService"  ref="sysAreaInfoService" />
+     
+     <!-- 系统操作日志接口 -->  
+     <dubbo:service interface="com.upjf.fund.service.system.LogInfoService"  ref="logInfoService" />
+     
+     <!-- 文件操作 -->
+     <dubbo:service interface="com.upjf.fund.service.system.EstateFundFileService"  ref="estateFundFileService" />
+</beans>

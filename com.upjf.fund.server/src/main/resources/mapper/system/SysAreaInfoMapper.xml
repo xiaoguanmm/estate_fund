@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.upjf.fund.service.impl.system.mapper.SysAreaInfoMapper" >
+  <resultMap id="BaseResultMap" type="com.upjf.fund.dto.SysAreaInfo" >
+    <id column="area_code" property="areaCode" jdbcType="VARCHAR" />
+    <result column="area_name" property="areaName" jdbcType="VARCHAR" />
+    <result column="parent_code" property="parentCode" jdbcType="VARCHAR" />
+    <result column="level" property="level" jdbcType="CHAR" />
+    <result column="area_tel_code" property="areaTelCode" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    area_code, area_name, parent_code, level, area_tel_code
+  </sql>
+  
+  
+  <!-- 根据主键查询获取系统地区信息 -->
+  <select id="getSysAreaByKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from sys_area_info
+    where area_code = #{areaCode,jdbcType=VARCHAR}
+  </select>
+  
+  
+  <!-- 根据级别获取系统地区信息 -->
+  <select id="getSysAreaByLevel" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from sys_area_info
+    where level = #{level}
+  </select>
+  
+  <!-- 根据主键删除系统地区信息表(物理删除) -->
+  <delete id="delSysAreaByKey" parameterType="java.lang.String" >
+    delete from sys_area_info
+    where area_code = #{areaCode,jdbcType=VARCHAR}
+  </delete>
+  
+  <!-- 新增系统地区信息 -->
+  <insert id="saveSysAreaInfo" parameterType="com.upjf.fund.dto.SysAreaInfo" >
+    insert into sys_area_info
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="areaCode != null" >
+        area_code,
+      </if>
+      <if test="areaName != null" >
+        area_name,
+      </if>
+      <if test="parentCode != null" >
+        parent_code,
+      </if>
+      <if test="level != null" >
+        level,
+      </if>
+      <if test="areaTelCode != null" >
+        area_tel_code,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="areaCode != null" >
+        #{areaCode,jdbcType=VARCHAR},
+      </if>
+      <if test="areaName != null" >
+        #{areaName,jdbcType=VARCHAR},
+      </if>
+      <if test="parentCode != null" >
+        #{parentCode,jdbcType=VARCHAR},
+      </if>
+      <if test="level != null" >
+        #{level,jdbcType=CHAR},
+      </if>
+      <if test="areaTelCode != null" >
+        #{areaTelCode,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  
+  
+  <!-- 根据主键更新系统地区信息表 -->
+  <update id="updateSysAreaByKey" parameterType="com.upjf.fund.dto.SysAreaInfo" >
+    update sys_area_info
+    <set >
+      <if test="areaName != null" >
+        area_name = #{areaName,jdbcType=VARCHAR},
+      </if>
+      <if test="parentCode != null" >
+        parent_code = #{parentCode,jdbcType=VARCHAR},
+      </if>
+      <if test="level != null" >
+        level = #{level,jdbcType=CHAR},
+      </if>
+      <if test="areaTelCode != null" >
+        area_tel_code = #{areaTelCode,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where area_code = #{areaCode,jdbcType=VARCHAR}
+  </update>
+  
+  
+  <!-- 根据条件获取响应的系统地区信息 -->
+  <select id="getSysAreaByCondition" resultMap="BaseResultMap" parameterType="com.upjf.fund.dto.SysAreaInfo" >
+    select 
+    <include refid="Base_Column_List" />
+    from sys_area_info
+    <where>
+    	<if test="areaCode != null and areaCode != ''">
+    		area_code = #{areaCode}
+    	</if>
+    	<if test="areaName != null and areaName != ''">
+    		and area_name like "%"#{areaName}"%"
+    	</if>
+    	<if test="parentCode != null and parentCode != ''">
+    		and parent_code = #{parentCode}
+    	</if>
+    	<if test="level != null and level != ''">
+    		and level = #{level}
+    	</if>
+    	<if test="areaTelCode != null and areaTelCode != ''">
+    		and area_tel_code = #{areaTelCode}
+    	</if>
+    </where>
+  </select>
+  
+</mapper>

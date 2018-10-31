@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd   
+       http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.3.xsd   
+       http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.3.xsd   
+       http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd
+       http://code.alibabatech.com/schema/dubbo
+       http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
+	
+     	<dubbo:reference interface="com.upjf.fund.service.system.RoleInfoService"  id="roleInfoService" />
+		<dubbo:reference interface="com.upjf.fund.service.system.ResourceInfoService" id="resourceInfoService"/>
+		<dubbo:reference interface="com.upjf.fund.service.system.UserInfoService" id="userInfoService" />
+		<dubbo:reference interface="com.upjf.fund.service.system.AuthorityService" id="authorityService" />
+		<dubbo:reference interface="com.upjf.fund.service.system.DictInfoService"  id="dictInfoService" />
+		<!-- 自定义标签信息服务接口 -->
+     	<dubbo:reference interface="com.upjf.fund.service.system.FundTagService"  id="fundTagService" />
+		<!-- 省市区资源提供服务接口 (旧,废弃,待删除)-->  
+     	<dubbo:reference interface="com.upjf.fund.service.system.AreaInfoService"  id="areaInfoService" />
+     	<!-- 系统操作日志服务接口 -->  
+     	<dubbo:reference interface="com.upjf.fund.service.system.LogInfoService"  id="logInfoService" />
+     	<!-- 系统地区信息服务接口 -->
+     	<dubbo:reference interface="com.upjf.fund.service.system.SysAreaInfoService"  id="sysAreaInfoService" />
+     	<!-- 文件操作 -->
+     	<dubbo:reference interface="com.upjf.fund.service.system.EstateFundFileService"  id="estateFundFileService" />
+</beans>

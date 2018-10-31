@@ -1,0 +1,675 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.upjf.fund.service.impl.business.mapper.ProjectInfoMapper" >
+  <resultMap id="BaseResultMap" type="com.upjf.fund.dto.ProjectInfo" >
+    <id column="pid" property="pid" jdbcType="VARCHAR" />
+    <result column="project_code" property="projectCode" jdbcType="VARCHAR" />
+    <result column="project_name" property="projectName" jdbcType="VARCHAR" />
+    <result column="business_prj_info_id" property="businessPrjInfoId" jdbcType="VARCHAR" />
+    <result column="building_name" property="buildingName" jdbcType="VARCHAR" />
+    <result column="developers_id" property="developersId" jdbcType="VARCHAR" />
+    <result column="project_provice" property="projectProvice" jdbcType="VARCHAR" />
+    <result column="project_city" property="projectCity" jdbcType="VARCHAR" />
+    <result column="project_region" property="projectRegion" jdbcType="VARCHAR" />
+    <result column="project_detail" property="projectDetail" jdbcType="VARCHAR" />
+    <result column="project_category" property="projectCategory" jdbcType="VARCHAR" />
+    <result column="land_get_way" property="landGetWay" jdbcType="VARCHAR" />
+    <result column="project_land_quality" property="projectLandQuality" jdbcType="VARCHAR" />
+    <result column="project_occupation_area" property="projectOccupationArea" jdbcType="DECIMAL" />
+    <result column="project_user_area" property="projectUserArea" jdbcType="DECIMAL" />
+    <result column="project_cubage_rate" property="projectCubageRate" jdbcType="DECIMAL" />
+    <result column="project_area" property="projectArea" jdbcType="DECIMAL" />
+    <result column="project_area_cost" property="projectAreaCost" jdbcType="DECIMAL" />
+    <result column="price_of_per_floor" property="priceOfPerFloor" jdbcType="DECIMAL" />
+    <result column="cubage_per_floor" property="cubagePerFloor" jdbcType="DECIMAL" />
+    <result column="cubage_building_area" property="cubageBuildingArea" jdbcType="DECIMAL" />
+    <result column="sale_all_area" property="saleAllArea" jdbcType="DECIMAL" />
+    <result column="cubage_sale_area" property="cubageSaleArea" jdbcType="DECIMAL" />
+    <result column="all_price" property="allPrice" jdbcType="DECIMAL" />
+    <result column="project_all_put_into" property="projectAllPutInto" jdbcType="DECIMAL" />
+    <result column="project_term" property="projectTerm" jdbcType="TIMESTAMP" />
+    <result column="expect_start_work_date" property="expectStartWorkDate" jdbcType="TIMESTAMP" />
+    <result column="expect_opening_date" property="expectOpeningDate" jdbcType="TIMESTAMP" />
+    <result column="expect_earnings" property="expectEarnings" jdbcType="DECIMAL" />
+    <result column="expect_earnings_rate" property="expectEarningsRate" jdbcType="DECIMAL" />
+    <result column="update_range_per_area" property="updateRangePerArea" jdbcType="DECIMAL" />
+    <result column="develop_build_area" property="developBuildArea" jdbcType="DECIMAL" />
+    <result column="prepare_dismantle_area" property="prepareDismantleArea" jdbcType="DECIMAL" />
+    <result column="cubage_rate" property="cubageRate" jdbcType="DECIMAL" />
+    <result column="build_area" property="buildArea" jdbcType="DECIMAL" />
+    <result column="expect_price_per_area" property="expectPricePerArea" jdbcType="DECIMAL" />
+    <result column="expect_resumption_date" property="expectResumptionDate" jdbcType="TIMESTAMP" />
+    <result column="remark" property="remark" jdbcType="VARCHAR" />
+    <result column="status" property="status" jdbcType="INTEGER" />
+    <result column="create_date" property="createDate" jdbcType="TIMESTAMP" />
+    <result column="create_id" property="createId" jdbcType="VARCHAR" />
+    <result column="update_date" property="updateDate" jdbcType="TIMESTAMP" />
+    <result column="update_id" property="updateId" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    pid, project_code, project_name, business_prj_info_id, building_name, developers_id, 
+    project_provice, project_city, project_region, project_detail, project_category, 
+    land_get_way, project_land_quality, project_occupation_area, project_user_area, project_cubage_rate, 
+    project_area, CONVERT(project_area_cost/10000,DECIMAL(18,2)) as project_area_cost, price_of_per_floor, cubage_per_floor, cubage_building_area, 
+    sale_all_area, cubage_sale_area, CONVERT(all_price/10000,DECIMAL(18,2)) as all_price, CONVERT(project_all_put_into/10000,DECIMAL(18,2)) as project_all_put_into, project_term, 
+    expect_start_work_date, 
+    expect_opening_date, CONVERT(expect_earnings/10000,DECIMAL(18,2)) as expect_earnings, expect_earnings_rate, update_range_per_area, 
+    develop_build_area, prepare_dismantle_area, cubage_rate, build_area, expect_price_per_area, 
+    expect_resumption_date, remark, status, create_date, create_id, update_date, update_id
+  </sql>
+  
+  
+  <!-- 根据主键查询获取单条项目基本信息 -->
+  <select id="getProjectInfoByKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from project_info
+    where pid = #{pid,jdbcType=VARCHAR}
+  </select>
+  
+  
+  <!-- 根据项目主键查询获取项目公司相关信息 -->
+  <select id="getProjectCompanyByProjectPid" resultType="java.util.Map" parameterType="java.lang.String" >
+    SELECT 
+	  b.`pid` AS dataValue,
+	  b.`prj_corp_name` AS dataText,
+	  b.corporation_info_id as dataTitle
+	FROM
+	  business_prj_info b 
+	WHERE b.`pid` IN 
+	  (SELECT 
+	    a.`business_prj_info_id` 
+	  FROM
+	    project_info a 
+	  WHERE a.`pid` = #{projectPid} 
+	    AND a.`status` = 1) 
+	  AND b.`status` = 1 
+  </select>
+  
+  
+  <!-- 根据状态,获取有效或者无效状态的项目信息 -->
+  <select id="getProjectListByStatus" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from project_info
+    where status = #{status}
+  </select>
+  
+  
+  <!-- 分页获取项目管理信息 -->
+  <select id="getProjectVoListByPage" resultType="com.upjf.fund.dto.ProjectVo" parameterType="java.util.Map" >
+	SELECT 
+	  p.projectPid,
+	  p.projectCode,
+	  p.projectName,
+	  p.projectProvinceId,
+	  p.projetCityId,
+	  p.projectRegionId,
+	  p.projectCategoryId,
+	  p.landgetWayId,
+	  p.createDate,
+	  p.updateDate,
+	  p.projectCompany,
+	  CONCAT(p.provinceName,p.cityName,p.regionName,p.projectDetail) AS projectAddressFullName,
+	  p.projectCategory,
+	  p.landGetWay,
+	  p.allPrice,
+	  DATE_FORMAT(p.latestProgressTime,'%Y-%m-%d %H:%i:%s') AS latestProgressTime,
+	  p.projectProgress,
+	  p.latestProgressName
+	FROM
+	  (SELECT 
+		  a.`pid` AS projectPid,
+		  a.project_code AS projectCode,
+		  a.`project_name` AS projectName,
+		  a.project_provice AS projectProvinceId,
+		  a.project_city AS projetCityId,
+		  a.project_region AS projectRegionId,
+		  a.project_category AS projectCategoryId,
+		  a.land_get_way AS landgetWayId,
+		  a.create_date AS createDate,
+		  a.update_date AS updateDate,
+		  (SELECT e.prj_corp_name FROM business_prj_info e WHERE e.status = 1 AND  e.pid = a.`business_prj_info_id`) AS projectCompany,
+		  (SELECT f.area_name FROM sys_area_info f WHERE f.area_code = a.project_provice) AS provinceName,
+		  (SELECT g.area_name FROM sys_area_info g WHERE g.area_code = a.project_provice) AS cityName,
+		  (SELECT h.area_name FROM sys_area_info h WHERE h.area_code = a.project_provice) AS regionName,
+		  a.project_detail AS projectDetail,
+		  b.value_des AS projectCategory,
+		  c.`value_des` AS landGetWay,
+		  CONVERT(a.all_price/10000,DECIMAL(9,2)) AS allPrice,
+		  (SELECT MAX(i.create_date) FROM project_progress i WHERE i.prj_id = a.`pid`) AS latestProgressTime,
+		  (SELECT j.project_progress FROM project_progress j WHERE j.prj_id = a.`pid` AND j.status = 1 ORDER BY j.create_date DESC LIMIT 0,1 ) AS projectProgress,
+		  (SELECT (SELECT k.value_des FROM dict_detail k WHERE k.pid = j.project_progress) AS latestProgressName FROM project_progress j WHERE j.prj_id = a.`pid` AND j.status = 1 ORDER BY j.create_date DESC LIMIT 0,1 ) AS latestProgressName
+		FROM
+		  project_info a 
+		  INNER JOIN dict_detail b 
+		    ON b.pid = a.`project_category` 
+		    INNER JOIN dict_detail c ON c.`pid` = a.`land_get_way`
+		WHERE a.`status` = 1) p 
+	<where>
+		<if test="projectName != null and projectName !=''">
+			p.projectName LIKE "%"#{projectName}"%"
+		</if>
+		<if test="projectCompany != null and projectCompany !=''">
+			AND p.projectCompany LIKE LIKE "%"#{projectCompany}"%"
+		</if>
+		<if test="projectProvinceId != null and projectProvinceId !=''">
+			AND p.projectProvinceId = #{projectProvinceId}
+		</if>
+		<if test="projetCityId != null and projetCityId !=''">
+			AND p.projetCityId = #{projetCityId}
+		</if>
+		<if test="projectRegionId != null and projectRegionId !=''">
+			AND p.projectRegionId = #{projectRegionId}
+		</if>
+		<if test="projectCategoryId != null and projectCategoryId !=''">
+			AND p.projectCategoryId = #{projectCategoryId}
+		</if>
+		<if test="landgetWayId != null and landgetWayId !=''">
+			AND p.landgetWayId = #{landgetWayId}
+		</if>
+		<if test="projectProgress != null and projectProgress !=''">
+			AND p.projectProgress = #{projectProgress}
+		</if>
+	</where>
+	ORDER BY p.updateDate DESC ,p.createDate DESC
+	LIMIT #{startIndex},#{pageSize}
+  </select>
+  
+  <!-- 获取满足条件的所有记录数 -->
+  <select id="getTotalCount" resultType="java.lang.Integer" parameterType="java.util.Map" >
+	SELECT 
+	  count(1)
+	FROM
+	  (SELECT 
+		  a.`pid` AS projectPid,
+		  a.project_code AS projectCode,
+		  a.`project_name` AS projectName,
+		  a.project_provice AS projectProvinceId,
+		  a.project_city AS projetCityId,
+		  a.project_region AS projectRegionId,
+		  a.project_category AS projectCategoryId,
+		  a.land_get_way AS landgetWayId,
+		  a.create_date AS createDate,
+		  a.update_date AS updateDate,
+		  (SELECT e.prj_corp_name FROM business_prj_info e WHERE e.status = 1 AND  e.pid = a.`business_prj_info_id`) AS projectCompany,
+		  (SELECT f.area_name FROM sys_area_info f WHERE f.area_code = a.project_provice) AS provinceName,
+		  (SELECT g.area_name FROM sys_area_info g WHERE g.area_code = a.project_provice) AS cityName,
+		  (SELECT h.area_name FROM sys_area_info h WHERE h.area_code = a.project_provice) AS regionName,
+		  a.project_detail AS projectDetail,
+		  b.value_des AS projectCategory,
+		  c.`value_des` AS landGetWay,
+		  CONVERT(a.all_price/10000,DECIMAL(9,2)) AS allPrice,
+		  (SELECT MAX(i.create_date) FROM project_progress i WHERE i.prj_id = a.`pid`) AS latestProgressTime,
+		  (SELECT j.project_progress FROM project_progress j WHERE j.prj_id = a.`pid` AND j.status = 1 ORDER BY j.create_date DESC LIMIT 0,1 ) AS projectProgress,
+		  (SELECT (SELECT k.value_des FROM dict_detail k WHERE k.pid = j.project_progress) AS latestProgressName FROM project_progress j WHERE j.prj_id = a.`pid` AND j.status = 1 ORDER BY j.create_date DESC LIMIT 0,1 ) AS latestProgressName
+		FROM
+		  project_info a 
+		  INNER JOIN dict_detail b 
+		    ON b.pid = a.`project_category` 
+		    INNER JOIN dict_detail c ON c.`pid` = a.`land_get_way`
+		WHERE a.`status` = 1) p 
+	<where>
+		<if test="projectName != null and projectName !=''">
+			p.projectName LIKE "%"#{projectName}"%"
+		</if>
+		<if test="projectCompany != null and projectCompany !=''">
+			AND p.projectCompany LIKE LIKE "%"#{projectCompany}"%"
+		</if>
+		<if test="projectProvinceId != null and projectProvinceId !=''">
+			AND p.projectProvinceId = #{projectProvinceId}
+		</if>
+		<if test="projetCityId != null and projetCityId !=''">
+			AND p.projetCityId = #{projetCityId}
+		</if>
+		<if test="projectRegionId != null and projectRegionId !=''">
+			AND p.projectRegionId = #{projectRegionId}
+		</if>
+		<if test="projectCategoryId != null and projectCategoryId !=''">
+			AND p.projectCategoryId = #{projectCategoryId}
+		</if>
+		<if test="landgetWayId != null and landgetWayId !=''">
+			AND p.landgetWayId = #{landgetWayId}
+		</if>
+		<if test="projectProgress != null and projectProgress !=''">
+			AND p.projectProgress = #{projectProgress}
+		</if>
+	</where>
+  </select>
+  
+  
+  
+  
+  <!-- 根据主键删除项目基本信息(物理删除) -->
+  <delete id="deleteProInfoByKey" parameterType="java.lang.String" >
+    delete from project_info
+    where pid = #{pid,jdbcType=VARCHAR}
+  </delete>
+  
+  
+  <!-- 新增项目基本信息 -->
+  <insert id="saveProjectInfo" parameterType="com.upjf.fund.dto.ProjectInfo" >
+    insert into project_info
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="pid != null and pid !=''" >
+        pid,
+      </if>
+      <if test="projectCode != null and projectCode !='' " >
+        project_code,
+      </if>
+      <if test="projectName != null and projectName !=''" >
+        project_name,
+      </if>
+      <if test="businessPrjInfoId != null and businessPrjInfoId !=''" >
+        business_prj_info_id,
+      </if>
+      <if test="buildingName != null and buildingName !=''" >
+        building_name,
+      </if>
+      <if test="developersId != null and developersId !=''" >
+        developers_id,
+      </if>
+      <if test="projectProvice != null and projectProvice !=''" >
+        project_provice,
+      </if>
+      <if test="projectCity != null and projectCity !=''" >
+        project_city,
+      </if>
+      <if test="projectRegion != null and projectRegion !=''" >
+        project_region,
+      </if>
+      <if test="projectDetail != null and projectDetail !=''" >
+        project_detail,
+      </if>
+      <if test="projectCategory != null and projectCategory !=''" >
+        project_category,
+      </if>
+      <if test="landGetWay != null and landGetWay !=''" >
+        land_get_way,
+      </if>
+      <if test="projectLandQuality != null and projectLandQuality != ''" >
+        project_land_quality,
+      </if>
+      <if test="projectOccupationArea != null" >
+        project_occupation_area,
+      </if>
+      <if test="projectUserArea != null" >
+        project_user_area,
+      </if>
+      <if test="projectCubageRate != null" >
+        project_cubage_rate,
+      </if>
+      <if test="projectArea != null" >
+        project_area,
+      </if>
+      <if test="projectAreaCost != null" >
+        project_area_cost,
+      </if>
+      <if test="priceOfPerFloor != null" >
+        price_of_per_floor,
+      </if>
+      <if test="cubagePerFloor != null" >
+        cubage_per_floor,
+      </if>
+      <if test="cubageBuildingArea != null" >
+        cubage_building_area,
+      </if>
+      <if test="saleAllArea != null" >
+        sale_all_area,
+      </if>
+      <if test="cubageSaleArea != null" >
+        cubage_sale_area,
+      </if>
+      <if test="allPrice != null" >
+        all_price,
+      </if>
+      <if test="projectAllPutInto != null" >
+        project_all_put_into,
+      </if>
+      <if test="projectTerm != null" >
+        project_term,
+      </if>
+      <if test="expectStartWorkDate != null" >
+        expect_start_work_date,
+      </if>
+      <if test="expectOpeningDate != null" >
+        expect_opening_date,
+      </if>
+      <if test="expectEarnings != null" >
+        expect_earnings,
+      </if>
+      <if test="expectEarningsRate != null" >
+        expect_earnings_rate,
+      </if>
+      <if test="updateRangePerArea != null" >
+        update_range_per_area,
+      </if>
+      <if test="developBuildArea != null" >
+        develop_build_area,
+      </if>
+      <if test="prepareDismantleArea != null" >
+        prepare_dismantle_area,
+      </if>
+      <if test="cubageRate != null" >
+        cubage_rate,
+      </if>
+      <if test="buildArea != null" >
+        build_area,
+      </if>
+      <if test="expectPricePerArea != null" >
+        expect_price_per_area,
+      </if>
+      <if test="expectResumptionDate != null" >
+        expect_resumption_date,
+      </if>
+      <if test="remark != null and remark != ''" >
+        remark,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+      <if test="createDate != null" >
+        create_date,
+      </if>
+      <if test="createId != null and createId !=''" >
+        create_id,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="pid != null and pid !=''" >
+        #{pid,jdbcType=VARCHAR},
+      </if>
+      <if test="projectCode != null and projectCode !=''" >
+        #{projectCode,jdbcType=VARCHAR},
+      </if>
+      <if test="projectName != null and projectName !=''" >
+        #{projectName,jdbcType=VARCHAR},
+      </if>
+      <if test="businessPrjInfoId != null and businessPrjInfoId !=''" >
+        #{businessPrjInfoId,jdbcType=VARCHAR},
+      </if>
+      <if test="buildingName != null and buildingName !=''" >
+        #{buildingName,jdbcType=VARCHAR},
+      </if>
+      <if test="developersId != null and developersId !=''" >
+        #{developersId,jdbcType=VARCHAR},
+      </if>
+      <if test="projectProvice != null and projectProvice !=''" >
+        #{projectProvice,jdbcType=VARCHAR},
+      </if>
+      <if test="projectCity != null and projectCity !=''" >
+        #{projectCity,jdbcType=VARCHAR},
+      </if>
+      <if test="projectRegion != null and projectRegion !=''" >
+        #{projectRegion,jdbcType=VARCHAR},
+      </if>
+      <if test="projectDetail != null and projectDetail !=''" >
+        #{projectDetail,jdbcType=VARCHAR},
+      </if>
+      <if test="projectCategory != null and projectCategory !=''" >
+        #{projectCategory,jdbcType=VARCHAR},
+      </if>
+      <if test="landGetWay != null and landGetWay !=''" >
+        #{landGetWay,jdbcType=VARCHAR},
+      </if>
+      <if test="projectLandQuality != null and projectLandQuality !=''" >
+        #{projectLandQuality,jdbcType=VARCHAR},
+      </if>
+      <if test="projectOccupationArea != null" >
+        #{projectOccupationArea,jdbcType=DECIMAL},
+      </if>
+      <if test="projectUserArea != null" >
+        #{projectUserArea,jdbcType=DECIMAL},
+      </if>
+      <if test="projectCubageRate != null" >
+        #{projectCubageRate,jdbcType=DECIMAL},
+      </if>
+      <if test="projectArea != null" >
+        #{projectArea,jdbcType=DECIMAL},
+      </if>
+      <if test="projectAreaCost != null" >
+        #{projectAreaCost,jdbcType=DECIMAL},
+      </if>
+      <if test="priceOfPerFloor != null" >
+        #{priceOfPerFloor,jdbcType=DECIMAL},
+      </if>
+      <if test="cubagePerFloor != null" >
+        #{cubagePerFloor,jdbcType=DECIMAL},
+      </if>
+      <if test="cubageBuildingArea != null" >
+        #{cubageBuildingArea,jdbcType=DECIMAL},
+      </if>
+      <if test="saleAllArea != null" >
+        #{saleAllArea,jdbcType=DECIMAL},
+      </if>
+      <if test="cubageSaleArea != null" >
+        #{cubageSaleArea,jdbcType=DECIMAL},
+      </if>
+      <if test="allPrice != null" >
+        #{allPrice,jdbcType=DECIMAL},
+      </if>
+      <if test="projectAllPutInto != null" >
+        #{projectAllPutInto,jdbcType=DECIMAL},
+      </if>
+      <if test="projectTerm != null" >
+        #{projectTerm,jdbcType=TIMESTAMP},
+      </if>
+      <if test="expectStartWorkDate != null" >
+        #{expectStartWorkDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="expectOpeningDate != null" >
+        #{expectOpeningDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="expectEarnings != null" >
+        #{expectEarnings,jdbcType=DECIMAL},
+      </if>
+      <if test="expectEarningsRate != null" >
+        #{expectEarningsRate,jdbcType=DECIMAL},
+      </if>
+      <if test="updateRangePerArea != null" >
+        #{updateRangePerArea,jdbcType=DECIMAL},
+      </if>
+      <if test="developBuildArea != null" >
+        #{developBuildArea,jdbcType=DECIMAL},
+      </if>
+      <if test="prepareDismantleArea != null" >
+        #{prepareDismantleArea,jdbcType=DECIMAL},
+      </if>
+      <if test="cubageRate != null" >
+        #{cubageRate,jdbcType=DECIMAL},
+      </if>
+      <if test="buildArea != null" >
+        #{buildArea,jdbcType=DECIMAL},
+      </if>
+      <if test="expectPricePerArea != null" >
+        #{expectPricePerArea,jdbcType=DECIMAL},
+      </if>
+      <if test="expectResumptionDate != null" >
+        #{expectResumptionDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="remark != null and remark !=''" >
+        #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=INTEGER},
+      </if>
+      <if test="createDate != null" >
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createId != null and createId !=''" >
+        #{createId,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  
+  <!-- 批量更改项目基本信息状态 (伪删除)-->
+  <update id="delProInfoByPids" parameterType="java.util.Map">
+    update  project_info
+    <set>
+    	status = 0,
+    	<if test="updateDate != null">
+    		update_date=#{updateDate},
+    	</if>
+    	<if test="updateId != null and updateId !=''">
+    		update_id=#{updateId},
+    	</if>
+    </set>
+    where pid in 
+    <foreach collection="idList" open="(" separator="," close=")" item="pid">
+    	#{pid}
+    </foreach>
+  </update>
+  
+  
+  <!-- 根据主键更新对应的项目基本信息 -->
+  <update id="updateProInfoByKey" parameterType="com.upjf.fund.dto.ProjectInfo" >
+    update project_info
+    <set >
+      <if test="projectCode != null" >
+        project_code = #{projectCode,jdbcType=VARCHAR},
+      </if>
+      <if test="projectName != null" >
+        project_name = #{projectName,jdbcType=VARCHAR},
+      </if>
+      <if test="businessPrjInfoId != null" >
+        business_prj_info_id = #{businessPrjInfoId,jdbcType=VARCHAR},
+      </if>
+      <if test="buildingName != null" >
+        building_name = #{buildingName,jdbcType=VARCHAR},
+      </if>
+      <if test="developersId != null" >
+        developers_id = #{developersId,jdbcType=VARCHAR},
+      </if>
+      <if test="projectProvice != null" >
+        project_provice = #{projectProvice,jdbcType=VARCHAR},
+      </if>
+      <if test="projectCity != null" >
+        project_city = #{projectCity,jdbcType=VARCHAR},
+      </if>
+      <if test="projectRegion != null" >
+        project_region = #{projectRegion,jdbcType=VARCHAR},
+      </if>
+      <if test="projectDetail != null" >
+        project_detail = #{projectDetail,jdbcType=VARCHAR},
+      </if>
+      <if test="projectCategory != null" >
+        project_category = #{projectCategory,jdbcType=VARCHAR},
+      </if>
+      <if test="landGetWay != null" >
+        land_get_way = #{landGetWay,jdbcType=VARCHAR},
+      </if>
+      <if test="projectLandQuality != null" >
+        project_land_quality = #{projectLandQuality,jdbcType=VARCHAR},
+      </if>
+      <if test="projectOccupationArea != null" >
+        project_occupation_area = #{projectOccupationArea,jdbcType=DECIMAL},
+      </if>
+      <if test="projectUserArea != null" >
+        project_user_area = #{projectUserArea,jdbcType=DECIMAL},
+      </if>
+      <if test="projectCubageRate != null" >
+        project_cubage_rate = #{projectCubageRate,jdbcType=DECIMAL},
+      </if>
+      <if test="projectArea != null" >
+        project_area = #{projectArea,jdbcType=DECIMAL},
+      </if>
+      <if test="projectAreaCost != null" >
+        project_area_cost = #{projectAreaCost,jdbcType=DECIMAL},
+      </if>
+      <if test="priceOfPerFloor != null" >
+        price_of_per_floor = #{priceOfPerFloor,jdbcType=DECIMAL},
+      </if>
+      <if test="cubagePerFloor != null" >
+        cubage_per_floor = #{cubagePerFloor,jdbcType=DECIMAL},
+      </if>
+      <if test="cubageBuildingArea != null" >
+        cubage_building_area = #{cubageBuildingArea,jdbcType=DECIMAL},
+      </if>
+      <if test="saleAllArea != null" >
+        sale_all_area = #{saleAllArea,jdbcType=DECIMAL},
+      </if>
+      <if test="cubageSaleArea != null" >
+        cubage_sale_area = #{cubageSaleArea,jdbcType=DECIMAL},
+      </if>
+      <if test="allPrice != null" >
+        all_price = #{allPrice,jdbcType=DECIMAL},
+      </if>
+      <if test="projectAllPutInto != null" >
+        project_all_put_into = #{projectAllPutInto,jdbcType=DECIMAL},
+      </if>
+      <if test="projectTerm != null" >
+        project_term = #{projectTerm,jdbcType=TIMESTAMP},
+      </if>
+      <if test="expectStartWorkDate != null" >
+        expect_start_work_date = #{expectStartWorkDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="expectOpeningDate != null" >
+        expect_opening_date = #{expectOpeningDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="expectEarnings != null" >
+        expect_earnings = #{expectEarnings,jdbcType=DECIMAL},
+      </if>
+      <if test="expectEarningsRate != null" >
+        expect_earnings_rate = #{expectEarningsRate,jdbcType=DECIMAL},
+      </if>
+      <if test="updateRangePerArea != null" >
+        update_range_per_area = #{updateRangePerArea,jdbcType=DECIMAL},
+      </if>
+      <if test="developBuildArea != null" >
+        develop_build_area = #{developBuildArea,jdbcType=DECIMAL},
+      </if>
+      <if test="prepareDismantleArea != null" >
+        prepare_dismantle_area = #{prepareDismantleArea,jdbcType=DECIMAL},
+      </if>
+      <if test="cubageRate != null" >
+        cubage_rate = #{cubageRate,jdbcType=DECIMAL},
+      </if>
+      <if test="buildArea != null" >
+        build_area = #{buildArea,jdbcType=DECIMAL},
+      </if>
+      <if test="expectPricePerArea != null" >
+        expect_price_per_area = #{expectPricePerArea,jdbcType=DECIMAL},
+      </if>
+      <if test="expectResumptionDate != null" >
+        expect_resumption_date = #{expectResumptionDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="remark != null" >
+        remark = #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=INTEGER},
+      </if>
+      <if test="updateDate != null" >
+        update_date = #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateId != null" >
+        update_id = #{updateId,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where pid = #{pid,jdbcType=VARCHAR}
+  </update>
+  
+  <!-- 根据项目公司id查询项目公司pid和项目公司名称 -->
+  <select id="getBusinessPrjInfoPidByPrjId" resultType="map" parameterType="string">
+  	SELECT bpi.pid AS businessPrjInfoPid,bpi.prj_corp_name AS prjCorpName
+  		FROM project_info pi 
+		LEFT JOIN business_prj_info bpi ON bpi.pid = pi.business_prj_info_id
+	<where>
+		pi.`status` = 1
+		AND bpi.`status` = '1'
+		AND pi.pid = #{projectInfoPid,jdbcType=VARCHAR}
+	</where>
+  </select>
+  
+  <!-- 获取项目最新状态 -->
+  <select id="getProjectStatusByProjectId" parameterType="string" resultType="string">
+  	select 
+  		dict_detail.value 
+  	from dict_detail dict_detail 
+  		 inner join project_progress 
+  		 on dict_detail.pid = project_progress.project_progress
+  	where project_progress.prj_id = #{projectId,jdbcType=VARCHAR} 
+  	order by project_progress.create_date desc limit 1
+  </select>
+  
+</mapper>

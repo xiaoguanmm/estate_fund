@@ -1,0 +1,1049 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.upjf.fund.service.impl.business.mapper.InvestSubjectFinanceMapper">
+  
+  	  <!-- 分页获取投资主体财务信息 -->
+	  <select id="getInvestSubjectFinanceListByPage" parameterType="java.util.Map" resultType="com.upjf.fund.dto.InvestSubjectFinanceVo">
+		  SELECT 
+			  q.pid AS subjectPid,
+			  q.build_name AS buildName,
+			  q.contributiveTypeName,
+			  q.projectName,
+			  CONVERT(
+			    q.expect_contributive_amount / 10000,
+			    DECIMAL (18, 2)
+			  ) AS expectContributiveAmount,
+			  q.hold_stock_rate AS holdStockRate,
+			  q.term AS payTerm,
+			  q.dividendTypeName,
+			  q.annualized_interest_rate AS annualizedInterestRate,
+			  CONVERT(
+			    q.expect_all_receiver_account / 10000,
+			    DECIMAL (18, 2)
+			  ) AS expectAllReceiverAccount,
+			  r.cTotalRealPayamount AS totalRealPayAmount,
+			  r.eHasReceiveAmount AS hasReceiveAmount,
+			  r.eHasReceiveProfit AS hasReceiveProfit,
+			  q.contributive_type AS contributiveType,
+			  q.invest_subject_id AS investSubjectId,
+			  q.prj_id AS projectPid,
+			  q.corporationName,
+			  q.corp_id 
+			FROM
+			  (SELECT 
+			    si.corp_id,
+			    o1.* 
+			  FROM
+			    (SELECT 
+			      o.*,
+			      p.projectName 
+			    FROM
+			      (SELECT 
+			        b.`pid` AS bProjectPid,
+			        b.`project_name` AS projectName 
+			      FROM
+			        project_info b 
+			      WHERE b.`pid` IN 
+			        (SELECT 
+			          a.`prj_id` 
+			        FROM
+			          invest_subject a 
+			        WHERE a.`invest_type` = '1' 
+			          AND a.`status` = '1') 
+			        AND b.`status` = 1) p 
+			      LEFT JOIN 
+			        (SELECT 
+			          m.*,
+			          n.name AS corporationName 
+			        FROM
+			          (SELECT 
+			            k.*,
+			            l.dividendTypeName 
+			          FROM
+			            (SELECT 
+			              a.*,
+			              i.`value_des` AS contributiveTypeName 
+			            FROM
+			              invest_subject a 
+			              LEFT JOIN dict_detail i 
+			                ON a.`contributive_type` = i.`pid` 
+			            WHERE a.`invest_type` = '1' 
+			              AND a.`status` = '1') k 
+			            LEFT JOIN 
+			              (SELECT 
+			                j.*,
+			                i.`value_des` AS dividendTypeName 
+			              FROM
+			                invest_subject j 
+			                LEFT JOIN dict_detail i 
+			                  ON j.`dividend_type` = i.`pid` 
+			              WHERE j.`invest_type` = '1' 
+			                AND j.`status` = '1') l 
+			              ON k.pid = l.pid) m 
+			          LEFT JOIN corporation_info n 
+			            ON m.invest_subject_id = n.pid 
+			        WHERE n.status = 1) o 
+			        ON o.prj_id = p.bProjectPid) o1 
+			    LEFT JOIN invest_manage_plan p1 
+			      ON o1.invest_manange_id = p1.pid 
+			      AND p1.status = '1' 
+			    LEFT JOIN stockholder_info si 
+			      ON si.pid = p1.stockholder_id 
+			      AND si.status = '1') q 
+			  LEFT JOIN 
+			    (SELECT 
+			      g.cProjectPid AS gProjectPid,
+			      g.cCorporationPid AS gCorporationPid,
+			      g.corp_id,
+			      g.cTotalRealPayamount,
+			      h.eHasReceiveAmount,
+			      h.eHasReceiveProfit 
+			    FROM
+			      (SELECT 
+			        c.`prj_id` AS cProjectPid,
+			        c.`contributive_id` AS cCorporationPid,
+			        c.`payment_type` AS cPaymentType,
+			        CONVERT(
+			          SUM(c.pay_amount) / 10000,
+			          DECIMAL (18, 2)
+			        ) AS cTotalRealPayamount,
+			        d.corp_id 
+			      FROM
+			        payment c,
+			        (SELECT 
+			          d1.corp_id,
+			          c1.* 
+			        FROM
+			          invest_subject c1 
+			          INNER JOIN 
+			            (SELECT 
+			              e1.`corp_id`,
+			              b1.* 
+			            FROM
+			              invest_manage_plan b1 
+			              LEFT JOIN stockholder_info e1 
+			                ON b1.`stockholder_id` = e1.`pid` 
+			                AND e1.`status` = '1' 
+			            WHERE b1.`pid` IN 
+			              (SELECT 
+			                a1.`invest_manange_id` 
+			              FROM
+			                invest_subject a1 
+			              WHERE a1.`status` = '1' 
+			                AND a1.`invest_type` = '1') 
+			              AND b1.`status` = '1') d1 
+			            ON c1.invest_manange_id = d1.pid 
+			            AND c1.status = '1' 
+			            AND d1.status = '1' 
+			            AND c1.invest_type = '1') d 
+			      WHERE c.`prj_id` = d.`prj_id` 
+			        AND c.`contributive_id` = d.`invest_subject_id` 
+			        AND c.`payment_type` = '2' 
+			        AND d.`invest_type` = '1' 
+			        AND c.`status` = '1' 
+			        AND d.`status` = '1' 
+			        AND c.`receiver_id` = d.corp_id 
+			      GROUP BY c.`payment_type`,
+			        c.`receiver_id`,
+			        c.`contributive_id`,
+			        c.`prj_id`) g 
+			      LEFT JOIN 
+			        (SELECT 
+			          e.`prj_id` AS eProjectPid,
+			          e.`receiver_id` AS eCorporationPid,
+			          e.`received_type` AS eReceivedType,
+			          CONVERT(
+			            SUM(e.`receiver_amount`) / 10000,
+			            DECIMAL (18, 2)
+			          ) AS eHasReceiveAmount,
+			          CONVERT(
+			            SUM(e.`profit`) / 10000,
+			            DECIMAL (18, 2)
+			          ) AS eHasReceiveProfit,
+			          f.corp_id 
+			        FROM
+			          received e,
+			          (SELECT 
+			            d1.corp_id,
+			            c1.* 
+			          FROM
+			            invest_subject c1 
+			            INNER JOIN 
+			              (SELECT 
+			                e1.`corp_id`,
+			                b1.* 
+			              FROM
+			                invest_manage_plan b1 
+			                LEFT JOIN stockholder_info e1 
+			                  ON b1.`stockholder_id` = e1.`pid` 
+			                  AND e1.`status` = '1' 
+			              WHERE b1.`pid` IN 
+			                (SELECT 
+			                  a1.`invest_manange_id` 
+			                FROM
+			                  invest_subject a1 
+			                WHERE a1.`status` = '1' 
+			                  AND a1.`invest_type` = '1') 
+			                AND b1.`status` = '1') d1 
+			              ON c1.invest_manange_id = d1.pid 
+			              AND c1.status = '1' 
+			              AND d1.status = '1' 
+			              AND c1.invest_type = '1') f 
+			        WHERE e.`prj_id` = f.`prj_id` 
+			          AND e.`receiver_id` = f.`invest_subject_id` 
+			          AND e.`received_type` = '2' 
+			          AND f.`invest_type` = '1' 
+			          AND e.`status` = '1' 
+			          AND f.`status` = '1' 
+			          AND e.`contributive_id` = f.corp_id 
+			        GROUP BY e.`prj_id`,
+			          e.`receiver_id`,
+			          e.`contributive_id`,
+			          e.`received_type`) h 
+			        ON g.cProjectPid = h.eProjectPid 
+			        AND g.cCorporationPid = h.eCorporationPid 
+			        AND g.cPaymentType = h.eReceivedType 
+			        AND g.corp_id = h.corp_id) r 
+			    ON q.prj_id = r.gProjectPid 
+			    AND q.invest_subject_id = r.gCorporationPid 
+			    AND q.corp_id = r.corp_id  
+			    <where>
+			    	<if test="contributiveType != null and contributiveType !=''">
+			    		q.contributive_type = #{contributiveType}
+			    	</if>
+			    	<if test="investSubjectId != null and investSubjectId !=''">
+			    		and q.invest_subject_id = #{investSubjectId}
+			    	</if>
+			    	<if test="projectName != null and projectName !=''">
+			    		and q.projectName like "%"#{projectName}"%"
+			    	</if>
+			    </where>
+			    ORDER BY q.create_date DESC,
+  				q.update_date DESC 
+			LIMIT #{startIndex}, #{pageSize}    
+	  </select>
+  	  
+  	  
+  	  <!-- 获取满足条件的命中总记录数 -->
+  	  <select id="getTotalCount" parameterType="java.util.Map" resultType="java.lang.Integer">
+		  SELECT 
+			  count(1)
+			FROM
+			  (SELECT 
+			    si.corp_id,
+			    o1.* 
+			  FROM
+			    (SELECT 
+			      o.*,
+			      p.projectName 
+			    FROM
+			      (SELECT 
+			        b.`pid` AS bProjectPid,
+			        b.`project_name` AS projectName 
+			      FROM
+			        project_info b 
+			      WHERE b.`pid` IN 
+			        (SELECT 
+			          a.`prj_id` 
+			        FROM
+			          invest_subject a 
+			        WHERE a.`invest_type` = '1' 
+			          AND a.`status` = '1') 
+			        AND b.`status` = 1) p 
+			      LEFT JOIN 
+			        (SELECT 
+			          m.*,
+			          n.name AS corporationName 
+			        FROM
+			          (SELECT 
+			            k.*,
+			            l.dividendTypeName 
+			          FROM
+			            (SELECT 
+			              a.*,
+			              i.`value_des` AS contributiveTypeName 
+			            FROM
+			              invest_subject a 
+			              LEFT JOIN dict_detail i 
+			                ON a.`contributive_type` = i.`pid` 
+			            WHERE a.`invest_type` = '1' 
+			              AND a.`status` = '1') k 
+			            LEFT JOIN 
+			              (SELECT 
+			                j.*,
+			                i.`value_des` AS dividendTypeName 
+			              FROM
+			                invest_subject j 
+			                LEFT JOIN dict_detail i 
+			                  ON j.`dividend_type` = i.`pid` 
+			              WHERE j.`invest_type` = '1' 
+			                AND j.`status` = '1') l 
+			              ON k.pid = l.pid) m 
+			          LEFT JOIN corporation_info n 
+			            ON m.invest_subject_id = n.pid 
+			        WHERE n.status = 1) o 
+			        ON o.prj_id = p.bProjectPid) o1 
+			    LEFT JOIN invest_manage_plan p1 
+			      ON o1.invest_manange_id = p1.pid 
+			      AND p1.status = '1' 
+			    LEFT JOIN stockholder_info si 
+			      ON si.pid = p1.stockholder_id 
+			      AND si.status = '1') q 
+			  LEFT JOIN 
+			    (SELECT 
+			      g.cProjectPid AS gProjectPid,
+			      g.cCorporationPid AS gCorporationPid,
+			      g.corp_id,
+			      g.cTotalRealPayamount,
+			      h.eHasReceiveAmount,
+			      h.eHasReceiveProfit 
+			    FROM
+			      (SELECT 
+			        c.`prj_id` AS cProjectPid,
+			        c.`contributive_id` AS cCorporationPid,
+			        c.`payment_type` AS cPaymentType,
+			        CONVERT(
+			          SUM(c.pay_amount) / 10000,
+			          DECIMAL (18, 2)
+			        ) AS cTotalRealPayamount,
+			        d.corp_id 
+			      FROM
+			        payment c,
+			        (SELECT 
+			          d1.corp_id,
+			          c1.* 
+			        FROM
+			          invest_subject c1 
+			          INNER JOIN 
+			            (SELECT 
+			              e1.`corp_id`,
+			              b1.* 
+			            FROM
+			              invest_manage_plan b1 
+			              LEFT JOIN stockholder_info e1 
+			                ON b1.`stockholder_id` = e1.`pid` 
+			                AND e1.`status` = '1' 
+			            WHERE b1.`pid` IN 
+			              (SELECT 
+			                a1.`invest_manange_id` 
+			              FROM
+			                invest_subject a1 
+			              WHERE a1.`status` = '1' 
+			                AND a1.`invest_type` = '1') 
+			              AND b1.`status` = '1') d1 
+			            ON c1.invest_manange_id = d1.pid 
+			            AND c1.status = '1' 
+			            AND d1.status = '1' 
+			            AND c1.invest_type = '1') d 
+			      WHERE c.`prj_id` = d.`prj_id` 
+			        AND c.`contributive_id` = d.`invest_subject_id` 
+			        AND c.`payment_type` = '2' 
+			        AND d.`invest_type` = '1' 
+			        AND c.`status` = '1' 
+			        AND d.`status` = '1' 
+			        AND c.`receiver_id` = d.corp_id 
+			      GROUP BY c.`payment_type`,
+			        c.`receiver_id`,
+			        c.`contributive_id`,
+			        c.`prj_id`) g 
+			      LEFT JOIN 
+			        (SELECT 
+			          e.`prj_id` AS eProjectPid,
+			          e.`receiver_id` AS eCorporationPid,
+			          e.`received_type` AS eReceivedType,
+			          CONVERT(
+			            SUM(e.`receiver_amount`) / 10000,
+			            DECIMAL (18, 2)
+			          ) AS eHasReceiveAmount,
+			          CONVERT(
+			            SUM(e.`profit`) / 10000,
+			            DECIMAL (18, 2)
+			          ) AS eHasReceiveProfit,
+			          f.corp_id 
+			        FROM
+			          received e,
+			          (SELECT 
+			            d1.corp_id,
+			            c1.* 
+			          FROM
+			            invest_subject c1 
+			            INNER JOIN 
+			              (SELECT 
+			                e1.`corp_id`,
+			                b1.* 
+			              FROM
+			                invest_manage_plan b1 
+			                LEFT JOIN stockholder_info e1 
+			                  ON b1.`stockholder_id` = e1.`pid` 
+			                  AND e1.`status` = '1' 
+			              WHERE b1.`pid` IN 
+			                (SELECT 
+			                  a1.`invest_manange_id` 
+			                FROM
+			                  invest_subject a1 
+			                WHERE a1.`status` = '1' 
+			                  AND a1.`invest_type` = '1') 
+			                AND b1.`status` = '1') d1 
+			              ON c1.invest_manange_id = d1.pid 
+			              AND c1.status = '1' 
+			              AND d1.status = '1' 
+			              AND c1.invest_type = '1') f 
+			        WHERE e.`prj_id` = f.`prj_id` 
+			          AND e.`receiver_id` = f.`invest_subject_id` 
+			          AND e.`received_type` = '2' 
+			          AND f.`invest_type` = '1' 
+			          AND e.`status` = '1' 
+			          AND f.`status` = '1' 
+			          AND e.`contributive_id` = f.corp_id 
+			        GROUP BY e.`prj_id`,
+			          e.`receiver_id`,
+			          e.`contributive_id`,
+			          e.`received_type`) h 
+			        ON g.cProjectPid = h.eProjectPid 
+			        AND g.cCorporationPid = h.eCorporationPid 
+			        AND g.cPaymentType = h.eReceivedType 
+			        AND g.corp_id = h.corp_id) r 
+			    ON q.prj_id = r.gProjectPid 
+			    AND q.invest_subject_id = r.gCorporationPid 
+			    AND q.corp_id = r.corp_id  
+			    <where>
+			    	<if test="contributiveType != null and contributiveType !=''">
+			    		q.contributive_type = #{contributiveType}
+			    	</if>
+			    	<if test="investSubjectId != null and investSubjectId !=''">
+			    		and q.invest_subject_id = #{investSubjectId}
+			    	</if>
+			    	<if test="projectName != null and projectName !=''">
+			    		and q.projectName like "%"#{projectName}"%"
+			    	</if>
+			    </where>
+	  </select>
+	  
+	  
+	  <!-- 根据项目主键及投资主体主键获取投资主体信息 -->
+  	  <select id="getInvestSubjectByPidAndProjectPid" parameterType="java.util.Map" resultType="com.upjf.fund.dto.InvestSubjectFinanceVo">
+	  SELECT
+		  yi.pid AS subjectPid, 
+		  yi.projectName,
+		  yi.build_name AS buildName,
+		  xi.stockHolderName,
+		  xi.projectCompany,
+		  yi.contributiveTypeName,
+		  xi.corporationName,
+		  yi.is_huilian_corp AS isHuilianCorp,
+		  yi.level,
+		  CONVERT(yi.expect_contributive_amount/10000,DECIMAL(18,2)) AS expectContributiveAmount,
+		  yi.term AS payTerm,
+		  yi.hold_stock_rate AS holdStockRate,
+		  yi.annualized_interest_rate AS annualizedInterestRate,
+		  yi.dividendTypeName,
+		  yi.invest_start_date AS investStartDate,
+		  CONVERT(yi.expect_all_receiver_account/10000,DECIMAL(18,2)) AS expectAllReceiverAccount,
+		  yi.expect_income_rate AS expectIncomeRate,
+		  CONVERT(yi.expect_income/10000,DECIMAL(18,2)) AS expectIncome,
+		  xi.totalRealPayAmount,
+		  xi.profit AS hasReceiveProfit,
+		  xi.realYieldRate,
+		  yi.invest_subject_id as investSubjectId
+		FROM
+		  (SELECT 
+			  p.stockHolderName,
+			  p.totalRealPayAmount,
+			  p.profit,
+			  p.realYieldRate,
+			  o.* 
+			FROM
+			  (SELECT 
+			    m.projectCompany,
+			    n.corporationName,
+			    l.* 
+			  FROM
+			    invest_subject l 
+			    LEFT JOIN 
+			      (SELECT 
+			        i.`pid` AS prj_corp_id,
+			        i.`prj_corp_name` AS projectCompany 
+			      FROM
+			        business_prj_info i 
+			      WHERE i.`pid` IN 
+			        (SELECT 
+			          h.`prj_corp_id` 
+			        FROM
+			          invest_subject h 
+			        WHERE h.`pid` = #{subjectPid} 
+			          AND h.`status` = '1') 
+			        AND i.`status` = 1) m 
+			      ON l.`prj_corp_id` = m.prj_corp_id 
+			    LEFT JOIN 
+			      (SELECT 
+			        j.`pid` AS invest_subject_id,
+			        j.`name` AS corporationName 
+			      FROM
+			        corporation_info j 
+			      WHERE j.`pid` IN 
+			        (SELECT 
+			          k.`invest_subject_id` 
+			        FROM
+			          invest_subject k 
+			        WHERE k.`pid` = #{subjectPid} 
+			          AND k.`status` = '1') 
+			        AND j.`status` = 1) n 
+			      ON l.`invest_subject_id` = n.invest_subject_id 
+			  WHERE l.`pid` = #{subjectPid} 
+			    AND l.`status` = '1') o 
+			  LEFT JOIN 
+			    (SELECT 
+			      f.`prj_id`,
+			      f.`contributive_id`,
+			      f.stockHolderName,
+			      f.totalRealPayAmount,
+			      g.profit,
+			      CONVERT(
+			        g.profit * 100 / f.totalRealPayAmount,
+			        DECIMAL (18, 2)
+			      ) AS realYieldRate 
+			    FROM
+			      (SELECT 
+			        b.`prj_id`,
+			        b.`contributive_id`,
+			        ci.`name` AS stockHolderName,
+			        CONVERT(
+			          SUM(b.`pay_amount`) / 10000,
+			          DECIMAL (18, 2)
+			        ) AS totalRealPayAmount,
+			        b.`receiver_id` AS corp_id 
+			      FROM
+			        payment b 
+			        LEFT JOIN corporation_info ci 
+			          ON b.`receiver_id` = ci.`pid` 
+			      WHERE b.`prj_id` = #{projectPid} 
+			        AND b.`contributive_id` IN 
+			        (SELECT 
+			          a.`invest_subject_id` 
+			        FROM
+			          invest_subject a 
+			        WHERE a.`pid` = #{subjectPid}) 
+			        AND b.`receiver_id` IN 
+			        (SELECT 
+			          si.`corp_id` 
+			        FROM
+			          invest_manage_plan a1 
+			          LEFT JOIN stockholder_info si 
+			            ON si.pid = a1.`stockholder_id` 
+			            AND si.status = '1' 
+			        WHERE a1.`pid` IN 
+			          (SELECT 
+			            a.`invest_manange_id` 
+			          FROM
+			            invest_subject a 
+			          WHERE a.`pid` = #{subjectPid}) 
+			          AND a1.`status` = '1') 
+			        AND b.`payment_type` = '2' 
+			        AND b.`status` = '1' 
+			        AND ci.`status` = 1) f 
+			      LEFT JOIN 
+			        (SELECT 
+			          c.`prj_id`,
+			          c.`receiver_id`,
+			          CONVERT(
+			            SUM(c.`profit`) / 10000,
+			            DECIMAL (18, 2)
+			          ) AS profit,
+			          c.`contributive_id` AS corp_id 
+			        FROM
+			          received c 
+			        WHERE c.`prj_id` = #{projectPid} 
+			          AND c.`receiver_id` IN 
+			          (SELECT 
+			            a.`invest_subject_id` 
+			          FROM
+			            invest_subject a 
+			          WHERE a.`pid` = #{subjectPid}) 
+			          AND c.`contributive_id` IN 
+			          (SELECT 
+			            si.`corp_id` 
+			          FROM
+			            invest_manage_plan a1 
+			            LEFT JOIN stockholder_info si 
+			              ON si.pid = a1.`stockholder_id` 
+			              AND si.status = '1' 
+			          WHERE a1.`pid` IN 
+			            (SELECT 
+			              a.`invest_manange_id` 
+			            FROM
+			              invest_subject a 
+			            WHERE a.`pid` = #{subjectPid}) 
+			            AND a1.`status` = '1') 
+			          AND c.`status` = '1' 
+			          AND c.`received_type` = '2') g 
+			        ON f.`prj_id` = g.`prj_id` 
+			        AND f.`contributive_id` = g.`receiver_id` 
+			        AND f.corp_id 
+			        AND g.corp_id) p 
+			    ON o.invest_subject_id = p.contributive_id ) xi 
+		  LEFT JOIN 
+		    (SELECT 
+		      xp.`project_name` AS projectName,
+		      v.contributiveTypeName,
+		      w.dividendTypeName,
+		      u.* 
+		    FROM
+		      invest_subject u 
+		      LEFT JOIN 
+		        (SELECT 
+		          r.`pid` AS contributive_type,
+		          r.`value_des` AS contributiveTypeName 
+		        FROM
+		          dict_detail r 
+		        WHERE r.`pid` IN 
+		          (SELECT 
+		            q.`contributive_type` 
+		          FROM
+		            invest_subject q 
+		          WHERE q.`pid` = #{subjectPid} 
+		            AND q.`status` = '1')) v 
+		        ON u.contributive_type = v.contributive_type 
+		      LEFT JOIN 
+		        (SELECT 
+		          s.`pid` AS dividend_type,
+		          s.`value_des` AS dividendTypeName 
+		        FROM
+		          dict_detail s 
+		        WHERE s.`pid` IN 
+		          (SELECT 
+		            t.`dividend_type` 
+		          FROM
+		            invest_subject t 
+		          WHERE t.`pid` = #{subjectPid} 
+		            AND t.`status` = '1')) w 
+		        ON u.dividend_type = w.dividend_type 
+		      LEFT JOIN project_info xp 
+		        ON u.`prj_id` = xp.`pid` 
+		    WHERE u.`pid` = #{subjectPid}
+		      AND u.`status` = '1' 
+		      AND xp.`status` = 1) yi 
+		    ON xi.pid = yi.pid 
+	  </select>
+  	  
+  	  
+  	  <!-- 根据投资主体主键分页加载投资主体付款详细信息 -->
+  	  <select id="getSubjectFinanceDetailListByPage" resultType="java.util.Map" parameterType="java.util.Map">
+	  	SELECT 
+			  j.pid AS subjectPayPid,
+			  j.pay_date AS payDate,
+			  j.contributiceCompany,
+			  j.pay_account AS payAccmount,
+			  j.pay_term AS payTerm,
+			  CONVERT(j.pay_amount / 10000, DECIMAL (18, 2)) AS payAmount,
+			  CONVERT(
+			    k.expectContributiveAmount / 10000,
+			    DECIMAL (18, 2)
+			  ) AS expectContributiveAmount,
+			  j.receiveCompany,
+			  j.receiver_account AS receiverAccount,
+			  j.create_date AS createDate,
+			  i.`name` AS userRealname 
+			FROM
+			  (SELECT 
+			    h.name AS contributiceCompany,
+			    g.* 
+			  FROM
+			    (SELECT 
+			      f.name AS receiveCompany,
+			      e.* 
+			    FROM
+			      payment e 
+			      LEFT JOIN corporation_info f 
+			        ON f.status = 1 
+			        AND f.pid = e.`receiver_id` 
+			    WHERE e.`payment_type` = '2' 
+			      AND e.`status` = '1' 
+			      AND e.`prj_id` IN 
+			      (SELECT 
+			        f.`prj_id` 
+			      FROM
+			        invest_subject f 
+			      WHERE f.`pid` = #{subjectPid} 
+			        AND f.`status` = '1') 
+			      AND e.`receiver_id` IN 
+			      (SELECT 
+			        d.`corp_id` 
+			      FROM
+			        invest_manage_plan b 
+			        INNER JOIN stockholder_info d 
+			          ON b.`stockholder_id` = d.`pid` 
+			          AND d.`status` = '1' 
+			      WHERE b.`pid` IN 
+			        (SELECT 
+			          a.`invest_manange_id` 
+			        FROM
+			          invest_subject a 
+			        WHERE a.`pid` = #{subjectPid} 
+			          AND a.`status` = '1') 
+			        AND b.`status` = '1') 
+			      AND e.`contributive_id` IN 
+			      (SELECT 
+			        c.`invest_subject_id` 
+			      FROM
+			        invest_subject c 
+			      WHERE c.`pid` = #{subjectPid} 
+			        AND c.`status` = '1')) g 
+			    LEFT JOIN corporation_info h 
+			      ON h.`status` = 1 
+			      AND g.contributive_id = h.`pid`) j 
+			  LEFT JOIN user_info i 
+			    ON j.create_id = i.`pid` 
+			  LEFT JOIN 
+			    (SELECT 
+			      l.pid,
+			      l.`invest_subject_id`,
+			      l.`expect_contributive_amount` AS expectContributiveAmount 
+			    FROM
+			      invest_subject l 
+			    WHERE l.`status` = '1' 
+			      AND l.`pid` = #{subjectPid} 
+			      AND l.`invest_type` = '1') k 
+			    ON j.contributive_id = k.invest_subject_id 
+			ORDER BY j.create_date DESC,
+			  j.update_date DESC 
+			LIMIT #{startIndex},#{pageSize}
+	  </select>
+  	  
+  	  
+  	  
+  	  <!-- 获取满足条件的投资主体付款信息明细记录数 -->
+  	  <select id="getSubjectFinanceDetailTotalCount" resultType="java.lang.Integer" parameterType="java.util.Map">
+	  	SELECT 
+			  count(1)
+			FROM
+			  (SELECT 
+			    h.name AS contributiceCompany,
+			    g.* 
+			  FROM
+			    (SELECT 
+			      f.name AS receiveCompany,
+			      e.* 
+			    FROM
+			      payment e 
+			      LEFT JOIN corporation_info f 
+			        ON f.status = 1 
+			        AND f.pid = e.`receiver_id` 
+			    WHERE e.`payment_type` = '2' 
+			      AND e.`status` = '1' 
+			      AND e.`prj_id` IN 
+			      (SELECT 
+			        f.`prj_id` 
+			      FROM
+			        invest_subject f 
+			      WHERE f.`pid` = #{subjectPid} 
+			        AND f.`status` = '1') 
+			      AND e.`receiver_id` IN 
+			      (SELECT 
+			        d.`corp_id` 
+			      FROM
+			        invest_manage_plan b 
+			        INNER JOIN stockholder_info d 
+			          ON b.`stockholder_id` = d.`pid` 
+			          AND d.`status` = '1' 
+			      WHERE b.`pid` IN 
+			        (SELECT 
+			          a.`invest_manange_id` 
+			        FROM
+			          invest_subject a 
+			        WHERE a.`pid` = #{subjectPid} 
+			          AND a.`status` = '1') 
+			        AND b.`status` = '1') 
+			      AND e.`contributive_id` IN 
+			      (SELECT 
+			        c.`invest_subject_id` 
+			      FROM
+			        invest_subject c 
+			      WHERE c.`pid` = #{subjectPid} 
+			        AND c.`status` = '1')) g 
+			    LEFT JOIN corporation_info h 
+			      ON h.`status` = 1 
+			      AND g.contributive_id = h.`pid`) j 
+			  LEFT JOIN user_info i 
+			    ON j.create_id = i.`pid` 
+			  LEFT JOIN 
+			    (SELECT 
+			      l.pid,
+			      l.`invest_subject_id`,
+			      l.`expect_contributive_amount` AS expectContributiveAmount 
+			    FROM
+			      invest_subject l 
+			    WHERE l.`status` = '1' 
+			      AND l.`pid` = #{subjectPid} 
+			      AND l.`invest_type` = '1') k 
+			    ON j.contributive_id = k.invest_subject_id
+	  </select>
+  		
+  		
+  	 <!-- 根据投资主体主键获取到投资主体的应付总金额及实付总金额 -->
+  	 <select id="getAmountOfPrePayAndActualPay" resultType="java.util.Map" parameterType="java.lang.String">
+	 SELECT 
+		  CONVERT(SUM(j.pay_amount) / 10000, DECIMAL (18, 2)) AS actualPayAmount,
+		  CONVERT(
+		    SUM(k.expectContributiveAmount) / 10000,
+		    DECIMAL (18, 2)
+		  ) AS expectContributiveAmount
+		FROM
+		  (SELECT 
+		    h.name AS contributiceCompany,
+		    g.* 
+		  FROM
+		    (SELECT 
+		      f.name AS receiveCompany,
+		      e.* 
+		    FROM
+		      payment e 
+		      LEFT JOIN corporation_info f 
+		        ON f.status = 1 
+		        AND f.pid = e.`receiver_id` 
+		    WHERE e.`payment_type` = '2' 
+		      AND e.`status` = '1' 
+		      AND e.`prj_id` IN 
+		      (SELECT 
+		        f.`prj_id` 
+		      FROM
+		        invest_subject f 
+		      WHERE f.`pid` = #{subjectPid} 
+		        AND f.`status` = '1') 
+		      AND e.`receiver_id` IN 
+		      (SELECT 
+		        d.`corp_id` 
+		      FROM
+		        invest_manage_plan b 
+		        INNER JOIN stockholder_info d 
+		          ON b.`stockholder_id` = d.`pid` 
+		          AND d.`status` = '1' 
+		      WHERE b.`pid` IN 
+		        (SELECT 
+		          a.`invest_manange_id` 
+		        FROM
+		          invest_subject a 
+		        WHERE a.`pid` = #{subjectPid} 
+		          AND a.`status` = '1') 
+		        AND b.`status` = '1') 
+		      AND e.`contributive_id` IN 
+		      (SELECT 
+		        c.`invest_subject_id` 
+		      FROM
+		        invest_subject c 
+		      WHERE c.`pid` = #{subjectPid} 
+		        AND c.`status` = '1')) g 
+		    LEFT JOIN corporation_info h 
+		      ON h.`status` = 1 
+		      AND g.contributive_id = h.`pid`) j 
+		  LEFT JOIN user_info i 
+		    ON j.create_id = i.`pid` 
+		  LEFT JOIN 
+		    (SELECT 
+		      l.pid,
+		      l.`invest_subject_id`,
+		      l.`expect_contributive_amount` AS expectContributiveAmount 
+		    FROM
+		      invest_subject l 
+		    WHERE l.`status` = '1' 
+		      AND l.`pid` = #{subjectPid} 
+		      AND l.`invest_type` = '1') k 
+		    ON j.contributive_id = k.invest_subject_id
+	 </select>
+	 
+	 
+	 <!-- 根据付款主键,获取当前该条件下对应的付款明细信息 -->
+	 <select id="getSubjectPaymentDetailByPid" parameterType="java.lang.String" resultType="java.util.Map">
+	 SELECT 
+	 	  a.pid as subjectPayPid,
+		  b.`project_name` as projectName,
+		  c.`name` AS receiverName,
+		  d.`name` AS contributiveName,
+		  e.`value_des` AS receiverBankname,
+		  f.`value_des` AS payBankName,
+		  a.receiver_account AS receiverAccount,
+		  a.pay_account AS payAccount,
+		  a.pay_term AS payTerm,
+		  CONVERT(a.pay_amount/10000, DECIMAL (18, 2)) AS payAmount,
+		  a.pay_date AS payDate,
+		  a.pay_remark AS payRemark,
+		  g.`name` AS realUserName,
+		  a.investor_op_date AS investorOpDate 
+		FROM
+		  payment a 
+		  LEFT JOIN project_info b 
+		    ON a.`prj_id` = b.`pid` 
+		    AND a.`status` = '1' 
+		    AND b.`status` = 1 
+		  LEFT JOIN corporation_info c 
+		    ON a.`receiver_id` = c.`pid` 
+		    AND c.`status` = 1 
+		  LEFT JOIN corporation_info d 
+		    ON a.`contributive_id` = d.`pid` 
+		    AND d.`status` = 1 
+		  LEFT JOIN dict_detail e 
+		    ON a.`receiver_bank_id` = e.`pid` 
+		  LEFT JOIN dict_detail f 
+		    ON a.`pay_bank_id` = f.`pid` 
+		  LEFT JOIN user_info g 
+		    ON a.investor_op = g.`pid` 
+		WHERE a.`pid` = #{subjectPayPid} 
+		  AND a.`status` = '1' 
+	 </select>
+	 
+	 <!-- 分页加载投资主体回款信息 -->
+	 <select id="getSubjectReceiveDetailListByPage" parameterType="java.util.Map" resultType="java.util.Map">
+	 SELECT 
+		  d.`pid` AS sujectRecervePid,
+		  d.receiver_date AS receiverDate,
+		  f.`name` AS receiverCompanyName,
+		  CONVERT(
+		    d.receiver_amount / 10000,
+		    DECIMAL (18, 2)
+		  ) AS receiverAmount,
+		  CONVERT(d.profit / 10000, DECIMAL (18, 2)) AS profit,
+		  d.receiver_account AS receiverAccount,
+		  g.`name` AS contributiveCompanyName,
+		  d.pay_account AS payAccount,
+		  d.`create_date` AS createDate,
+		  h.`name` AS realUserName 
+		FROM
+		  received d 
+		  INNER JOIN 
+		    (SELECT 
+		      c.corp_id,
+		      b.`stockholder_id`,
+		      a.* 
+		    FROM
+		      invest_subject a 
+		      LEFT JOIN invest_manage_plan b 
+		        ON a.`invest_manange_id` = b.pid 
+		        AND b.`status` = '1' 
+		      LEFT JOIN stockholder_info c 
+		        ON b.`stockholder_id` = c.pid 
+		        AND c.status = '1' 
+		    WHERE a.`pid` = #{subjectPid}) e 
+		    ON d.`prj_id` = e.prj_id 
+		    AND d.`receiver_id` = e.invest_subject_id 
+		    AND d.`contributive_id` = e.corp_id 
+		    AND d.`status` = '1' 
+		    AND d.`received_type` = '2' 
+		  LEFT JOIN corporation_info f 
+		    ON d.`receiver_id` = f.`pid` 
+		  LEFT JOIN corporation_info g 
+		    ON d.`contributive_id` = g.`pid` 
+		  LEFT JOIN user_info h 
+		    ON d.`create_id` = h.`pid` 
+		    ORDER BY d.`create_date` DESC
+		    LIMIT #{startIndex},#{pageSize}
+	 </select>
+	 
+	 <!-- 获取满足条件的投资主体回款信息明细记录数 -->
+	 <select id="getSubjectReceiveDetailListTotalCount" parameterType="java.util.Map" resultType="java.lang.Integer">
+	 SELECT 
+		  count(1)
+		FROM
+		  received d 
+		  INNER JOIN 
+		    (SELECT 
+		      c.corp_id,
+		      b.`stockholder_id`,
+		      a.* 
+		    FROM
+		      invest_subject a 
+		      LEFT JOIN invest_manage_plan b 
+		        ON a.`invest_manange_id` = b.pid 
+		        AND b.`status` = '1' 
+		      LEFT JOIN stockholder_info c 
+		        ON b.`stockholder_id` = c.pid 
+		        AND c.status = '1' 
+		    WHERE a.`pid` = #{subjectPid}) e 
+		    ON d.`prj_id` = e.prj_id 
+		    AND d.`receiver_id` = e.invest_subject_id 
+		    AND d.`contributive_id` = e.corp_id 
+		    AND d.`status` = '1' 
+		    AND d.`received_type` = '2' 
+		  LEFT JOIN corporation_info f 
+		    ON d.`receiver_id` = f.`pid` 
+		  LEFT JOIN corporation_info g 
+		    ON d.`contributive_id` = g.`pid` 
+		  LEFT JOIN user_info h 
+		    ON d.`create_id` = h.`pid` 
+	 </select>
+	 
+	 <!-- 根据投资主体主键获取到投资主体的回款本金合计及回款利润合计 -->
+	 <select id="getReceiverAmountAndProfit" parameterType="java.lang.String" resultType="java.util.Map">
+	 SELECT 
+		  CONVERT(
+		    SUM(d.receiver_amount) / 10000,
+		    DECIMAL (18, 2)
+		  ) AS totalReceiverAmount,
+		  CONVERT(SUM(d.profit) / 10000, DECIMAL (18, 2)) AS totalProfit
+		FROM
+		  received d 
+		  INNER JOIN 
+		    (SELECT 
+		      c.corp_id,
+		      b.`stockholder_id`,
+		      a.* 
+		    FROM
+		      invest_subject a 
+		      LEFT JOIN invest_manage_plan b 
+		        ON a.`invest_manange_id` = b.pid 
+		        AND b.`status` = '1' 
+		      LEFT JOIN stockholder_info c 
+		        ON b.`stockholder_id` = c.pid 
+		        AND c.status = '1' 
+		    WHERE a.`pid` = #{subjectPid}) e 
+		    ON d.`prj_id` = e.prj_id 
+		    AND d.`receiver_id` = e.invest_subject_id 
+		    AND d.`contributive_id` = e.corp_id 
+		    AND d.`status` = '1' 
+		    AND d.`received_type` = '2' 
+		  LEFT JOIN corporation_info f 
+		    ON d.`receiver_id` = f.`pid` 
+		  LEFT JOIN corporation_info g 
+		    ON d.`contributive_id` = g.`pid` 
+		  LEFT JOIN user_info h 
+		    ON d.`create_id` = h.`pid` 
+	 </select>
+  	
+  	
+  	
+  	<!-- 根据投资主体回款信息主键,获取该条主键下的回款明细 -->
+  	<select id="getSubjectReturnDetailByPid" parameterType="java.lang.String" resultType="java.util.Map">
+  	SELECT 
+		  a.`pid` AS subjectReturnPid,
+		  b.`project_name` AS projectName,
+		  c.`name` AS receiverCompany,
+		  d.`name` AS contributiveCpmpany,
+		  e.`value_des` AS receiverBankName,
+		  f.`value_des` AS payBankName,
+		  a.receiver_account AS receiverAccount,
+		  a.pay_account as payAccount,
+		  CONVERT(a.receiver_amount/10000,DECIMAL(18,2)) AS receiverAmount,
+		  a.received_status AS receivedStatus,
+		  CONVERT(a.profit/10000,DECIMAL(18,2)) AS profit,
+		  a.receiver_date AS receiverDate,
+		  a.reveiver_remark AS reveiverRemark,
+		  g.`name` AS realUserName,
+		  a.`create_date` AS createDate 
+		FROM
+		  received a 
+		  LEFT JOIN project_info b 
+		    ON a.`prj_id` = b.`pid` 
+		    AND b.`status` = '1' 
+		    LEFT JOIN corporation_info c ON
+		    a.`receiver_id` = c.`pid`
+		    LEFT JOIN corporation_info d ON
+		    a.`contributive_id` = d.`pid`
+		    LEFT JOIN dict_detail e ON 
+		    a.`receiver_bank_id` = e.`pid`
+		    LEFT JOIN dict_detail f ON 
+		    a.`pay_bank_id` = f.`pid`
+		    LEFT JOIN user_info g ON
+		    a.`create_id` = g.`pid`
+		WHERE a.`pid` = #{subjectReturnPid} 
+		  AND a.`status` = '1' 
+  	</select>
+  	
+</mapper>

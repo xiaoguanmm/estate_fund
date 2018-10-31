@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.upjf.fund.service.impl.business.mapper.InvestSubjectAccessoryMapper">
+  <resultMap id="BaseResultMap" type="com.upjf.fund.dto.InvestSubjectAccessory">
+    <id column="pid" jdbcType="VARCHAR" property="pid" />
+    <result column="subject_id" jdbcType="VARCHAR" property="subjectId" />
+    <result column="file_id" jdbcType="VARCHAR" property="fileId" />
+    <result column="invest_accessory_type" jdbcType="VARCHAR" property="investAccessoryType" />
+    <result column="create_id" jdbcType="VARCHAR" property="createId" />
+    <result column="create_date" jdbcType="TIMESTAMP" property="createDate" />
+    <result column="update_id" jdbcType="VARCHAR" property="updateId" />
+    <result column="update_date" jdbcType="TIMESTAMP" property="updateDate" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    pid, subject_id, file_id, create_date
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from invest_subject_accessory
+    where pid = #{pid,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from invest_subject_accessory
+    where pid = #{pid,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.upjf.fund.dto.InvestSubjectAccessory">
+    <selectKey keyProperty="pid" order="AFTER" resultType="java.lang.String">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into invest_subject_accessory (subject_id, file_id, create_date
+      )
+    values (#{subjectId,jdbcType=VARCHAR}, #{fileId,jdbcType=VARCHAR}, #{createDate,jdbcType=TIMESTAMP}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.upjf.fund.dto.InvestSubjectAccessory">
+    <selectKey keyProperty="pid" order="AFTER" resultType="java.lang.String">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into invest_subject_accessory
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="subjectId != null">
+        subject_id,
+      </if>
+      <if test="fileId != null">
+        file_id,
+      </if>
+      <if test="createDate != null">
+        create_date,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="subjectId != null">
+        #{subjectId,jdbcType=VARCHAR},
+      </if>
+      <if test="fileId != null">
+        #{fileId,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null">
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.upjf.fund.dto.InvestSubjectAccessory">
+    update invest_subject_accessory
+    <set>
+      <if test="subjectId != null">
+        subject_id = #{subjectId,jdbcType=VARCHAR},
+      </if>
+      <if test="fileId != null">
+        file_id = #{fileId,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null">
+        create_date = #{createDate,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where pid = #{pid,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.upjf.fund.dto.InvestSubjectAccessory">
+    update invest_subject_accessory
+    set subject_id = #{subjectId,jdbcType=VARCHAR},
+      file_id = #{fileId,jdbcType=VARCHAR},
+      create_date = #{createDate,jdbcType=TIMESTAMP}
+    where pid = #{pid,jdbcType=VARCHAR}
+  </update>
+  
+  <insert id="batchInsertInvestSubjectAccessory" parameterType="com.upjf.fund.dto.InvestSubjectAccessory">
+  	insert into invest_subject_accessory (
+  		pid, 
+  		subject_id, 
+  		file_id, 
+  		invest_accessory_type,
+  		create_date,
+  		create_id,
+  		update_date,
+  		update_id
+  	) values
+  	<foreach collection="accessoryList" item="accessory" separator=",">
+  		(
+			#{accessory.pid},
+			#{accessory.subjectId},
+			#{accessory.fileId},
+			#{accessory.investAccessoryType},
+			#{accessory.createDate},
+			#{accessory.createId},
+			#{accessory.updateDate},
+			#{accessory.updateId}
+  		)
+  	</foreach>
+  </insert>
+  
+  <select id="getInvestSubjectAccessoryByInvestSubjectId" resultType="map">
+  	select 
+	  	isa.pid,
+	  	isa.subject_id,
+  		isa.file_id,
+  		isa.invest_accessory_type,
+  		isa.create_date,
+  		isa.create_id,
+  		isa.update_date,
+  		isa.update_id,
+  		concat(eff.real_name,'.',eff.file_type) as real_name,
+  		concat(eff.file_name,'.',eff.file_type) as file_all_name,
+  	    (select ui.user_name from user_info ui where ui.pid = eff.create_id) as user_name,
+  		eff.file_url
+  	from invest_subject_accessory isa inner join estate_fund_file eff on isa.file_id = eff.pid
+  	where isa.subject_id = #{investSubjectId,jdbcType=VARCHAR}
+		order by update_date desc, create_date desc 
+	limit ${offset},${pageRows}
+  </select>
+  
+  <select id="countInvestSubjectAccessoryByInvestSubjectId" resultType="integer" parameterType="string">
+  	select count(1) 
+  	from invest_subject_accessory isa inner join estate_fund_file eff on isa.file_id = eff.pid
+  	where isa.subject_id = #{investSubjectId,jdbcType=VARCHAR}
+  </select>
+  
+</mapper>

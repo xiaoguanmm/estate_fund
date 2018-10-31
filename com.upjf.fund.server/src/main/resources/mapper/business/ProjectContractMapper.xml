@@ -1,0 +1,265 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.upjf.fund.service.impl.business.mapper.ProjectContractMapper" >
+  <resultMap id="BaseResultMap" type="com.upjf.fund.dto.ProjectContract" >
+    <id column="pid" property="pid" jdbcType="VARCHAR" />
+    <result column="prj_id" property="prjId" jdbcType="VARCHAR" />
+    <result column="file_id" property="fileId" jdbcType="VARCHAR" />
+    <result column="contract_name" property="contractName" jdbcType="VARCHAR" />
+    <result column="status" property="status" jdbcType="INTEGER" />
+    <result column="create_date" property="createDate" jdbcType="TIMESTAMP" />
+    <result column="create_id" property="createId" jdbcType="VARCHAR" />
+    <result column="update_date" property="updateDate" jdbcType="TIMESTAMP" />
+    <result column="update_id" property="updateId" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    pid, prj_id, file_id, contract_name, status, create_date, create_id, update_date, 
+    update_id
+  </sql>
+  
+  
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from project_contract
+    where pid = #{pid,jdbcType=VARCHAR}
+  </select>
+  
+  
+  <!-- 根据项目主键获取满足条件的所有的处于有效状态的项目合同信息 -->
+  <select id="getContractByProjectPids" resultType="com.upjf.fund.dto.ProjectContract" parameterType="java.util.Map" >
+    select 
+    	<include refid="Base_Column_List" />
+    from project_contract
+    <where>
+    	status = 1
+    	<if test="idList != null">
+    		and prj_id in 
+    		<foreach collection="idList" open="(" separator="," close=")" item="projectPid">
+    			#{projectPid}
+    		</foreach>
+    	</if>
+    </where>
+  </select>
+  
+  <!-- 根据项目合同主键批量变更项目合同的状态信息(伪删除) -->
+  <update id="delContractByPids" parameterType="java.util.Map">
+    update  project_contract
+    <set>
+    	status = 0,
+    	<if test="updateDate != null">
+    		update_date=#{updateDate},
+    	</if>
+    	<if test="updateId != null and updateId !=''">
+    		update_id=#{updateId},
+    	</if>
+    </set>
+    where pid in
+    <foreach collection="idList" open="(" separator="," close=")" item="pid">
+    	#{pid}
+    </foreach>
+  </update>
+  
+  <!-- 根据项目合同主键查询获取处于有效状态的且存在上传文件的所有的文件主键 -->
+  <select id="getContractFilePidByPids" resultType="java.lang.String" parameterType="java.util.Map" >
+    select 
+    	file_id
+    from project_contract
+    <where>
+    	status = 1 and file_id IS NOT NULL
+    	<if test="idList != null">
+    		and pid in 
+    		<foreach collection="idList" open="(" separator="," close=")" item="pid">
+    			#{pid}
+    		</foreach>
+    	</if>
+    </where>
+  </select>
+  
+  <!-- 根据项目合同主键批量变更项目合同的状态信息(伪删除) -->
+  <update id="delBusCompoByPids" parameterType="java.util.Map">
+    update  project_contract
+    <set>
+    	status = 0,
+    	<if test="updateDate != null">
+    		update_date=#{updateDate},
+    	</if>
+    	<if test="updateId != null and updateId !=''">
+    		update_id=#{updateId},
+    	</if>
+    </set>
+    where pid in 
+    <foreach collection="idList" open="(" separator="," close=")" item="pid">
+    	#{pid}
+    </foreach>
+  </update>
+  
+  
+  <!-- 分页获取项目合同附件列表信息 -->
+  <select id="getContractListByPage" resultType="com.upjf.fund.dto.ProjectContractFileVo" parameterType="java.util.Map" >
+    SELECT
+	  a.`pid` AS contractPid,
+	  a.`contract_name` AS contractName,
+	  CONCAT(b.`real_name`, '.', b.`file_type`) AS contractFullName,
+	  DATE_FORMAT(
+	    a.`create_date`,
+	    '%Y-%m-%d %H:%i:%s'
+	  ) AS uploadTime,
+	  c.`name` AS userName,
+	  b.`file_url` AS fileUrl,
+	  b.`file_type` AS fileType 
+	FROM
+	  project_contract a 
+	  LEFT JOIN estate_fund_file b 
+	    ON a.`file_id` = b.`pid` 
+	  LEFT JOIN user_info c 
+	    ON a.`create_id` = c.`pid` 
+	WHERE a.`status` = 1 
+	  AND b.`status` = 1 
+	  AND a.`prj_id` = #{projectId} 
+	  ORDER BY a.`create_date` DESC
+	  LIMIT #{startIndex},#{pageSize}
+  </select>
+  
+  
+  <!-- 统计满足条件的总记录数 -->
+  <select id="getTotalCount" resultType="java.lang.Integer" parameterType="java.util.Map" >
+    SELECT
+	  count(1)
+	FROM
+	  project_contract a 
+	  LEFT JOIN estate_fund_file b 
+	    ON a.`file_id` = b.`pid` 
+	  LEFT JOIN user_info c 
+	    ON a.`create_id` = c.`pid` 
+	WHERE a.`status` = 1 
+	  AND b.`status` = 1 
+	  AND a.`prj_id` = #{projectId}
+  </select>
+  
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from project_contract
+    where pid = #{pid,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.upjf.fund.dto.ProjectContract" >
+    insert into project_contract (pid, prj_id, file_id, 
+      contract_name, status, create_date, 
+      create_id, update_date, update_id
+      )
+    values (#{pid,jdbcType=VARCHAR}, #{prjId,jdbcType=VARCHAR}, #{fileId,jdbcType=VARCHAR}, 
+      #{contractName,jdbcType=VARCHAR}, #{status,jdbcType=INTEGER}, #{createDate,jdbcType=TIMESTAMP}, 
+      #{createId,jdbcType=VARCHAR}, #{updateDate,jdbcType=TIMESTAMP}, #{updateId,jdbcType=VARCHAR}
+      )
+  </insert>
+  
+  <!-- 保存项目合同附件与项目关系信息 -->
+  <insert id="saveProjectContract" parameterType="com.upjf.fund.dto.ProjectContract" >
+    insert into project_contract
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="pid != null and pid !=''" >
+        pid,
+      </if>
+      <if test="prjId != null and prjId !=''" >
+        prj_id,
+      </if>
+      <if test="fileId != null and fileId !=''" >
+        file_id,
+      </if>
+      <if test="contractName != null and contractName !=''" >
+        contract_name,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+      <if test="createDate != null" >
+        create_date,
+      </if>
+      <if test="createId != null and createId !=''" >
+        create_id,
+      </if>
+      <if test="updateDate != null" >
+        update_date,
+      </if>
+      <if test="updateId != null and updateId !=''" >
+        update_id,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="pid != null and pid !=''" >
+        #{pid,jdbcType=VARCHAR},
+      </if>
+      <if test="prjId != null and prjId !=''" >
+        #{prjId,jdbcType=VARCHAR},
+      </if>
+      <if test="fileId != null and fileId !=''" >
+        #{fileId,jdbcType=VARCHAR},
+      </if>
+      <if test="contractName != null and contractName !=''" >
+        #{contractName,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=INTEGER},
+      </if>
+      <if test="createDate != null" >
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createId != null and createId !=''" >
+        #{createId,jdbcType=VARCHAR},
+      </if>
+      <if test="updateDate != null" >
+        #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateId != null and updateId !=''" >
+        #{updateId,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  
+  <!-- 根据主键变更项目合同信息 -->
+  <update id="updateProjectContractByPid" parameterType="com.upjf.fund.dto.ProjectContract" >
+    update project_contract
+    <set >
+      <if test="prjId != null and prjId !=''" >
+        prj_id = #{prjId,jdbcType=VARCHAR},
+      </if>
+      <if test="fileId != null and fileId !=''" >
+        file_id = #{fileId,jdbcType=VARCHAR},
+      </if>
+      <if test="contractName != null and contractName !=''" >
+        contract_name = #{contractName,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=INTEGER},
+      </if>
+      <if test="createDate != null" >
+        create_date = #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createId != null and createId !=''" >
+        create_id = #{createId,jdbcType=VARCHAR},
+      </if>
+      <if test="updateDate != null" >
+        update_date = #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateId != null and updateId !=''" >
+        update_id = #{updateId,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where pid = #{pid,jdbcType=VARCHAR}
+  </update>
+  
+  
+  
+  
+  <update id="updateByPrimaryKey" parameterType="com.upjf.fund.dto.ProjectContract" >
+    update project_contract
+    set prj_id = #{prjId,jdbcType=VARCHAR},
+      file_id = #{fileId,jdbcType=VARCHAR},
+      contract_name = #{contractName,jdbcType=VARCHAR},
+      status = #{status,jdbcType=INTEGER},
+      create_date = #{createDate,jdbcType=TIMESTAMP},
+      create_id = #{createId,jdbcType=VARCHAR},
+      update_date = #{updateDate,jdbcType=TIMESTAMP},
+      update_id = #{updateId,jdbcType=VARCHAR}
+    where pid = #{pid,jdbcType=VARCHAR}
+  </update>
+</mapper>

@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.upjf.fund.service.impl.system.mapper.DictInfoMapper">
+  <resultMap id="BaseResultMap" type="com.upjf.fund.dto.DictInfo">
+    <id column="pid" jdbcType="VARCHAR" property="pid" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="code" jdbcType="VARCHAR" property="code" />
+    <result column="remark" jdbcType="VARCHAR" property="remark" />
+    <result column="status" jdbcType="VARCHAR" property="status" />
+    <result column="create_date" jdbcType="TIMESTAMP" property="createDate" />
+    <result column="create_id" jdbcType="VARCHAR" property="createId" />
+    <result column="update_date" jdbcType="TIMESTAMP" property="updateDate" />
+    <result column="update_id" jdbcType="VARCHAR" property="updateId" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    pid, name, code, remark, status, create_date, create_id, update_date, update_id
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from dict_info
+    where pid = #{pid,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from dict_info
+    where pid = #{pid,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.upjf.fund.dto.DictInfo">
+    insert into dict_info (pid,name, code, remark, 
+      status, create_date, create_id, 
+      update_date, update_id)
+    values (#{pid,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{code,jdbcType=VARCHAR}, #{remark,jdbcType=VARCHAR}, 
+      #{status,jdbcType=VARCHAR}, #{createDate,jdbcType=TIMESTAMP}, #{createId,jdbcType=VARCHAR}, 
+      #{updateDate,jdbcType=TIMESTAMP}, #{updateId,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.upjf.fund.dto.DictInfo">
+    insert into dict_info
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="pid != null">
+        pid,
+      </if>
+      <if test="name != null">
+        name,
+      </if>
+      <if test="code != null">
+        code,
+      </if>
+      <if test="remark != null">
+        remark,
+      </if>
+      <if test="status != null">
+        status,
+      </if>
+      <if test="createDate != null">
+        create_date,
+      </if>
+      <if test="createId != null">
+        create_id,
+      </if>
+      <if test="updateDate != null">
+        update_date,
+      </if>
+      <if test="updateId != null">
+        update_id,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="pid != null">
+        #{pid,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null">
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="code != null">
+        #{code,jdbcType=VARCHAR},
+      </if>
+      <if test="remark != null">
+        #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null">
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createId != null">
+        #{createId,jdbcType=VARCHAR},
+      </if>
+      <if test="updateDate != null">
+        #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateId != null">
+        #{updateId,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.upjf.fund.dto.DictInfo">
+    update dict_info
+    <set>
+      <if test="name != null">
+        name = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="code != null">
+        code = #{code,jdbcType=VARCHAR},
+      </if>
+      <if test="remark != null">
+        remark = #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        status = #{status,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null">
+        create_date = #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createId != null">
+        create_id = #{createId,jdbcType=VARCHAR},
+      </if>
+      <if test="updateDate != null">
+        update_date = #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateId != null">
+        update_id = #{updateId,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where pid = #{pid,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.upjf.fund.dto.DictInfo">
+    update dict_info
+    set name = #{name,jdbcType=VARCHAR},
+      code = #{code,jdbcType=VARCHAR},
+      remark = #{remark,jdbcType=VARCHAR},
+      status = #{status,jdbcType=VARCHAR},
+      create_date = #{createDate,jdbcType=TIMESTAMP},
+      create_id = #{createId,jdbcType=VARCHAR},
+      update_date = #{updateDate,jdbcType=TIMESTAMP},
+      update_id = #{updateId,jdbcType=VARCHAR}
+    where pid = #{pid,jdbcType=VARCHAR}
+  </update>
+  
+    <select id="getDictInfosByConditions" resultType="map">
+	select t1.pid, 
+			t1.name,
+			t1.code,
+			t1.status,
+			(select t3.value_des from dict_detail t3 inner join dict_info t2 on t3.dict_info_id = t2.pid where t2.code='STATUS' and t3.value=t1.status) as status_name,
+			t1.remark,
+			(select t2.user_name from user_info t2 where t1.create_id = t2.pid) as create_name, 
+			t1.create_date,
+			(select t2.user_name from user_info t2 where t1.update_id = t2.pid) as update_user_name, 
+			t1.update_date
+from dict_info t1 where 1=1 
+	<if test="dictInfo.name != null and dictInfo.name != ''">
+       and t1.name like concat('%',#{dictInfo.name,jdbcType=VARCHAR},'%')
+      </if>
+      <if test="dictInfo.code != null and dictInfo.code != ''">
+       and t1.code like concat('%',#{dictInfo.code,jdbcType=VARCHAR},'%')
+      </if>
+      order by t1.create_date desc limit ${offset},${pageRows}
+</select>
+  
+<select id="countDictInfosByConditions" resultType="integer">
+	select count(1) from dict_info t1
+	where 1=1
+	<if test="dictInfo.name != null and dictInfo.name != ''">
+       and t1.name like concat('%',#{dictInfo.name,jdbcType=VARCHAR},'%')
+      </if>
+      <if test="dictInfo.code != null and dictInfo.code != ''">
+       and t1.code like concat('%',#{dictInfo.code,jdbcType=VARCHAR},'%')
+      </if>
+</select>
+
+<select id="getDictInfoBySingleCondition" resultType="com.upjf.fund.dto.DictInfo">
+	select <include refid="Base_Column_List"/> from dict_info 
+	where 1=1
+	<choose>
+		<when test="code !=null and code !=''">
+		 	and code = #{code,jdbcType=VARCHAR}
+		</when>
+		<when test="name !=null and name !=''">
+			and name = #{name,jdbcType=VARCHAR}
+		</when>
+		<otherwise>
+			and 1!=1
+		</otherwise>
+	</choose>
+</select>
+
+<select id="getdataByCode" parameterType="string" resultType="map">
+		<choose>
+			<when test="code == 'PROJECT_NAME'">
+				SELECT pi.project_name as label,pi.pid as value FROM project_info pi
+			</when>
+			<when test="code == 'MENU'">
+        		select name as label,pid as value from resource_info
+        	</when>
+        	<when test="code == 'AUTHORITY'">
+        		select name as label,pid as value from authority
+        	</when>
+			<otherwise>
+				select 
+				t1.pid as value,
+				t1.value_des as label
+				from dict_detail t1 inner join dict_info t2 on t1.dict_info_id = t2.pid 
+				where t2.code = #{code,jdbcType=VARCHAR} and t2.status = '1'
+			</otherwise>
+		</choose>
+</select>
+
+<select id="getEnterpriseDataByType" parameterType="string" resultType="map">
+	<choose>
+		<when test="type == '1'.toString()">
+			select `name` as label, pid as value from corporation_info WHERE `status` = 1
+		</when>
+		<when test="type == '2'.toString()">
+			select 
+			prj_corp_name as label, 
+			pid as value 
+			from  business_prj_info 
+		</when>
+		<when test="type == '3'.toString()">
+			SELECT ci.`name` AS label,si.pid AS value 
+				FROM stockholder_info si 
+				LEFT JOIN corporation_info ci ON ci.pid = si.corp_id 
+				WHERE si.`status` = '1'
+					AND ci.`status` = 1
+		</when>
+	</choose>
+	
+</select>
+</mapper>

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.upjf.fund.service.impl.system.mapper.AreaInfoMapper">
+  <resultMap id="baseResultMap" type="com.upjf.fund.dto.AreaInfo">
+    <id column="area_code" jdbcType="VARCHAR" property="areaCode" />
+    <result column="area_name" jdbcType="VARCHAR" property="areaName" />
+    <result column="parent_code" jdbcType="VARCHAR" property="parentCode" />
+    <result column="level" jdbcType="CHAR" property="level" />
+    <result column="area_tel_code" jdbcType="VARCHAR" property="areaTelCode" />
+  </resultMap>
+  
+	<sql id="Base_Column_List">
+	  area_code, area_name, parent_code, level, area_tel_code
+	</sql>
+  
+	<!-- 查询列表 -->
+	<select id="getAreaInfoList" resultMap="baseResultMap" parameterType="com.upjf.fund.dto.AreaInfo">
+		 SELECT AREA_CODE ,AREA_NAME,PARENT_CODE ,LEVEL ,AREA_TEL_CODE FROM area_info 
+			 WHERE 	1 = 1 
+			<if test="areaCode != null and areaCode != ''">
+		    		AND AREA_CODE = #{areaCode}
+		    </if>
+			<if test="areaName != null and areaName != ''">
+		    		AND AREA_NAME = #{areaName}
+		    </if>
+			<if test="parentCode != null and parentCode != ''">
+		    		AND PARENT_CODE = #{parentCode}
+		    </if>
+			<if test="level != null and level != ''">
+		    		AND LEVEL = #{level}
+		    </if>
+			<if test="areaTelCode != null and areaTelCode != ''">
+		    		AND AREA_TEL_CODE = #{areaTelCode}
+		    </if>
+	</select>
+	
+	
+	<!-- 查询一个对象 -->
+	<select id="getAreaInfoByCode" resultMap="baseResultMap" parameterType="java.lang.String">
+		 SELECT AREA_CODE ,AREA_NAME,PARENT_CODE ,LEVEL ,AREA_TEL_CODE FROM area_info 
+			 WHERE AREA_CODE = #{areaCode}
+	</select>
+	
+	<!-- 根据地区编号查询相关数据 -->
+	<select id="getAreaInfoByAreaCodes" resultMap="baseResultMap" parameterType="java.util.List">
+		 SELECT AREA_CODE ,AREA_NAME,PARENT_CODE ,LEVEL ,AREA_TEL_CODE FROM area_info 
+			 WHERE AREA_CODE IN
+			 <foreach item="areaCode" collection="list"  open="(" separator="," close=")">
+			 	#{areaCode}
+			 </foreach>
+	</select>
+
+</mapper>

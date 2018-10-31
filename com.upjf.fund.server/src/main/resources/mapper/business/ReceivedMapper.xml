@@ -1,0 +1,939 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.upjf.fund.service.impl.business.mapper.ReceivedMapper">
+  <resultMap id="BaseResultMap" type="com.upjf.fund.dto.Received">
+    <id column="pid" jdbcType="VARCHAR" property="pid" />
+    <result column="prj_id" jdbcType="VARCHAR" property="prjId" />
+    <result column="stockholder_id" jdbcType="VARCHAR" property="stockholderId" />
+    <result column="receiver_id" jdbcType="VARCHAR" property="receiverId" />
+    <result column="received_type" jdbcType="CHAR" property="receivedType" />
+    <result column="contributive_id" jdbcType="VARCHAR" property="contributiveId" />
+    <result column="receiver_bank_id" jdbcType="VARCHAR" property="receiverBankId" />
+    <result column="pay_bank_id" jdbcType="VARCHAR" property="payBankId" />
+    <result column="receiver_account" jdbcType="VARCHAR" property="receiverAccount" />
+    <result column="pay_account" jdbcType="VARCHAR" property="payAccount" />
+    <result column="receiver_amount" jdbcType="DECIMAL" property="receiverAmount" />
+    <result column="profit" jdbcType="DECIMAL" property="profit" />
+    <result column="receiver_date" jdbcType="TIMESTAMP" property="receiverDate" />
+    <result column="reveiver_remark" jdbcType="VARCHAR" property="reveiverRemark" />
+    <result column="received_status" jdbcType="CHAR" property="receivedStatus" />
+    <result column="received_principal_total" jdbcType="DECIMAL" property="receivedPrincipalTotal" />
+    <result column="received_profit_total" jdbcType="DECIMAL" property="receivedProfitTotal" />
+    <result column="status" jdbcType="CHAR" property="status" />
+    <result column="create_date" jdbcType="TIMESTAMP" property="createDate" />
+    <result column="create_id" jdbcType="VARCHAR" property="createId" />
+    <result column="update_date" jdbcType="TIMESTAMP" property="updateDate" />
+    <result column="update_id" jdbcType="VARCHAR" property="updateId" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    pid, prj_id, stockholder_id, receiver_id, received_type, contributive_id, receiver_bank_id, pay_bank_id, 
+    receiver_account, pay_account, receiver_amount, profit, receiver_date, reveiver_remark, 
+    received_status, received_principal_total, received_profit_total, status, create_date, 
+    create_id, update_date, update_id
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from received
+    where pid = #{pid,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from received
+    where pid = #{pid,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.upjf.fund.dto.Received">
+    <selectKey keyProperty="pid" order="AFTER" resultType="java.lang.String">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into received (prj_id, stockholder_id, receiver_id, received_type, 
+      contributive_id, receiver_bank_id, pay_bank_id, 
+      receiver_account, pay_account, receiver_amount, 
+      profit, receiver_date, reveiver_remark, 
+      received_status, received_principal_total, received_profit_total, 
+      status, create_date, create_id, 
+      update_date, update_id)
+    values (#{prjId,jdbcType=VARCHAR}, #{stockholderId,jdbcType=VARCHAR}, #{receiverId,jdbcType=VARCHAR}, #{receivedType,jdbcType=CHAR}, 
+      #{contributiveId,jdbcType=VARCHAR}, #{receiverBankId,jdbcType=VARCHAR}, #{payBankId,jdbcType=VARCHAR}, 
+      #{receiverAccount,jdbcType=VARCHAR}, #{payAccount,jdbcType=VARCHAR}, #{receiverAmount,jdbcType=DECIMAL}, 
+      #{profit,jdbcType=DECIMAL}, #{receiverDate,jdbcType=TIMESTAMP}, #{reveiverRemark,jdbcType=VARCHAR}, 
+      #{receivedStatus,jdbcType=CHAR}, #{receivedPrincipalTotal,jdbcType=DECIMAL}, #{receivedProfitTotal,jdbcType=DECIMAL}, 
+      #{status,jdbcType=CHAR}, #{createDate,jdbcType=TIMESTAMP}, #{createId,jdbcType=VARCHAR}, 
+      #{updateDate,jdbcType=TIMESTAMP}, #{updateId,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.upjf.fund.dto.Received">
+    insert into received
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+    	pid,
+      <if test="prjId != null">
+        prj_id,
+      </if>
+      <if test="stockholderId != null">
+        stockholder_id,
+      </if>
+      <if test="receiverId != null">
+        receiver_id,
+      </if>
+      <if test="receivedType != null">
+        received_type,
+      </if>
+      <if test="contributiveId != null">
+        contributive_id,
+      </if>
+      <if test="receiverBankId != null">
+        receiver_bank_id,
+      </if>
+      <if test="payBankId != null">
+        pay_bank_id,
+      </if>
+      <if test="receiverAccount != null">
+        receiver_account,
+      </if>
+      <if test="payAccount != null">
+        pay_account,
+      </if>
+      <if test="receiverAmount != null">
+        receiver_amount,
+      </if>
+      <if test="profit != null">
+        profit,
+      </if>
+      <if test="receiverDate != null">
+        receiver_date,
+      </if>
+      <if test="reveiverRemark != null">
+        reveiver_remark,
+      </if>
+      <if test="receivedStatus != null">
+        received_status,
+      </if>
+      <if test="receivedPrincipalTotal != null">
+        received_principal_total,
+      </if>
+      <if test="receivedProfitTotal != null">
+        received_profit_total,
+      </if>
+      <if test="status != null">
+        status,
+      </if>
+      <if test="createDate != null">
+        create_date,
+      </if>
+      <if test="createId != null">
+        create_id,
+      </if>
+      <if test="updateDate != null">
+        update_date,
+      </if>
+      <if test="updateId != null">
+        update_id,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+    	#{pid,jdbcType=VARCHAR},
+      <if test="prjId != null">
+        #{prjId,jdbcType=VARCHAR},
+      </if>
+      <if test="stockholderId != null">
+        #{stockholderId,jdbcType=VARCHAR},
+      </if>
+      <if test="receiverId != null">
+        #{receiverId,jdbcType=VARCHAR},
+      </if>
+      <if test="receivedType != null">
+        #{receivedType,jdbcType=CHAR},
+      </if>
+      <if test="contributiveId != null">
+        #{contributiveId,jdbcType=VARCHAR},
+      </if>
+      <if test="receiverBankId != null">
+        #{receiverBankId,jdbcType=VARCHAR},
+      </if>
+      <if test="payBankId != null">
+        #{payBankId,jdbcType=VARCHAR},
+      </if>
+      <if test="receiverAccount != null">
+        #{receiverAccount,jdbcType=VARCHAR},
+      </if>
+      <if test="payAccount != null">
+        #{payAccount,jdbcType=VARCHAR},
+      </if>
+      <if test="receiverAmount != null">
+        #{receiverAmount,jdbcType=DECIMAL},
+      </if>
+      <if test="profit != null">
+        #{profit,jdbcType=DECIMAL},
+      </if>
+      <if test="receiverDate != null">
+        #{receiverDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="reveiverRemark != null">
+        #{reveiverRemark,jdbcType=VARCHAR},
+      </if>
+      <if test="receivedStatus != null">
+        #{receivedStatus,jdbcType=CHAR},
+      </if>
+      <if test="receivedPrincipalTotal != null">
+        #{receivedPrincipalTotal,jdbcType=DECIMAL},
+      </if>
+      <if test="receivedProfitTotal != null">
+        #{receivedProfitTotal,jdbcType=DECIMAL},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=CHAR},
+      </if>
+      <if test="createDate != null">
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createId != null">
+        #{createId,jdbcType=VARCHAR},
+      </if>
+      <if test="updateDate != null">
+        #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateId != null">
+        #{updateId,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+ <update id="updateByPrimaryKeySelective" parameterType="com.upjf.fund.dto.Received">
+    update received
+    <set>
+      <if test="prjId != null">
+        prj_id = #{prjId,jdbcType=VARCHAR},
+      </if>
+      <if test="stockholderId != null">
+        stockholder_id = #{stockholderId,jdbcType=VARCHAR},
+      </if>
+      <if test="receiverId != null">
+        receiver_id = #{receiverId,jdbcType=VARCHAR},
+      </if>
+      <if test="receivedType != null">
+        received_type = #{receivedType,jdbcType=CHAR},
+      </if>
+      <if test="contributiveId != null">
+        contributive_id = #{contributiveId,jdbcType=VARCHAR},
+      </if>
+      <if test="receiverBankId != null">
+        receiver_bank_id = #{receiverBankId,jdbcType=VARCHAR},
+      </if>
+      <if test="payBankId != null">
+        pay_bank_id = #{payBankId,jdbcType=VARCHAR},
+      </if>
+      <if test="receiverAccount != null">
+        receiver_account = #{receiverAccount,jdbcType=VARCHAR},
+      </if>
+      <if test="payAccount != null">
+        pay_account = #{payAccount,jdbcType=VARCHAR},
+      </if>
+      <if test="receiverAmount != null">
+        receiver_amount = #{receiverAmount,jdbcType=DECIMAL},
+      </if>
+      <if test="profit != null">
+        profit = #{profit,jdbcType=DECIMAL},
+      </if>
+      <if test="receiverDate != null">
+        receiver_date = #{receiverDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="reveiverRemark != null">
+        reveiver_remark = #{reveiverRemark,jdbcType=VARCHAR},
+      </if>
+      <if test="receivedStatus != null">
+        received_status = #{receivedStatus,jdbcType=CHAR},
+      </if>
+      <if test="receivedPrincipalTotal != null">
+        received_principal_total = #{receivedPrincipalTotal,jdbcType=DECIMAL},
+      </if>
+      <if test="receivedProfitTotal != null">
+        received_profit_total = #{receivedProfitTotal,jdbcType=DECIMAL},
+      </if>
+      <if test="status != null">
+        status = #{status,jdbcType=CHAR},
+      </if>
+      <if test="createDate != null">
+        create_date = #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createId != null">
+        create_id = #{createId,jdbcType=VARCHAR},
+      </if>
+      <if test="updateDate != null">
+        update_date = #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateId != null">
+        update_id = #{updateId,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where pid = #{pid,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.upjf.fund.dto.Received">
+    update received
+    set prj_id = #{prjId,jdbcType=VARCHAR},
+      stockholder_id = #{stockholderId,jdbcType=VARCHAR},
+      receiver_id = #{receiverId,jdbcType=VARCHAR},
+      received_type = #{receivedType,jdbcType=CHAR},
+      contributive_id = #{contributiveId,jdbcType=VARCHAR},
+      receiver_bank_id = #{receiverBankId,jdbcType=VARCHAR},
+      pay_bank_id = #{payBankId,jdbcType=VARCHAR},
+      receiver_account = #{receiverAccount,jdbcType=VARCHAR},
+      pay_account = #{payAccount,jdbcType=VARCHAR},
+      receiver_amount = #{receiverAmount,jdbcType=DECIMAL},
+      profit = #{profit,jdbcType=DECIMAL},
+      receiver_date = #{receiverDate,jdbcType=TIMESTAMP},
+      reveiver_remark = #{reveiverRemark,jdbcType=VARCHAR},
+      received_status = #{receivedStatus,jdbcType=CHAR},
+      received_principal_total = #{receivedPrincipalTotal,jdbcType=DECIMAL},
+      received_profit_total = #{receivedProfitTotal,jdbcType=DECIMAL},
+      status = #{status,jdbcType=CHAR},
+      create_date = #{createDate,jdbcType=TIMESTAMP},
+      create_id = #{createId,jdbcType=VARCHAR},
+      update_date = #{updateDate,jdbcType=TIMESTAMP},
+      update_id = #{updateId,jdbcType=VARCHAR}
+    where pid = #{pid,jdbcType=VARCHAR}
+  </update>
+  
+  <!-- 根据条件获取股东回款记录汇总 -->
+  <select id="getStockholderPaybacksByConditions" parameterType="map" resultType="map">
+  	select
+  		project_info.pid as project_id,
+  		
+  		stockholder_info.corp_id,
+  		
+  		project_info.project_name,
+  		
+  		business_prj_info.prj_corp_name,
+  		
+  		business_prj_info.pid as business_prj_id,
+  		
+  		business_prj_info.corporation_info_id,
+		
+  		(select dict_detail.value_des from dict_detail dict_detail where dict_detail.pid=stockholder_info.stockholder_type) as stockholder_type,
+  		
+  		corporation_info.name as corp_name,
+  		
+  		<!-- 注册资本 -->
+  		convert((stockholder_info.register_capital/10000),decimal(18,2)) as register_capital,
+  		
+  		<!-- 持股比例 -->
+  		concat(convert(stockholder_info.hold_stock_ratio,decimal(5,2)),'%') as hold_stock_ratio,
+  		
+  		<!-- 投入本金 -->
+  		convert(((select sum(payment.receiver_amount) from payment payment 
+	  				where payment.contributive_id = stockholder_info.corp_id
+	  				and payment.stockholder_id = stockholder_info.pid
+	  				and payment.prj_id = project_info.pid 
+	  				and payment.payment_type = '1'
+	  				and payment.status = '1')/10000),decimal(18,2)) as pay_amount_total,
+	  				
+  		<!-- 应回利润  （如果投资方式为非【股权投资】 该值取资管计划中的【应回利润】字段值）-->
+  		case invest_manage_plan.invest_type
+  		when '1' then
+  		convert(((project_budget.project_profit_budget/10000)*(stockholder_info.hold_stock_ratio/100)),decimal(18,2)) 
+  		else
+  		convert((invest_manage_plan.returned_profit/10000),decimal(18,2))
+  		end as received_profit,
+  		<!-- 已回款本金 -->
+  		convert(((select 
+				sum(received.receiver_amount) 
+				from received received where 
+				project_info.pid = received.prj_id 
+				and received.received_type = '1' 
+				and received.status = '1'
+				and stockholder_info.corp_id = received.receiver_id)/10000),decimal(18,2)) as receiver_amount_total,
+				
+		<!-- 已回款利润 -->
+		convert(((select sum(received.profit) 
+			from received received where 
+			project_info.pid = received.prj_id 
+			and received.received_type = '1' 
+			and received.status = '1'
+			and stockholder_info.corp_id = received.receiver_id)/10000),decimal(18,2)) as profit_total,
+  		
+  		<!-- 回款状态 -->
+		case (select received.received_status from received received where 
+			project_info.pid = received.prj_id 
+			and received.received_type = '1' 
+			and received.status = '1'
+			and stockholder_info.corp_id = received.receiver_id
+			order by received.receiver_date desc, received.update_date desc, received.create_date desc limit 1)
+				when '1' then '已完结'
+				when '2' then '未完结'
+				when '3' then '未回款'
+				else '未回款' end as received_status
+  		
+  	from project_info project_info 
+  	
+  		 inner join business_prj_info business_prj_info
+  		 
+  		 on project_info.business_prj_info_id = business_prj_info.pid
+  		 
+  		 inner join stockholder_info stockholder_info
+  		 
+  		 on business_prj_info.pid = stockholder_info.business_prj_info_id
+  		 
+  		 left join invest_manage_plan invest_manage_plan
+  		 
+  		 on invest_manage_plan.prj_id = project_info.pid and invest_manage_plan.stockholder_id = stockholder_info.pid and invest_manage_plan.status = '1'
+  		 
+  		 left join corporation_info corporation_info
+  		 
+  		 on stockholder_info.corp_id = corporation_info.pid
+  		 
+  		 left join project_budget project_budget
+  		 
+  		 on project_info.pid = project_budget.prj_id
+  		 
+  		 left join received received
+  		 
+  		 on project_info.pid = received.prj_id and received_type = '1' and stockholder_info.corp_id = received.receiver_id
+  		 
+    where 1=1
+		<if test="params.prjId !=null and params.prjId !=''">
+			and project_info.pid = #{params.prjId,jdbcType=VARCHAR}
+		</if>
+		<if test="params.receiverId !=null and params.receiverId !=''">
+			and stockholder_info.corp_id = #{params.receiverId,jdbcType=VARCHAR}
+		</if> 
+		<if test="params.receivedStatus !=null and params.receivedStatus !=''">
+			and received.received_status = #{params.receivedStatus,jdbcType=VARCHAR}
+		</if> 	
+		<if test="params.stockholderType !=null and params.stockholderType !=''">
+			and stockholder_info.stockholder_type = #{params.stockholderType,jdbcType=VARCHAR}
+		</if>
+		group by project_info.pid,stockholder_info.pid
+		order by received.create_date desc,received.update_date desc 
+		<if test="offset !=null and pageRows !=null">
+			limit ${offset},${pageRows} 
+		</if>
+  </select>
+  
+    <!-- 根据条件统计股东回款记录 -->
+  <select id="countStockholderPaybacksByConditions" parameterType="map" resultType="integer">
+  	select count(1) from 
+  	(select project_info.pid
+  		from project_info project_info 
+  	
+  		 inner join business_prj_info business_prj_info
+  		 
+  		 on project_info.business_prj_info_id = business_prj_info.pid
+  		 
+  		 inner join stockholder_info stockholder_info
+  		 
+  		 on business_prj_info.pid = stockholder_info.business_prj_info_id
+  		 
+  		 left join corporation_info corporation_info
+  		 
+  		 on stockholder_info.corp_id = corporation_info.pid
+  		 
+  		 left join project_budget project_budget
+  		 
+  		 on project_info.pid = project_budget.prj_id
+  		 
+  		 left join received received
+  		 
+  		 on project_info.pid = received.prj_id and received_type = '1' and stockholder_info.corp_id = received.receiver_id
+  		 
+    where 1=1
+		<if test="params.prjId !=null and params.prjId !=''">
+			and project_info.pid = #{params.prjId,jdbcType=VARCHAR}
+		</if>
+		<if test="params.receiverId !=null and params.receiverId !=''">
+			and stockholder_info.corp_id = #{params.receiverId,jdbcType=VARCHAR}
+		</if> 
+		<if test="params.receivedStatus !=null and params.receivedStatus !=''">
+			and received.received_status = #{params.receivedStatus,jdbcType=VARCHAR}
+		</if> 	
+		<if test="params.stockholderType !=null and params.stockholderType !=''">
+			and stockholder_info.stockholder_type = #{params.stockholderType,jdbcType=VARCHAR}
+		</if>
+		group by project_info.pid,stockholder_info.pid
+		) t
+  </select>
+  
+  <!-- 查询回款历史记录 -->
+  <select id="getHistoryPaybacksByConditions" resultType="map">
+  	select
+  		received.pid,
+  		(select project_info.project_name from project_info project_info where project_info.pid = received.prj_id) as project_name,
+  		<if test="received.receivedType == '1'.toString()">
+  			(select business_prj_info.prj_corp_name from business_prj_info business_prj_info where business_prj_info.pid = received.contributive_id) as prj_corp_name,
+  		</if>
+  		<if test="received.receivedType != '1'.toString()">
+  			(select corporation_info.name from corporation_info corporation_info where corporation_info.pid = received.contributive_id) as contributive_name,
+  		</if>
+	  	received.receiver_date,
+	  	received.receiver_account,
+	  	received.receiver_bank_id,
+	  	case received_status when '1' then '已完结' when '2' then '未完结' end as received_status_name,
+	  	received.received_status,
+      	received.pay_bank_id,
+	  	convert((received.receiver_amount/10000),decimal(18,2)) as receiver_amount,
+	  	convert((received.profit/10000),decimal(18,2)) as profit,
+	  	received.pay_account,
+	  	received.reveiver_remark,
+	  	(select user_info.user_name from user_info user_info where user_info.pid = received.create_id) as create_user,
+	  	received.create_date
+  	from received received
+  	where status = '1'
+  	and received.prj_id = #{received.prjId,jdbcType=VARCHAR}
+  	and received.receiver_id = #{received.receiverId,jdbcType=VARCHAR}
+  	and received.contributive_id = #{received.contributiveId,jdbcType=VARCHAR}
+  	and received.received_type = #{received.receivedType,jdbcType=VARCHAR}
+  	<if test="received.receivedType == '3'.toString()">
+  		and received.stockholder_id = #{received.stockholderId,jdbcType=VARCHAR}
+  	</if>
+  	<if test="received.receiverAccount !=null and received.receiverAccount !=''">
+  		and received.receiver_account = #{received.receiverAccount,jdbcType=VARCHAR}
+  	</if>
+  	 <choose>
+  	 	<when test="received.paybackDateStart != null">
+  	 		<if test="received.paybackDateEnd != null">
+  	 			and received.receiver_date between #{received.paybackDateStart,jdbcType=TIMESTAMP} and #{received.paybackDateEnd,jdbcType=TIMESTAMP}
+  	 		</if>
+  	 		<if test="received.paybackDateEnd == null">
+  	 			and received.receiver_date &gt;= #{received.paybackDateStart,jdbcType=TIMESTAMP}
+  	 		</if>
+  	 	</when>
+  	 	<when test="received.paybackDateStart == null">
+  	 		<if test="received.paybackDateEnd != null">
+  	 			and received.receiver_date &lt;= #{received.paybackDateEnd,jdbcType=TIMESTAMP}
+  	 		</if>
+  	 	</when>
+  	 </choose>
+  	 order by received.receiver_date desc, received.update_date desc, received.create_date desc  
+  	 <if test="offset !=null and pageRows !=null">
+			limit ${offset},${pageRows} 
+	 </if>
+  </select>
+  
+  <!-- 统计回款了历史记录 -->
+  <select id="countHistoryPaybacksByConditions" resultType="integer">
+  select
+	  	count(1)
+  	from received received
+  	where status = '1' 
+  	and received.prj_id = #{received.prjId,jdbcType=VARCHAR}
+  	and received.receiver_id = #{received.receiverId,jdbcType=VARCHAR}
+  	and received.contributive_id = #{received.contributiveId,jdbcType=VARCHAR}
+  	and received.received_type = #{received.receivedType,jdbcType=VARCHAR}
+  	<if test="received.receivedType == '3'.toString()">
+  		and received.stockholder_id = #{received.stockholderId,jdbcType=VARCHAR}
+  	</if>
+  	<if test="received.receiverAccount !=null and received.receiverAccount !=''">
+  		and received.receiver_account = #{received.receiverAccount,jdbcType=VARCHAR}
+  	</if>
+  	 <choose>
+  	 	<when test="received.paybackDateStart != null">
+  	 		<if test="received.paybackDateEnd != null">
+  	 			and received.receiver_date between #{received.paybackDateStart,jdbcType=TIMESTAMP} and #{received.paybackDateEnd,jdbcType=TIMESTAMP}
+  	 		</if>
+  	 		<if test="received.paybackDateEnd == null">
+  	 			and received.receiver_date &gt;= #{received.paybackDateStart,jdbcType=TIMESTAMP}
+  	 		</if>
+  	 	</when>
+  	 	<when test="received.paybackDateStart == null">
+  	 		<if test="received.paybackDateEnd != null">
+  	 			and received.receiver_date &lt;= #{received.paybackDateEnd,jdbcType=TIMESTAMP}
+  	 		</if>
+  	 	</when>
+  	 </choose>
+  </select>
+  
+  <!-- 根据条件查询投资主体回款总记录 -->
+  <select id="getInvestSubjectPaybacksByConditions" resultType="map">
+  		select 
+  			project_info.pid as project_id,
+  		
+  			project_info.project_name,
+  			
+  			invest_subject.invest_subject_id,
+  			
+  			stockholder_info.corp_id,
+			
+			(select corporation_info.name from corporation_info corporation_info where corporation_info.pid = stockholder_info.corp_id) as contributive_name,
+			
+			(select corporation_info.name from corporation_info corporation_info where corporation_info.pid = invest_subject.invest_subject_id) as receiver_name,
+			
+			convert(((select sum(payment.pay_amount) 
+				from payment payment 
+				where 
+				payment.contributive_id = invest_subject.invest_subject_id
+				and payment.stockholder_id = invest_manage_plan.stockholder_id
+				and payment.prj_id = project_info.pid 
+				and payment.payment_type = '2'
+				and payment.status = '1')/10000),decimal(18,2)) as pay_amount_total,
+			
+			convert(((project_budget.project_profit_budget/10000)
+				*(stockholder_info.hold_stock_ratio/100)
+				*(invest_subject.hold_stock_rate/100)),decimal(18,2)) as received_profit,
+				
+			convert(((select 
+				sum(received.receiver_amount) 
+				from received received where 
+				project_info.pid = received.prj_id 
+				and stockholder_info.corp_id = received.contributive_id
+				and received.received_type = '2' 
+				and received.status ='1'
+				and invest_subject.invest_subject_id = received.receiver_id )/10000),decimal(18,2)) as receiver_amount_total,
+			
+			convert(((select sum(received.profit) 
+				from received received where 
+				project_info.pid = received.prj_id
+				and stockholder_info.corp_id = received.contributive_id
+				and received.received_type = '2' 
+				and received.status ='1'
+				and invest_subject.invest_subject_id = received.receiver_id )/10000),decimal(18,2)) as profit_total,
+				
+			case (select received.received_status from received received where 
+				project_info.pid = received.prj_id 
+				and received.received_type = '2' 
+				and received.status ='1'
+				and invest_subject.invest_subject_id = received.receiver_id
+				and stockholder_info.corp_id = received.contributive_id
+				order by received.receiver_date desc, received.update_date desc, received.create_date desc limit 1)
+  			when '1' then '已完结'
+  			when '2' then '未完结'
+  			when '3' then '未回款'
+  			else '未回款' end as received_status
+  		
+  		from  
+  		 project_info project_info 
+  		 
+  		 inner join invest_manage_plan invest_manage_plan
+  		 
+  		 on project_info.pid = invest_manage_plan.prj_id
+  		 
+  		 inner join stockholder_info stockholder_info
+  		 
+  		 on invest_manage_plan.stockholder_id = stockholder_info.pid
+  		 
+  		 inner join invest_subject invest_subject
+  		 
+  		 on invest_subject.invest_manange_id = invest_manage_plan.pid and invest_subject.invest_type = '1'
+  		 
+  		 left join project_budget project_budget
+  		 
+  		 on project_info.pid = project_budget.prj_id
+  		 
+  		 left join received received
+  		 on project_info.pid = received.prj_id and received_type = '2' and stockholder_info.corp_id = received.receiver_id
+		 where 1=1
+			 <if test="received.prjId !=null and received.prjId !=''">
+			 	and project_info.pid = #{received.prjId,jdbcType=VARCHAR}
+			 </if>
+			 <if test="received.contributiveId !=null and received.contributiveId !=''">
+			 	and stockholder_info.corp_id = #{received.contributiveId,jdbcType=VARCHAR}
+			 </if>
+			 <if test="received.receiverId !=null and received.receiverId !=''">
+			 	and invest_subject.invest_subject_id = #{received.receiverId,jdbcType=VARCHAR}
+			 </if>
+			 
+  		 order by received.create_date desc,received.update_date desc 
+  		 <if test="offset !=null and pageRows !=null">
+			limit ${offset},${pageRows} 
+		</if>
+  
+  </select>
+  
+  <select id="countInvestSubjectPaybacksByConditions" resultType="integer" parameterType="com.upjf.fund.dto.Received">
+  	select 
+  		count(1)
+	 from  
+	 project_info project_info 
+	 
+	 inner join invest_manage_plan invest_manage_plan
+	 
+	 on project_info.pid = invest_manage_plan.prj_id
+	 
+	 inner join stockholder_info stockholder_info
+	 
+	 on invest_manage_plan.stockholder_id = stockholder_info.pid
+	 
+	 inner join invest_subject invest_subject
+	 
+	 on invest_subject.invest_manange_id = invest_manage_plan.pid
+	 
+	 left join project_budget project_budget
+	 
+	 on project_info.pid = project_budget.prj_id
+	 
+	 left join received received
+	 on project_info.pid = received.prj_id and received_type = '2' and stockholder_info.corp_id = received.receiver_id
+	 
+	where 1=1
+	 	 <if test="received.prjId !=null and received.prjId !=''">
+		 	and project_info.pid = #{received.prjId,jdbcType=VARCHAR}
+		 </if>
+		 <if test="received.contributiveId !=null and received.contributiveId !=''">
+		 	and stockholder_info.corp_id = #{received.contributiveId,jdbcType=VARCHAR}
+		 </if>
+		 <if test="received.receiverId !=null and received.receiverId !=''">
+		 	and invest_subject.invest_subject_id = #{received.receiverId,jdbcType=VARCHAR}
+		 </if>
+		 
+  </select>
+  
+  <!-- 根据条件查询投资人回款总记录 -->
+  <select id="getInvestorPaybacksByConditions" resultType="map">
+  		select 
+  			project_info.pid as project_id,
+  		
+  			project_info.project_name,
+  			
+  			invest_manage_plan.stockholder_id,
+  			
+  			<!-- 股东公司 -->
+  			(select corporation_info.name from corporation_info corporation_info where corporation_info.pid=(select corp_id from stockholder_info where pid = invest_manage_plan.stockholder_id)) as stockholder_name,
+  			
+  			<!-- 收款公司 -->
+  			invest_subject.invest_subject_id,
+  			
+  			<!-- 付款公司 -->
+  			invest_subject1.invest_subject_id as corp_id,
+			
+			<!-- 付款公司名称 -->
+			(select corporation_info.name from corporation_info corporation_info where corporation_info.pid = invest_subject1.invest_subject_id) as contributive_name,
+			
+			<!-- 收款公司名称 -->
+			(select corporation_info.name from corporation_info corporation_info where corporation_info.pid = invest_subject.invest_subject_id) as receiver_name,
+			
+			<!-- 投入本金 -->
+			convert(((select sum(payment.pay_amount) 
+				from payment payment 
+				where 
+				payment.contributive_id = invest_subject.invest_subject_id
+				and payment.receiver_id = invest_subject1.invest_subject_id
+				and payment.stockholder_id = invest_manage_plan.stockholder_id
+				and payment.prj_id = project_info.pid 
+				and payment.payment_type = '3'
+				and payment.status = '1')/10000),decimal(18,2)) as pay_amount_total,
+			
+			<!-- 应回利润 -->
+			convert(((project_budget.project_profit_budget/10000)
+				*(stockholder_info.hold_stock_ratio/100)
+				*(invest_subject1.hold_stock_rate/100)
+				*(invest_subject.hold_stock_rate/100)),decimal(18,2)) as received_profit,
+				
+			<!-- 已回款本金 -->
+			convert(((select 
+				sum(received.receiver_amount) 
+				from received received where 
+				project_info.pid = received.prj_id 
+				and received.contributive_id = invest_subject1.invest_subject_id
+				and received.stockholder_id = invest_manage_plan.stockholder_id
+				and received.received_type = '3' 
+				and received.status ='1'
+				and invest_subject.invest_subject_id = received.receiver_id )/10000),decimal(18,2)) as receiver_amount_total,
+			
+			<!-- 已回款利润 -->
+			convert(((select sum(received.profit) 
+				from received received where 
+				project_info.pid = received.prj_id 
+				and received.contributive_id = invest_subject1.invest_subject_id
+				and received.stockholder_id = invest_manage_plan.stockholder_id
+				and received.received_type = '3' 
+				and received.status ='1'
+				and invest_subject.invest_subject_id = received.receiver_id )/10000),decimal(18,2)) as profit_total,
+				
+			<!-- 回款状态 -->
+			case (select received.received_status from received received where 
+				project_info.pid = received.prj_id 
+				and received.contributive_id = invest_subject1.invest_subject_id
+				and received.received_type = '3' 
+				and received.status ='1'
+				and invest_subject.invest_subject_id = received.receiver_id
+				and received.stockholder_id = invest_manage_plan.stockholder_id
+				order by received.receiver_date desc, received.update_date desc, received.create_date desc limit 1)
+  			when '1' then '已完结'
+  			when '2' then '未完结'
+  			when '3' then '未回款'
+  			else '未回款' end as received_status
+  		
+  		from  
+  		 project_info project_info 
+  		 
+  		 inner join invest_manage_plan invest_manage_plan
+	 
+	     on project_info.pid = invest_manage_plan.prj_id
+	 
+	     inner join stockholder_info stockholder_info
+	 
+	     on invest_manage_plan.stockholder_id = stockholder_info.pid
+	     
+	     inner join invest_subject invest_subject1
+	 
+	     on invest_subject1.invest_manange_id = invest_manage_plan.pid
+  		 
+  		 inner join invest_subject invest_subject
+  		 
+  		 on invest_subject1.pid = invest_subject.parent_id
+  		 
+  		 left join project_budget project_budget
+  		 
+  		 on project_info.pid = project_budget.prj_id
+  		 
+  		 left join received received
+  		 
+  		 on project_info.pid = received.prj_id and received_type = '3' and invest_subject.invest_subject_id = received.receiver_id
+  		 
+		 where 1=1
+		  <if test="received.prjId !=null and received.prjId !=''">
+		 	and project_info.pid = #{received.prjId,jdbcType=VARCHAR}
+		 </if>
+		 <if test="received.contributiveId !=null and received.contributiveId !=''">
+		 	and invest_subject1.invest_subject_id = #{received.contributiveId,jdbcType=VARCHAR}
+		 </if>
+		 <if test="received.receiverId !=null and received.receiverId !=''">
+		 	and invest_subject.invest_subject_id = #{received.receiverId,jdbcType=VARCHAR}
+		 </if>
+		 group by project_info.pid, invest_manage_plan.stockholder_id, invest_subject1.invest_subject_id,invest_subject.invest_subject_id
+  		 order by received.create_date desc,received.update_date desc 
+  		 <if test="offset !=null and pageRows !=null">
+			limit ${offset},${pageRows} 
+		</if> 
+  
+  </select>
+  
+  <select id="countInvestorPaybacksByConditions" resultType="integer" parameterType="com.upjf.fund.dto.Received">
+  	
+  	select count(1) from 
+  	(
+  	select 
+  		project_info.pid,
+  		invest_subject1.invest_subject_id as corp_id,
+  		invest_subject.invest_subject_id
+	 from  
+		 project_info project_info 
+  		 
+  		 inner join invest_manage_plan invest_manage_plan
+	 
+	     on project_info.pid = invest_manage_plan.prj_id
+	 
+	     inner join stockholder_info stockholder_info
+	 
+	     on invest_manage_plan.stockholder_id = stockholder_info.pid
+	     
+	     inner join invest_subject invest_subject1
+	 
+	     on invest_subject1.invest_manange_id = invest_manage_plan.pid
+  		 
+  		 inner join invest_subject invest_subject
+  		 
+  		 on invest_subject1.pid = invest_subject.parent_id
+  		 
+  		 left join project_budget project_budget
+  		 
+  		 on project_info.pid = project_budget.prj_id
+  		 
+  		 left join received received
+  		 
+  		 on project_info.pid = received.prj_id and received_type = '3' and invest_subject.invest_subject_id = received.receiver_id
+  		 
+		 where 1=1
+			 <if test="received.prjId !=null and received.prjId !=''">
+			 	and project_info.pid = #{received.prjId,jdbcType=VARCHAR}
+			 </if>
+			 <if test="received.contributiveId !=null and received.contributiveId !=''">
+			 	and invest_subject1.invest_subject_id = #{received.contributiveId,jdbcType=VARCHAR}
+			 </if>
+			 <if test="received.receiverId !=null and received.receiverId !=''">
+			 	and invest_subject.invest_subject_id = #{received.receiverId,jdbcType=VARCHAR}
+			 </if>
+		 group by project_info.pid, invest_manage_plan.stockholder_id, invest_subject1.invest_subject_id,invest_subject.invest_subject_id
+		 ) t
+  </select>
+  
+  <!-- 统计回款合计 -->
+  <select id="statisticsAmount" resultType="map">
+  	select 
+	  	ifnull(convert((sum(receiver_amount)/10000),decimal(18,2)),0) as receiver_amount,
+	  	ifnull(convert((sum(profit)/10000),decimal(18,2)),0) as profit_amount 
+	from received where 1=1 
+		and status = '1'
+	<if test="receivedType !=null and receivedType != ''">
+		and received_type = #{receivedType,jdbcType=CHAR} 
+	</if>
+  </select>
+  
+  <!-- 根据条件统计回款合计 -->
+  <select id="statisticsAmountByParmas" resultType="map" parameterType="com.upjf.fund.dto.Received">
+  	select 
+	  	ifnull(convert((sum(receiver_amount)/10000),decimal(18,2)),0) as receiver_amount,
+	  	ifnull(convert((sum(profit)/10000),decimal(18,2)),0) as profit_amount 
+	from received where 1=1 
+		and status = '1'
+	<if test="received.receivedType !=null and received.receivedType != ''">
+		and received_type = #{received.receivedType,jdbcType=CHAR} 
+	</if>
+	<if test="received.stockholderId != null and received.stockholderId != ''">
+		and stockholder_id = #{received.stockholderId,jdbcType=VARCHAR}
+	</if>
+	<if test="received.contributiveId !=null and received.contributiveId != ''">
+		and contributive_id = #{received.contributiveId,jdbcType=VARCHAR}
+	</if>
+	<if test="received.prjId !=null and received.prjId != ''">
+		and prj_id = #{received.prjId,jdbcType=VARCHAR} 
+	</if>
+	<if test="received.receiverId !=null and received.receiverId != ''">
+		and receiver_id = #{received.receiverId,jdbcType=VARCHAR} 
+	</if>
+  </select>
+  
+  <!-- 更新回款表状态 -->
+  <update id="updatePaybackRecordStatus" parameterType="string">
+  	update received set status = #{status,jdbcType=CHAR} where pid = #{pid,jdbcType=VARCHAR}
+  </update>
+  
+  <select id="queryReceivedList" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from received
+    where prj_id = #{prjId,jdbcType=VARCHAR}
+  </select>
+  <!-- 获取回款状态 -->
+  <select id="getReceivedStatus" parameterType="com.upjf.fund.dto.Received" resultType="string">
+  	select received_status from received
+  	where 1=1
+  	and status = '1'
+  	<if test="received.receivedType !=null and received.receivedType != ''">
+		and received_type = #{received.receivedType,jdbcType=CHAR} 
+	</if>
+	<if test="received.stockholderId != null and received.stockholderId != ''">
+		and stockholder_id = #{received.stockholderId,jdbcType=VARCHAR}
+	</if>
+	<if test="received.contributiveId !=null and received.contributiveId != ''">
+		and contributive_id = #{received.contributiveId,jdbcType=VARCHAR}
+	</if>
+	<if test="received.prjId !=null and received.prjId != ''">
+		and prj_id = #{received.prjId,jdbcType=VARCHAR} 
+	</if>
+	<if test="received.receiverId !=null and received.receiverId != ''">
+		and receiver_id = #{received.receiverId,jdbcType=VARCHAR} 
+	</if>
+  	order by receiver_date desc, update_date desc, update_date desc limit 1
+  </select>
+  
+  <!-- 获取最近一次的回款日期 -->
+  <select id="getLastReceivedDate" resultType="java.util.Date" parameterType="com.upjf.fund.dto.Received">
+  	select receiver_date from received
+  	where 1=1
+  	and status = '1'
+  	<if test="received.pid !=null and received.pid !=''">
+  		and pid &lt;&gt; #{received.pid,jdbcType=VARCHAR} 
+  	</if>
+  	<if test="received.receivedType !=null and received.receivedType != ''">
+		and received_type = #{received.receivedType,jdbcType=CHAR} 
+	</if>
+	<if test="received.stockholderId != null and received.stockholderId != ''">
+		and stockholder_id = #{received.stockholderId,jdbcType=VARCHAR}
+	</if>
+	<if test="received.contributiveId !=null and received.contributiveId != ''">
+		and contributive_id = #{received.contributiveId,jdbcType=VARCHAR}
+	</if>
+	<if test="received.prjId !=null and received.prjId != ''">
+		and prj_id = #{received.prjId,jdbcType=VARCHAR} 
+	</if>
+	<if test="received.receiverId !=null and received.receiverId != ''">
+		and receiver_id = #{received.receiverId,jdbcType=VARCHAR} 
+	</if>
+  	order by receiver_date desc, update_date desc, create_date desc limit 1
+  </select>
+</mapper>

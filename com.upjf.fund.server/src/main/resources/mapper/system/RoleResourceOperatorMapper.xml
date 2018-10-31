@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.upjf.fund.service.impl.system.mapper.RoleResourceOperatorMapper">
+  <resultMap id="BaseResultMap" type="com.upjf.fund.dto.RoleResourceOperator">
+    <id column="pid" jdbcType="VARCHAR" property="pid" />
+    <result column="role_id" jdbcType="VARCHAR" property="roleId" />
+    <result column="authority_id" jdbcType="VARCHAR" property="resourceOperatorId" />
+    <result column="create_id" jdbcType="VARCHAR" property="createId" />
+    <result column="create_date" jdbcType="TIMESTAMP" property="createDate" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    pid, role_id, authority_id, create_id, create_date
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from role_resource_operator
+    where pid = #{pid,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from role_resource_operator
+    where pid = #{pid,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.upjf.fund.dto.RoleResourceOperator">
+    insert into role_resource_operator (pid, role_id, authority_id, 
+      create_id, create_date)
+    values (#{pid,jdbcType=VARCHAR}, #{roleId,jdbcType=VARCHAR}, #{resourceOperatorId,jdbcType=VARCHAR}, 
+      #{createId,jdbcType=VARCHAR}, #{createDate,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.upjf.fund.dto.RoleResourceOperator">
+    insert into role_resource_operator
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="pid != null">
+        pid,
+      </if>
+      <if test="roleId != null">
+        role_id,
+      </if>
+      <if test="resourceOperatorId != null">
+        authority_id,
+      </if>
+      <if test="createId != null">
+        create_id,
+      </if>
+      <if test="createDate != null">
+        create_date,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="pid != null">
+        #{pid,jdbcType=VARCHAR},
+      </if>
+      <if test="roleId != null">
+        #{roleId,jdbcType=VARCHAR},
+      </if>
+      <if test="resourceOperatorId != null">
+        #{resourceOperatorId,jdbcType=VARCHAR},
+      </if>
+      <if test="createId != null">
+        #{createId,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null">
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.upjf.fund.dto.RoleResourceOperator">
+    update role_resource_operator
+    <set>
+      <if test="roleId != null">
+        role_id = #{roleId,jdbcType=VARCHAR},
+      </if>
+      <if test="resourceOperatorId != null">
+        authority_id = #{resourceOperatorId,jdbcType=VARCHAR},
+      </if>
+      <if test="createId != null">
+        create_id = #{createId,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null">
+        create_date = #{createDate,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where pid = #{pid,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.upjf.fund.dto.RoleResourceOperator">
+    update role_resource_operator
+    set role_id = #{roleId,jdbcType=VARCHAR},
+      authority_id = #{resourceOperatorId,jdbcType=VARCHAR},
+      create_id = #{createId,jdbcType=VARCHAR},
+      create_date = #{createDate,jdbcType=TIMESTAMP}
+    where pid = #{pid,jdbcType=VARCHAR}
+  </update>
+  
+  <delete id="deleteByRoleId" parameterType="string">
+  	delete from role_resource_operator where role_id = #{roleId,jdbcType=VARCHAR} 
+  </delete>
+  
+  <insert id="batchInsertAuthorities">
+  insert into role_resource_operator (pid,role_id, authority_id,create_id)
+  select REPLACE(UUID(),'-',''), #{roleId,jdbcType=VARCHAR},pid,'1' from authority where
+  pid in
+   <foreach collection="authorities" item="auth" index="index" open="(" close=")" separator=",">  
+            #{auth}  
+   </foreach>  
+  </insert>
+  
+  <select id="getAuthoritiesByRoleId" parameterType="string" resultType="string">
+  	select authority_id from role_resource_operator where  role_id = #{roleId,jdbcType=VARCHAR}
+  </select>
+  
+</mapper>

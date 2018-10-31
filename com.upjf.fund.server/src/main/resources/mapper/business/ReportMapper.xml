@@ -1,0 +1,747 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.upjf.fund.service.impl.business.mapper.ReportMapper">
+  	<!-- 项目信息下拉框数据 -->
+	<select id="getProjectList" resultType="Map">
+		SELECT t_project.pid,t_project.project_name from  project_info t_project where t_project.status='1' ORDER BY t_project.create_date
+	</select>
+	<!-- 项目公司信息下拉框数据 -->
+	<select id="getProjectCompanyList" resultType="Map">
+		SELECT t_bpi.pid,t_bpi.prj_corp_name,t_bpi.corporation_info_id from  business_prj_info t_bpi where t_bpi.status='1' ORDER BY t_bpi.create_date
+	</select>
+	<!-- 投资主体、投资人公司信息下拉框数据 -->
+	<select id="getInvestCompanyList" resultType="Map" parameterType="string">
+		SELECT t_invest.pid,t_invest.invest_subject_id,(SELECT tc.NAME FROM corporation_info tc WHERE tc.pid = t_invest.invest_subject_id ) AS invest_name 
+		from invest_subject t_invest where t_invest.`status`='1' 
+		<if test="investType != null and investType != ''">
+		 	and t_invest.invest_type = #{investType ,jdbcType=VARCHAR}
+		</if>
+		GROUP BY t_invest.invest_subject_id ORDER BY t_invest.create_date 
+	</select>
+	<!-- 项目投入产出统计列表数据 -->
+	<select id="getProjectInOutList" resultType="Map" parameterType="Map">
+		SELECT * from (
+			SELECT 
+			t_project.pid,t_project.project_name,
+			t_project.business_prj_info_id,
+			t_bpi.prj_corp_name,
+			(SELECT count(*) from stockholder_info t_si where t_si.business_prj_info_id = t_project.business_prj_info_id  and t_si.prj_id=t_project.pid) stockholder_count,
+			(SELECT t_pp.project_progress from project_progress t_pp where t_pp.prj_id = t_project.pid ORDER BY t_pp.create_date desc limit 1) project_progress,
+			(SELECT t_dd.value_des from dict_detail t_dd where t_dd.pid = (SELECT t_pp.project_progress from project_progress t_pp where t_pp.prj_id = t_project.pid ORDER BY t_pp.create_date desc limit 1)) project_progress_name,
+			(SELECT t_pp.create_date from project_progress t_pp where t_pp.prj_id = t_project.pid ORDER BY t_pp.create_date desc limit 1) project_progress_date,
+			CONVERT (sum(t_imp.expect_invest_amount/10000), DECIMAL (18, 2)) expect_invest_amount,CONVERT (sum(t_imp.expect_all_receiver_account)/10000, DECIMAL (18, 2)) expect_all_receiver_account,			
+			CONVERT ((SELECT sum(t_payment.pay_amount) from payment t_payment where t_payment.payment_type = '1' and t_payment.receiver_id = t_project.business_prj_info_id and t_payment.prj_id=t_project.pid and t_payment.`status`='1')/10000, DECIMAL (18, 2)) reality_invest_amount,
+			CONVERT ((SELECT sum(t_received.receiver_amount+t_received.profit) from received t_received where t_received.received_type = '1' and t_received.contributive_id = t_project.business_prj_info_id and t_received.prj_id=t_project.pid and t_received.`status` = '1')/10000, DECIMAL (18, 2)) reality_received_amount
+			from project_info t_project 
+			LEFT JOIN business_prj_info t_bpi on t_bpi.pid = t_project.business_prj_info_id and t_bpi.`status` = '1'
+			LEFT JOIN invest_manage_plan t_imp on t_project.pid = t_imp.prj_id and t_imp.`status` = '1'
+			where 1=1 and t_project.`status`='1'
+			<if test="projectId != null and projectId != ''">
+			 	and t_project.pid = #{projectId ,jdbcType=VARCHAR}
+			</if>
+			<if test="businessPrjInfoId != null and businessPrjInfoId != ''">
+			 	and t_project.business_prj_info_id = #{businessPrjInfoId ,jdbcType=VARCHAR}
+			</if>
+			<if test="projectName != null and projectName != ''">
+			 	and t_project.project_name LIKE CONCAT('%', #{projectName}, '%') 
+			</if>
+			<if test="businessPrjInfoName != null and businessPrjInfoName != ''">
+	 			and t_bpi.prj_corp_name LIKE CONCAT('%', #{businessPrjInfoName}, '%') 
+	 		</if>
+	 		GROUP BY t_project.pid
+ 		) t0 where 1= 1 
+ 		<if test="projectProgress != null and projectProgress != ''">
+			and t0.project_progress = #{projectProgress ,jdbcType=VARCHAR}
+		</if>
+		<if test="startDate != null and startDate != ''">
+ 			and t0.project_progress_date &gt;= #{startDate,jdbcType=TIMESTAMP}
+ 		</if>
+ 		<if test="endDate != null and endDate != ''">
+ 			and t0.project_progress_date &lt;= #{endDate,jdbcType=TIMESTAMP}
+ 		</if>
+ 		ORDER BY t0.project_progress_date desc
+		<if test="offset != null and offset !='' and pageSize != null and pageSize !=''">
+			limit ${offset},${pageSize}
+		</if>	
+	</select>
+	<!-- 项目投入产出统计列表数据总数 -->
+	<select id="getProjectInOutListCount" resultType="java.lang.Integer" parameterType="Map">
+		SELECT count(*) from (
+			SELECT 
+			t_project.pid,t_project.project_name,
+			t_project.business_prj_info_id,
+			t_bpi.prj_corp_name,
+			(SELECT t_pp.project_progress from project_progress t_pp where t_pp.prj_id = t_project.pid ORDER BY t_pp.create_date desc limit 1) project_progress,
+			(SELECT t_pp.create_date from project_progress t_pp where t_pp.prj_id = t_project.pid ORDER BY t_pp.create_date desc limit 1) project_progress_date
+			from project_info t_project 
+			LEFT JOIN business_prj_info t_bpi on t_bpi.pid = t_project.business_prj_info_id and t_bpi.`status` = '1'
+			LEFT JOIN invest_manage_plan t_imp on t_project.pid = t_imp.prj_id and t_imp.`status` = '1'
+			where 1=1 and t_project.`status`='1'
+			<if test="projectId != null and projectId != ''">
+			 	and t_project.pid = #{projectId ,jdbcType=VARCHAR}
+			</if>
+			<if test="businessPrjInfoId != null and businessPrjInfoId != ''">
+			 	and t_project.business_prj_info_id = #{businessPrjInfoId ,jdbcType=VARCHAR}
+			</if>
+			<if test="projectName != null and projectName != ''">
+			 	and t_project.project_name LIKE CONCAT('%', #{projectName}, '%') 
+			</if>
+			<if test="businessPrjInfoName != null and businessPrjInfoName != ''">
+	 			and t_bpi.prj_corp_name LIKE CONCAT('%', #{businessPrjInfoName}, '%') 
+	 		</if>
+	 		GROUP BY t_project.pid
+ 		) t0 where 1= 1 
+ 		<if test="projectProgress != null and projectProgress != ''">
+			and t0.project_progress = #{projectProgress ,jdbcType=VARCHAR}
+		</if>
+		<if test="startDate != null and startDate != ''">
+ 			and t0.project_progress_date &gt;= #{startDate,jdbcType=TIMESTAMP}
+ 		</if>
+ 		<if test="endDate != null and endDate != ''">
+ 			and t0.project_progress_date &lt;= #{endDate,jdbcType=TIMESTAMP}
+ 		</if>
+	</select>
+
+	<!-- 项目投入产出-股东公司统计列表数据 -->
+	<select id="getProjectInOutCompanyList" resultType="Map" parameterType="Map">
+		SELECT * from (
+			SELECT 
+			t_project.pid,t_project.project_name,
+			t_si.business_prj_info_id,
+			(SELECT t_bpi.prj_corp_name from business_prj_info t_bpi where t_bpi.pid = t_si.business_prj_info_id) prj_corp_name,
+			t_si.pid stockholder_id,
+			(SELECT tc.NAME FROM corporation_info tc WHERE tc.pid = t_si.corp_id ) AS stockholder_name,
+			(SELECT t_pp.project_progress from project_progress t_pp where t_pp.prj_id = t_si.prj_id ORDER BY t_pp.create_date desc limit 1) project_progress,
+			(SELECT t_dd.value_des from dict_detail t_dd where t_dd.pid = (SELECT t_pp.project_progress from project_progress t_pp where t_pp.prj_id = t_si.prj_id ORDER BY t_pp.create_date desc limit 1)) project_progress_name,
+			(SELECT t_pp.create_date from project_progress t_pp where t_pp.prj_id = t_si.prj_id ORDER BY t_pp.create_date desc limit 1) project_progress_date,
+			CONVERT (sum(t_imp.expect_invest_amount)/10000, DECIMAL (18, 2)) expect_invest_amount,CONVERT (sum(t_imp.expect_all_receiver_account)/10000, DECIMAL (18, 2)) expect_all_receiver_account,			
+			CONVERT ((SELECT sum(t_payment.receiver_amount) from payment t_payment where t_payment.payment_type = '1' and t_payment.receiver_id = t_si.business_prj_info_id and t_payment.contributive_id=t_si.corp_id and t_payment.`status`='1')/10000, DECIMAL (18, 2)) reality_invest_amount,
+			CONVERT ((SELECT sum(t_received.receiver_amount+t_received.profit) from received t_received where t_received.received_type = '1' and t_received.contributive_id = t_si.business_prj_info_id and t_received.receiver_id=t_si.corp_id  and t_received.`status` = '1')/10000, DECIMAL (18, 2)) reality_received_amount
+			from stockholder_info t_si 
+			LEFT JOIN project_info t_project on t_project.pid = t_si.prj_id and t_project.`status` = '1'
+			LEFT JOIN invest_manage_plan t_imp on t_si.prj_id = t_imp.prj_id and t_si.pid = t_imp.stockholder_id and t_imp.`status` = '1'
+			where 1=1 and t_si.`status`='1'
+			<if test="projectId != null and projectId != ''">
+				and t_project.pid = #{projectId ,jdbcType=VARCHAR}
+			</if>
+		 	<if test="businessPrjInfoId != null and businessPrjInfoId != ''">
+				and t_si.business_prj_info_id = #{businessPrjInfoId ,jdbcType=VARCHAR}
+			</if>
+			<if test="projectName != null and projectName != ''">
+			 	and t_project.project_name LIKE CONCAT('%', #{projectName}, '%') 
+			</if>
+			<if test="stockholderId != null and stockholderId != ''">
+				and t_si.corp_id = #{stockholderId ,jdbcType=VARCHAR}
+			</if>
+	 		GROUP BY t_si.pid ORDER BY t_si.create_date desc
+ 		) t0 where 1= 1 
+ 		<if test="businessPrjInfoName != null and businessPrjInfoName != ''">
+ 			and t0.prj_corp_name LIKE CONCAT('%', #{businessPrjInfoName}, '%') 
+ 		</if>
+ 		<if test="projectProgress != null and projectProgress != ''">
+			and t0.project_progress = #{projectProgress ,jdbcType=VARCHAR}
+		</if>
+		<if test="startDate != null and startDate != ''">
+ 			and t0.project_progress_date &gt;= #{startDate,jdbcType=TIMESTAMP}
+ 		</if>
+ 		<if test="endDate != null and endDate != ''">
+ 			and t0.project_progress_date &lt;= #{endDate,jdbcType=TIMESTAMP}
+ 		</if>
+		<if test="offset != null and offset !='' and pageSize != null and pageSize !=''">
+			limit ${offset},${pageSize}
+		</if>	
+	</select>
+	<!-- 项目投入产出-股东公司统计列表数据总数 -->
+	<select id="getProjectInOutCompanyListCount" resultType="java.lang.Integer" parameterType="Map">
+		SELECT count(*) from (
+			SELECT 
+			t_project.pid,t_project.project_name,
+			t_si.business_prj_info_id,
+			(SELECT t_bpi.prj_corp_name from business_prj_info t_bpi where t_bpi.pid = t_si.business_prj_info_id) prj_corp_name,
+			t_si.pid stockholder_id,
+			(SELECT tc.NAME FROM corporation_info tc WHERE tc.pid = t_si.corp_id ) AS stockholder_name,
+			(SELECT t_pp.project_progress from project_progress t_pp where t_pp.prj_id = t_si.prj_id ORDER BY t_pp.create_date desc limit 1) project_progress,
+			(SELECT t_pp.create_date from project_progress t_pp where t_pp.prj_id = t_si.prj_id ORDER BY t_pp.create_date desc limit 1) project_progress_date
+			from stockholder_info t_si 
+			LEFT JOIN project_info t_project on t_project.pid = t_si.prj_id and t_project.`status` = '1'
+			LEFT JOIN invest_manage_plan t_imp on t_si.prj_id = t_imp.prj_id and t_si.pid = t_imp.stockholder_id and t_imp.`status` = '1'
+			where 1=1 and t_si.`status`='1'
+			<if test="projectId != null and projectId != ''">
+				and t_project.pid = #{projectId ,jdbcType=VARCHAR}
+			</if>
+		 	<if test="businessPrjInfoId != null and businessPrjInfoId != ''">
+				and t_si.business_prj_info_id = #{businessPrjInfoId ,jdbcType=VARCHAR}
+			</if>
+			<if test="projectName != null and projectName != ''">
+			 	and t_project.project_name LIKE CONCAT('%', #{projectName}, '%') 
+			</if>
+			<if test="stockholderId != null and stockholderId != ''">
+				and t_si.corp_id = #{stockholderId ,jdbcType=VARCHAR}
+			</if>
+	 		GROUP BY t_si.pid ORDER BY t_si.create_date desc
+ 		) t0 where 1= 1 
+ 		<if test="businessPrjInfoName != null and businessPrjInfoName != ''">
+ 			and t0.prj_corp_name LIKE CONCAT('%', #{businessPrjInfoName}, '%') 
+ 		</if>
+ 		<if test="projectProgress != null and projectProgress != ''">
+			and t0.project_progress = #{projectProgress ,jdbcType=VARCHAR}
+		</if>
+		<if test="startDate != null and startDate != ''">
+ 			and t0.project_progress_date &gt;= #{startDate,jdbcType=TIMESTAMP}
+ 		</if>
+ 		<if test="endDate != null and endDate != ''">
+ 			and t0.project_progress_date &lt;= #{endDate,jdbcType=TIMESTAMP}
+ 		</if>
+	</select>
+	
+	<!-- 项目投入产出-股东公司投资统计列表数据 -->
+	<select id="getProjectInOutInvestList" resultType="Map" parameterType="Map">
+		select t_payment.pid, t_payment.prj_id,
+			(select t_project.project_name from project_info t_project where t_project.pid = t_payment.prj_id) as project_name, 
+			t_payment.receiver_id,(select t_bpi.prj_corp_name from business_prj_info t_bpi where t_bpi.pid = t_payment.receiver_id) as receiver_name, 
+			convert((t_payment.receiver_amount/10000),decimal(18,2)) as receiver_amount, t_payment.receiver_account,
+			t_payment.contributive_id,(select t_ci.name from corporation_info t_ci where t_ci.pid = t_payment.contributive_id) as contributive_name,
+			convert((t_payment.pay_amount/10000),decimal(18,2)) as pay_amount, t_payment.pay_account, t_payment.pay_term,t_payment.finance_confirm_status,t_payment.pay_date,t_payment.receiver_date,
+			(SELECT NAME from user_info where pid = t_payment.create_id) create_name,t_payment.create_date,t_payment.pay_remark,t_payment.reveiver_remark,
+			(SELECT value_des from dict_detail where pid=t_payment.pay_bank_id) pay_bank_name,(SELECT value_des from dict_detail where pid=t_payment.receiver_bank_id) receiver_bank_name
+			from payment t_payment 
+			where 1=1 and t_payment.status = '1' and t_payment.payment_type = '1' 
+			<if test="projectId != null and projectId != ''">
+				and t_payment.prj_id=#{projectId ,jdbcType=VARCHAR}
+			</if>
+		 	<if test="businessPrjInfoId != null and businessPrjInfoId != ''">
+				and t_payment.receiver_id = #{businessPrjInfoId ,jdbcType=VARCHAR}
+			</if>
+			<if test="contributiveId != null and contributiveId != ''">
+				and t_payment.contributive_id = #{contributiveId ,jdbcType=VARCHAR}
+			</if>
+			<if test="financeConfirmStatus != null and financeConfirmStatus != ''">
+				and t_payment.finance_confirm_status = #{financeConfirmStatus ,jdbcType=VARCHAR}
+			</if>
+			<if test="payStartDate != null and payStartDate != ''">
+	 			and t_payment.pay_date &gt;= #{payStartDate,jdbcType=TIMESTAMP}
+	 		</if>
+	 		<if test="payEndDate != null and payEndDate != ''">
+	 			and t_payment.pay_date &lt;= #{payEndDate,jdbcType=TIMESTAMP}
+	 		</if>
+	 		<if test="receiverStartDate != null and receiverStartDate != ''">
+	 			and t_payment.receiver_date &gt;= #{receiverStartDate,jdbcType=TIMESTAMP}
+	 		</if>
+	 		<if test="receiverEndDate != null and receiverEndDate != ''">
+	 			and t_payment.receiver_date &lt;= #{receiverEndDate,jdbcType=TIMESTAMP}
+	 		</if>
+			order by t_payment.pay_date desc,t_payment.receiver_date desc 
+		<if test="offset != null and offset !='' and pageSize != null and pageSize !=''">
+			limit ${offset},${pageSize}
+		</if>	
+
+	</select>
+	<!-- 项目投入产出-股东公司投资统计列表数据总数 -->
+	<select id="getProjectInOutInvestListCount" resultType="Map" parameterType="Map">
+		select count(t_payment.pid) count,convert((sum(t_payment.pay_amount)/10000),decimal(18,2)) as pay_amount
+			from payment t_payment 
+			where 1=1 and t_payment.status = '1' and t_payment.payment_type = '1' 
+			<if test="projectId != null and projectId != ''">
+				and t_payment.prj_id=#{projectId ,jdbcType=VARCHAR}
+			</if>
+		 	<if test="businessPrjInfoId != null and businessPrjInfoId != ''">
+				and t_payment.receiver_id = #{businessPrjInfoId ,jdbcType=VARCHAR}
+			</if>
+			<if test="contributiveId != null and contributiveId != ''">
+				and t_payment.contributive_id = #{contributiveId ,jdbcType=VARCHAR}
+			</if>
+			<if test="financeConfirmStatus != null and financeConfirmStatus != ''">
+				and t_payment.finance_confirm_status = #{financeConfirmStatus ,jdbcType=VARCHAR}
+			</if>
+			<if test="payStartDate != null and payStartDate != ''">
+	 			and t_payment.pay_date &gt;= #{payStartDate,jdbcType=TIMESTAMP}
+	 		</if>
+	 		<if test="payEndDate != null and payEndDate != ''">
+	 			and t_payment.pay_date &lt;= #{payEndDate,jdbcType=TIMESTAMP}
+	 		</if>
+	 		<if test="receiverStartDate != null and receiverStartDate != ''">
+	 			and t_payment.receiver_date &gt;= #{receiverStartDate,jdbcType=TIMESTAMP}
+	 		</if>
+	 		<if test="receiverEndDate != null and receiverEndDate != ''">
+	 			and t_payment.receiver_date &lt;= #{receiverEndDate,jdbcType=TIMESTAMP}
+	 		</if>
+	</select>
+	
+	<!-- 项目投入产出-股东公司回报统计列表数据 -->
+	<select id="getProjectInOutRepayList" resultType="Map" parameterType="Map">
+		select t_received.pid, t_received.prj_id,
+			(select t_project.project_name from project_info t_project where t_project.pid = t_received.prj_id) as project_name, 
+			t_received.receiver_id,(select t_ci.name from corporation_info t_ci where t_ci.pid = t_received.receiver_id) as receiver_name, 
+			convert((t_received.receiver_amount/10000),decimal(18,2)) as receiver_amount,convert((t_received.profit/10000),decimal(18,2)) as profit, t_received.receiver_account,
+			t_received.contributive_id,(select t_bpi.prj_corp_name from business_prj_info t_bpi where t_bpi.pid = t_received.contributive_id) as contributive_name,
+			t_received.pay_account,t_received.received_status,t_received.receiver_date,t_received.reveiver_remark,
+			(SELECT NAME from user_info where pid = t_received.create_id) create_name,t_received.create_date,
+			(SELECT value_des from dict_detail where pid=t_received.pay_bank_id) pay_bank_name,(SELECT value_des from dict_detail where pid=t_received.receiver_bank_id) receiver_bank_name
+			from received t_received
+			where 1=1 and t_received.status = '1' and t_received.received_type = '1'  
+			<if test="projectId != null and projectId != ''">
+				and t_received.prj_id=#{projectId ,jdbcType=VARCHAR}
+			</if>
+		 	<if test="businessPrjInfoId != null and businessPrjInfoId != ''">
+				and t_received.contributive_id = #{businessPrjInfoId ,jdbcType=VARCHAR}
+			</if>
+			<if test="receiverId != null and receiverId != ''">
+				and t_received.receiver_id = #{receiverId ,jdbcType=VARCHAR}
+			</if>
+			<if test="receivedStatus != null and receivedStatus != ''">
+				and t_received.received_status = #{receivedStatus ,jdbcType=VARCHAR}
+			</if>
+	 		<if test="receiverStartDate != null and receiverStartDate != ''">
+	 			and t_received.receiver_date &gt;= #{receiverStartDate,jdbcType=TIMESTAMP}
+	 		</if>
+	 		<if test="receiverEndDate != null and receiverEndDate != ''">
+	 			and t_received.receiver_date &lt;= #{receiverEndDate,jdbcType=TIMESTAMP}
+	 		</if>
+	 		<if test="receiverAccount != null and receiverAccount != ''">
+	 			and t_received.receiver_account LIKE CONCAT('%', #{receiverAccount}, '%') 
+	 		</if>
+			order by t_received.receiver_date desc 
+		<if test="offset != null and offset !='' and pageSize != null and pageSize !=''">
+			limit ${offset},${pageSize}
+		</if>	
+
+	</select>
+	<!-- 项目投入产出-股东公司回报统计列表数据总数 -->
+	<select id="getProjectInOutRepayListCount" resultType="Map" parameterType="Map">
+		select count(t_received.pid) count,convert((sum(t_received.receiver_amount+t_received.profit)/10000),decimal(18,2)) as receiver_amount
+			from received t_received 
+			where 1=1 and t_received.status = '1' and t_received.received_type = '1'  
+			<if test="projectId != null and projectId != ''">
+				and t_received.prj_id=#{projectId ,jdbcType=VARCHAR}
+			</if>
+		 	<if test="businessPrjInfoId != null and businessPrjInfoId != ''">
+				and t_received.contributive_id = #{businessPrjInfoId ,jdbcType=VARCHAR}
+			</if>
+			<if test="receiverId != null and receiverId != ''">
+				and t_received.receiver_id = #{receiverId ,jdbcType=VARCHAR}
+			</if>
+			<if test="receivedStatus != null and receivedStatus != ''">
+				and t_received.received_status = #{receivedStatus ,jdbcType=VARCHAR}
+			</if>
+	 		<if test="receiverStartDate != null and receiverStartDate != ''">
+	 			and t_received.receiver_date &gt;= #{receiverStartDate,jdbcType=TIMESTAMP}
+	 		</if>
+	 		<if test="receiverEndDate != null and receiverEndDate != ''">
+	 			and t_received.receiver_date &lt;= #{receiverEndDate,jdbcType=TIMESTAMP}
+	 		</if>
+	</select>
+	
+	<!-- 股东项目投入产出统计列表数据 -->
+	<select id="getStockholderInOutList" resultType="Map" parameterType="Map">
+		SELECT 
+			t_si.pid stockholder_id,
+			t_si.corp_id,
+			count(DISTINCT(t_si.prj_id)) project_count,
+			(SELECT tc.NAME FROM corporation_info tc WHERE tc.pid = t_si.corp_id ) AS stockholder_name,
+			CONVERT (sum(t_imp.expect_invest_amount)/10000, DECIMAL (18, 2)) expect_invest_amount,CONVERT (sum(t_imp.expect_all_receiver_account)/10000, DECIMAL (18, 2)) expect_all_receiver_account,			
+			CONVERT ((SELECT sum(t_payment.pay_amount) from payment t_payment where t_payment.payment_type = '1'and t_payment.contributive_id=t_si.corp_id and t_payment.`status`='1')/10000, DECIMAL (18, 2)) reality_invest_amount,
+			CONVERT ((SELECT sum(t_received.receiver_amount+t_received.profit) from received t_received where t_received.received_type = '1' and t_received.receiver_id=t_si.corp_id  and t_received.`status` = '1')/10000, DECIMAL (18, 2)) reality_received_amount
+			from stockholder_info t_si 
+			LEFT JOIN invest_manage_plan t_imp on t_si.pid = t_imp.stockholder_id and t_imp.`status` = '1'
+			where 1=1 and t_si.`status`='1'
+			<if test="stockholderId != null and stockholderId != ''">
+			 	and t_si.corp_id = #{stockholderId ,jdbcType=VARCHAR}
+			</if>
+			<if test="startDate != null and startDate != ''">
+	 			and t_si.create_date &gt;= #{startDate,jdbcType=TIMESTAMP}
+	 		</if>
+	 		<if test="endDate != null and endDate != ''">
+	 			and t_si.create_date &lt;= #{endDate,jdbcType=TIMESTAMP}
+	 		</if>
+	 		GROUP BY t_si.corp_id
+	 		ORDER BY expect_invest_amount desc
+
+		<if test="offset != null and offset !='' and pageSize != null and pageSize !=''">
+			limit ${offset},${pageSize}
+		</if>	
+	</select>
+	<!-- 股东项目投入产出统计列表数据总数 -->
+	<select id="getStockholderInOutListCount" resultType="java.lang.Integer" parameterType="Map">
+		SELECT count(*) from (
+			SELECT 
+			t_si.pid stockholder_id,
+			count(DISTINCT(t_si.prj_id)) project_count
+			from stockholder_info t_si 
+			LEFT JOIN invest_manage_plan t_imp on t_si.pid = t_imp.stockholder_id and t_imp.`status` = '1'
+			where 1=1 and t_si.`status`='1'
+			<if test="stockholderId != null and stockholderId != ''">
+			 	and t_si.corp_id = #{stockholderId ,jdbcType=VARCHAR}
+			</if>
+			<if test="startDate != null and startDate != ''">
+	 			and t_si.create_date &gt;= #{startDate,jdbcType=TIMESTAMP}
+	 		</if>
+	 		<if test="endDate != null and endDate != ''">
+	 			and t_si.create_date &lt;= #{endDate,jdbcType=TIMESTAMP}
+	 		</if>
+	 		GROUP BY t_si.corp_id
+ 		) t0 where 1= 1 
+	</select>
+	
+	<!-- 投资主体、投资人投入产出统计列表数据 -->
+	<select id="getInvestInOutList" resultType="Map" parameterType="Map">
+		SELECT 
+			t_invest.pid,
+			t_invest.invest_subject_id,
+			count(DISTINCT(t_invest.prj_id)) project_count,
+			(SELECT tc.NAME FROM corporation_info tc WHERE tc.pid = t_invest.invest_subject_id ) AS invest_name,
+			CONVERT (sum(t_imp.expect_invest_amount)/10000, DECIMAL (18, 2)) expect_invest_amount,CONVERT (sum(t_imp.expect_all_receiver_account)/10000, DECIMAL (18, 2)) expect_all_receiver_account,			
+			CONVERT ((SELECT sum(t_payment.pay_amount) from payment t_payment where t_payment.contributive_id=t_invest.invest_subject_id and t_payment.`status`='1'
+			<if test="paymentType != null and paymentType != ''">
+			 	and t_payment.payment_type = #{paymentType ,jdbcType=VARCHAR}
+			</if>	
+			)/10000, DECIMAL (18, 2)) reality_invest_amount,
+			CONVERT ((SELECT sum(t_received.receiver_amount+t_received.profit) from received t_received where t_received.receiver_id=t_invest.invest_subject_id  and t_received.`status` = '1'
+			<if test="receivedType != null and receivedType != ''">
+			 	and t_received.received_type = #{receivedType ,jdbcType=VARCHAR}
+			</if>	
+			)/10000, DECIMAL (18, 2)) reality_received_amount
+			from invest_subject t_invest
+			LEFT JOIN invest_manage_plan t_imp on t_invest.invest_manange_id = t_imp.pid and t_invest.prj_id=t_imp.prj_id and t_imp.`status` = '1'
+			where 1=1 and t_invest.`status`='1'
+			<if test="investSubjectId != null and investSubjectId != ''">
+			 	and t_invest.invest_subject_id = #{investSubjectId ,jdbcType=VARCHAR}
+			</if>
+			<if test="investType != null and investType != ''">
+			 	and t_invest.invest_type = #{investType ,jdbcType=VARCHAR}
+			</if>
+			<if test="startDate != null and startDate != ''">
+	 			and t_invest.create_date &gt;= #{startDate,jdbcType=TIMESTAMP}
+	 		</if>
+	 		<if test="endDate != null and endDate != ''">
+	 			and t_invest.create_date &lt;= #{endDate,jdbcType=TIMESTAMP}
+	 		</if>
+	 		GROUP BY t_invest.invest_subject_id
+	 		ORDER BY expect_invest_amount desc
+
+		<if test="offset != null and offset !='' and pageSize != null and pageSize !=''">
+			limit ${offset},${pageSize}
+		</if>	
+	</select>
+	<!-- 投资主体、投资人投入产出统计列表数据总数 -->
+	<select id="getInvestInOutListCount" resultType="java.lang.Integer" parameterType="Map">
+		SELECT count(*) from (
+			SELECT 
+			t_invest.pid,
+			t_invest.invest_subject_id
+			from invest_subject t_invest
+			LEFT JOIN invest_manage_plan t_imp on t_invest.invest_manange_id = t_imp.pid and t_invest.prj_id=t_imp.prj_id and t_imp.`status` = '1'
+			where 1=1 and t_invest.`status`='1'
+			<if test="investSubjectId != null and investSubjectId != ''">
+			 	and t_invest.invest_subject_id = #{investSubjectId ,jdbcType=VARCHAR}
+			</if>
+			<if test="investType != null and investType != ''">
+			 	and t_invest.invest_type = #{investType ,jdbcType=VARCHAR}
+			</if>
+			<if test="startDate != null and startDate != ''">
+	 			and t_invest.create_date &gt;= #{startDate,jdbcType=TIMESTAMP}
+	 		</if>
+	 		<if test="endDate != null and endDate != ''">
+	 			and t_invest.create_date &lt;= #{endDate,jdbcType=TIMESTAMP}
+	 		</if>
+	 		GROUP BY t_invest.invest_subject_id
+ 		) t0 where 1= 1 
+	</select>
+	
+	<!-- 投资主体投入产出-项目投入产出统计列表数据 -->
+	<select id="getInvestSubInOutCompanyList" resultType="Map" parameterType="Map">
+		SELECT * from (
+			SELECT 
+			t_invest.prj_id,(SELECT t_project.project_name FROM project_info t_project WHERE t_project.pid = t_invest.prj_id ) project_name,
+			t_invest.pid investsub_id,(SELECT tc.NAME FROM corporation_info tc WHERE tc.pid = t_invest.invest_subject_id ) AS investsub_name,
+			t_imp.stockholder_id,(SELECT tc.NAME FROM corporation_info tc WHERE tc.pid = t_si.corp_id ) stockholder_name,
+			(SELECT t_pp.project_progress from project_progress t_pp where t_pp.prj_id = t_invest.prj_id ORDER BY t_pp.create_date desc limit 1) project_progress,
+			(SELECT t_dd.value_des from dict_detail t_dd where t_dd.pid = (SELECT t_pp.project_progress from project_progress t_pp where t_pp.prj_id = t_invest.prj_id ORDER BY t_pp.create_date desc limit 1)) project_progress_name,
+			(SELECT t_pp.create_date from project_progress t_pp where t_pp.prj_id = t_invest.prj_id ORDER BY t_pp.create_date desc limit 1) project_progress_date,
+			CONVERT (sum(t_imp.expect_invest_amount)/10000, DECIMAL (18, 2)) expect_invest_amount,CONVERT (sum(t_imp.expect_all_receiver_account)/10000, DECIMAL (18, 2)) expect_all_receiver_account,			
+			CONVERT ((SELECT sum(t_payment.receiver_amount) from payment t_payment where t_payment.payment_type = '2' and t_payment.receiver_id=t_si.corp_id and t_payment.contributive_id=t_invest.invest_subject_id and t_payment.`status`='1')/10000, DECIMAL (18, 2)) reality_invest_amount,
+			CONVERT ((SELECT sum(t_received.receiver_amount+t_received.profit) from received t_received where t_received.received_type = '2' and t_received.contributive_id = t_si.corp_id and t_received.receiver_id=t_invest.invest_subject_id  and t_received.`status` = '1')/10000, DECIMAL (18, 2)) reality_received_amount
+			from invest_subject t_invest
+			LEFT JOIN invest_manage_plan t_imp on t_invest.invest_manange_id = t_imp.pid and t_invest.prj_id=t_imp.prj_id and t_imp.`status` = '1'
+			LEFT JOIN stockholder_info t_si on t_si.pid = t_imp.stockholder_id and t_si.prj_id=t_invest.prj_id and t_si.`status` = '1'
+			where 1=1 and t_invest.`status`='1' and t_invest.invest_type='1'
+			<if test="projectId != null and projectId != ''">
+				and t_invest.prj_id = #{projectId ,jdbcType=VARCHAR}
+			</if>
+			<if test="stockholderId != null and stockholderId != ''">
+				and t_imp.stockholder_id = #{stockholderId ,jdbcType=VARCHAR}
+			</if>
+			<if test="investSubId != null and investSubId != ''">
+				and t_invest.invest_subject_id = #{investSubId ,jdbcType=VARCHAR}
+			</if>
+	 		GROUP BY t_invest.pid ORDER BY t_invest.create_date desc
+ 		) t0 where 1= 1 
+ 		<if test="projectProgress != null and projectProgress != ''">
+			and t0.project_progress = #{projectProgress ,jdbcType=VARCHAR}
+		</if>
+		<if test="startDate != null and startDate != ''">
+ 			and t0.project_progress_date &gt;= #{startDate,jdbcType=TIMESTAMP}
+ 		</if>
+ 		<if test="endDate != null and endDate != ''">
+ 			and t0.project_progress_date &lt;= #{endDate,jdbcType=TIMESTAMP}
+ 		</if>
+		<if test="offset != null and offset !='' and pageSize != null and pageSize !=''">
+			limit ${offset},${pageSize}
+		</if>	
+	</select>
+	<!-- 投资主体投入产出-项目投入产出统计列表数据 -->
+	<select id="getInvestSubInOutCompanyListCount" resultType="java.lang.Integer" parameterType="Map">
+		SELECT count(*) from (
+			SELECT 
+			t_invest.prj_id,
+			(SELECT t_pp.project_progress from project_progress t_pp where t_pp.prj_id = t_invest.prj_id ORDER BY t_pp.create_date desc limit 1) project_progress,
+			(SELECT t_pp.create_date from project_progress t_pp where t_pp.prj_id = t_invest.prj_id ORDER BY t_pp.create_date desc limit 1) project_progress_date
+			from invest_subject t_invest
+			LEFT JOIN invest_manage_plan t_imp on t_invest.invest_manange_id = t_imp.pid and t_invest.prj_id=t_imp.prj_id and t_imp.`status` = '1'
+			LEFT JOIN stockholder_info t_si on t_si.pid = t_imp.stockholder_id and t_si.prj_id=t_invest.prj_id and t_si.`status` = '1'
+			where 1=1 and t_invest.`status`='1' and t_invest.invest_type='1' 
+			<if test="projectId != null and projectId != ''">
+				and t_invest.prj_id = #{projectId ,jdbcType=VARCHAR}
+			</if>
+			<if test="stockholderId != null and stockholderId != ''">
+				and t_imp.stockholder_id = #{stockholderId ,jdbcType=VARCHAR}
+			</if>
+			<if test="investSubId != null and investSubId != ''">
+				and t_invest.invest_subject_id = #{investSubId ,jdbcType=VARCHAR}
+			</if>
+	 		GROUP BY t_invest.pid ORDER BY t_invest.create_date desc
+ 		) t0 where 1= 1 
+ 		<if test="projectProgress != null and projectProgress != ''">
+			and t0.project_progress = #{projectProgress ,jdbcType=VARCHAR}
+		</if>
+		<if test="startDate != null and startDate != ''">
+ 			and t0.project_progress_date &gt;= #{startDate,jdbcType=TIMESTAMP}
+ 		</if>
+ 		<if test="endDate != null and endDate != ''">
+ 			and t0.project_progress_date &lt;= #{endDate,jdbcType=TIMESTAMP}
+ 		</if>
+	</select>
+	
+	<!-- 投资人投入产出-项目投入产出统计列表数据 -->
+	<select id="getInvestorInOutCompanyList" resultType="Map" parameterType="Map">
+		SELECT * from (
+			SELECT 
+			t_invest.prj_id,(SELECT t_project.project_name FROM project_info t_project WHERE t_project.pid = t_invest.prj_id ) project_name,
+			t_invest.pid investor_id,(SELECT tc.NAME FROM corporation_info tc WHERE tc.pid = t_invest.invest_subject_id ) AS investor_name,
+			t_invest.parent_id investsub_id,(SELECT tc.NAME FROM corporation_info tc WHERE tc.pid = (SELECT t1.invest_subject_id from invest_subject t1 where t1.pid = t_invest.parent_id )) investsub_name,
+			(SELECT tc.pid FROM corporation_info tc WHERE tc.pid = (SELECT t1.invest_subject_id from invest_subject t1 where t1.pid = t_invest.parent_id )) investsub_corp_id,
+			(SELECT t_pp.project_progress from project_progress t_pp where t_pp.prj_id = t_invest.prj_id ORDER BY t_pp.create_date desc limit 1) project_progress,
+			(SELECT t_dd.value_des from dict_detail t_dd where t_dd.pid = (SELECT t_pp.project_progress from project_progress t_pp where t_pp.prj_id = t_invest.prj_id ORDER BY t_pp.create_date desc limit 1)) project_progress_name,
+			(SELECT t_pp.create_date from project_progress t_pp where t_pp.prj_id = t_invest.prj_id ORDER BY t_pp.create_date desc limit 1) project_progress_date,
+			CONVERT (sum(t_imp.expect_invest_amount)/10000, DECIMAL (18, 2)) expect_invest_amount,CONVERT (sum(t_imp.expect_all_receiver_account)/10000, DECIMAL (18, 2)) expect_all_receiver_account,			
+			CONVERT ((SELECT sum(t_payment.receiver_amount) from payment t_payment where t_payment.payment_type = '3' and t_payment.receiver_id=(SELECT t1.invest_subject_id from invest_subject t1 where t1.pid = t_invest.parent_id ) and t_payment.contributive_id=t_invest.invest_subject_id and t_payment.`status`='1')/10000, DECIMAL (18, 2)) reality_invest_amount,
+			CONVERT ((SELECT sum(t_received.receiver_amount+t_received.profit) from received t_received where t_received.received_type = '3' and t_received.contributive_id = (SELECT t1.invest_subject_id from invest_subject t1 where t1.pid = t_invest.parent_id ) and t_received.receiver_id=t_invest.invest_subject_id  and t_received.`status` = '1')/10000, DECIMAL (18, 2)) reality_received_amount
+			from invest_subject t_invest
+			LEFT JOIN invest_manage_plan t_imp on t_invest.invest_manange_id = t_imp.pid and t_invest.prj_id=t_imp.prj_id and t_imp.`status` = '1'
+			where 1=1 and t_invest.`status`='1' and t_invest.invest_type='2' 
+			<if test="projectId != null and projectId != ''">
+				and t_invest.prj_id = #{projectId ,jdbcType=VARCHAR}
+			</if>
+			<if test="investorId != null and investorId != ''">
+				and t_invest.invest_subject_id = #{investorId ,jdbcType=VARCHAR}
+			</if>
+	 		GROUP BY t_invest.pid ORDER BY t_invest.create_date desc
+ 		) t0 where 1= 1 
+		<if test="investSubId != null and investSubId != ''">
+			and t0.investsub_corp_id = #{investSubId ,jdbcType=VARCHAR}
+		</if>
+ 		<if test="projectProgress != null and projectProgress != ''">
+			and t0.project_progress = #{projectProgress ,jdbcType=VARCHAR}
+		</if>
+		<if test="startDate != null and startDate != ''">
+ 			and t0.project_progress_date &gt;= #{startDate,jdbcType=TIMESTAMP}
+ 		</if>
+ 		<if test="endDate != null and endDate != ''">
+ 			and t0.project_progress_date &lt;= #{endDate,jdbcType=TIMESTAMP}
+ 		</if>
+		<if test="offset != null and offset !='' and pageSize != null and pageSize !=''">
+			limit ${offset},${pageSize}
+		</if>	
+	</select>
+	<!-- 投资人投入产出-项目投入产出统计列表数据 -->
+	<select id="getInvestorInOutCompanyListCount" resultType="java.lang.Integer" parameterType="Map">
+		SELECT count(*) from (
+			SELECT 
+			t_invest.prj_id,
+			(SELECT tc.pid FROM corporation_info tc WHERE tc.pid = (SELECT t1.invest_subject_id from invest_subject t1 where t1.pid = t_invest.parent_id )) investsub_corp_id,
+			(SELECT t_pp.project_progress from project_progress t_pp where t_pp.prj_id = t_invest.prj_id ORDER BY t_pp.create_date desc limit 1) project_progress,
+			(SELECT t_pp.create_date from project_progress t_pp where t_pp.prj_id = t_invest.prj_id ORDER BY t_pp.create_date desc limit 1) project_progress_date
+			from invest_subject t_invest
+			LEFT JOIN invest_manage_plan t_imp on t_invest.invest_manange_id = t_imp.pid and t_invest.prj_id=t_imp.prj_id and t_imp.`status` = '1'
+			LEFT JOIN stockholder_info t_si on t_si.pid = t_imp.stockholder_id and t_si.prj_id=t_invest.prj_id and t_si.`status` = '1'
+			where 1=1 and t_invest.`status`='1'
+			<if test="projectId != null and projectId != ''">
+				and t_invest.prj_id = #{projectId ,jdbcType=VARCHAR}
+			</if>
+			<if test="investorId != null and investorId != ''">
+				and t_invest.invest_subject_id = #{investorId ,jdbcType=VARCHAR}
+			</if>
+	 		GROUP BY t_invest.pid
+ 		) t0 where 1= 1 
+ 		<if test="investSubId != null and investSubId != ''">
+			and t0.investsub_corp_id = #{investSubId ,jdbcType=VARCHAR}
+		</if>
+ 		<if test="projectProgress != null and projectProgress != ''">
+			and t0.project_progress = #{projectProgress ,jdbcType=VARCHAR}
+		</if>
+		<if test="startDate != null and startDate != ''">
+ 			and t0.project_progress_date &gt;= #{startDate,jdbcType=TIMESTAMP}
+ 		</if>
+ 		<if test="endDate != null and endDate != ''">
+ 			and t0.project_progress_date &lt;= #{endDate,jdbcType=TIMESTAMP}
+ 		</if>
+	</select>
+	
+	<!--投资主体、投注人投资统计列表数据 -->
+	<select id="getInvestInOutInvestList" resultType="Map" parameterType="Map">
+		select t_payment.pid, t_payment.prj_id,
+			(select t_project.project_name from project_info t_project where t_project.pid = t_payment.prj_id) as project_name, 
+			t_payment.receiver_id,(select t_ci.name from corporation_info t_ci where t_ci.pid = t_payment.receiver_id) as receiver_name, 
+			convert((t_payment.receiver_amount/10000),decimal(18,2)) as receiver_amount, t_payment.receiver_account,
+			t_payment.contributive_id,(select t_ci.name from corporation_info t_ci where t_ci.pid = t_payment.contributive_id) as contributive_name,
+			convert((t_payment.pay_amount/10000),decimal(18,2)) as pay_amount, t_payment.pay_account, t_payment.pay_term,t_payment.finance_confirm_status,t_payment.pay_date,t_payment.receiver_date,
+			(SELECT NAME from user_info where pid = t_payment.create_id) create_name,t_payment.create_date,t_payment.pay_remark,t_payment.reveiver_remark,
+			(SELECT value_des from dict_detail where pid=t_payment.pay_bank_id) pay_bank_name,(SELECT value_des from dict_detail where pid=t_payment.receiver_bank_id) receiver_bank_name
+			from payment t_payment 
+			where 1=1 and t_payment.status = '1'
+			<if test="paymentType != null and paymentType != ''">
+				and t_payment.payment_type=#{paymentType ,jdbcType=VARCHAR}
+			</if>
+			<if test="projectId != null and projectId != ''">
+				and t_payment.prj_id=#{projectId ,jdbcType=VARCHAR}
+			</if>
+		 	<if test="receiverId != null and receiverId != ''">
+				and t_payment.receiver_id = #{receiverId ,jdbcType=VARCHAR}
+			</if>
+			<if test="contributiveId != null and contributiveId != ''">
+				and t_payment.contributive_id = #{contributiveId ,jdbcType=VARCHAR}
+			</if>
+			<if test="financeConfirmStatus != null and financeConfirmStatus != ''">
+				and t_payment.finance_confirm_status = #{financeConfirmStatus ,jdbcType=VARCHAR}
+			</if>
+			<if test="payStartDate != null and payStartDate != ''">
+	 			and t_payment.pay_date &gt;= #{payStartDate,jdbcType=TIMESTAMP}
+	 		</if>
+	 		<if test="payEndDate != null and payEndDate != ''">
+	 			and t_payment.pay_date &lt;= #{payEndDate,jdbcType=TIMESTAMP}
+	 		</if>
+	 		<if test="receiverStartDate != null and receiverStartDate != ''">
+	 			and t_payment.receiver_date &gt;= #{receiverStartDate,jdbcType=TIMESTAMP}
+	 		</if>
+	 		<if test="receiverEndDate != null and receiverEndDate != ''">
+	 			and t_payment.receiver_date &lt;= #{receiverEndDate,jdbcType=TIMESTAMP}
+	 		</if>
+			order by t_payment.pay_date desc,t_payment.receiver_date desc 
+		<if test="offset != null and offset !='' and pageSize != null and pageSize !=''">
+			limit ${offset},${pageSize}
+		</if>	
+
+	</select>
+	<!-- 投资主体、投注人投资统计列表数据总数 -->
+	<select id="getInvestInOutInvestListCount" resultType="Map" parameterType="Map">
+		select count(t_payment.pid) count,convert((sum(t_payment.pay_amount)/10000),decimal(18,2)) as pay_amount
+			from payment t_payment 
+			where 1=1 and t_payment.status = '1'
+			<if test="paymentType != null and paymentType != ''">
+				and t_payment.payment_type=#{paymentType ,jdbcType=VARCHAR}
+			</if>
+			<if test="projectId != null and projectId != ''">
+				and t_payment.prj_id=#{projectId ,jdbcType=VARCHAR}
+			</if>
+		 	<if test="receiverId != null and receiverId != ''">
+				and t_payment.receiver_id = #{receiverId ,jdbcType=VARCHAR}
+			</if>
+			<if test="contributiveId != null and contributiveId != ''">
+				and t_payment.contributive_id = #{contributiveId ,jdbcType=VARCHAR}
+			</if>
+			<if test="financeConfirmStatus != null and financeConfirmStatus != ''">
+				and t_payment.finance_confirm_status = #{financeConfirmStatus ,jdbcType=VARCHAR}
+			</if>
+			<if test="payStartDate != null and payStartDate != ''">
+	 			and t_payment.pay_date &gt;= #{payStartDate,jdbcType=TIMESTAMP}
+	 		</if>
+	 		<if test="payEndDate != null and payEndDate != ''">
+	 			and t_payment.pay_date &lt;= #{payEndDate,jdbcType=TIMESTAMP}
+	 		</if>
+	 		<if test="receiverStartDate != null and receiverStartDate != ''">
+	 			and t_payment.receiver_date &gt;= #{receiverStartDate,jdbcType=TIMESTAMP}
+	 		</if>
+	 		<if test="receiverEndDate != null and receiverEndDate != ''">
+	 			and t_payment.receiver_date &lt;= #{receiverEndDate,jdbcType=TIMESTAMP}
+	 		</if>
+	</select>
+	
+	<!-- 投资主体、投注人回报统计列表数据 -->
+	<select id="getInvestInOutRepayList" resultType="Map" parameterType="Map">
+		select t_received.pid, t_received.prj_id,
+			(select t_project.project_name from project_info t_project where t_project.pid = t_received.prj_id) as project_name, 
+			t_received.receiver_id,(select t_ci.name from corporation_info t_ci where t_ci.pid = t_received.receiver_id) as receiver_name, 
+			convert((t_received.receiver_amount/10000),decimal(18,2)) as receiver_amount,convert((t_received.profit/10000),decimal(18,2)) as profit, t_received.receiver_account,
+			t_received.contributive_id,(select t_ci.name from corporation_info t_ci where t_ci.pid = t_received.contributive_id) as contributive_name,
+			t_received.pay_account,t_received.received_status,t_received.receiver_date,t_received.reveiver_remark,
+			(SELECT NAME from user_info where pid = t_received.create_id) create_name,t_received.create_date,
+			(SELECT value_des from dict_detail where pid=t_received.pay_bank_id) pay_bank_name,(SELECT value_des from dict_detail where pid=t_received.receiver_bank_id) receiver_bank_name
+			from received t_received
+			where 1=1 and t_received.status = '1'
+			<if test="receivedType != null and receivedType != ''">
+				and t_received.received_type=#{receivedType ,jdbcType=VARCHAR}
+			</if>
+			<if test="projectId != null and projectId != ''">
+				and t_received.prj_id=#{projectId ,jdbcType=VARCHAR}
+			</if>
+		 	<if test="contributiveId != null and contributiveId != ''">
+				and t_received.contributive_id = #{contributiveId ,jdbcType=VARCHAR}
+			</if>
+			<if test="receiverId != null and receiverId != ''">
+				and t_received.receiver_id = #{receiverId ,jdbcType=VARCHAR}
+			</if>
+			<if test="receivedStatus != null and receivedStatus != ''">
+				and t_received.received_status = #{receivedStatus ,jdbcType=VARCHAR}
+			</if>
+	 		<if test="receiverStartDate != null and receiverStartDate != ''">
+	 			and t_received.receiver_date &gt;= #{receiverStartDate,jdbcType=TIMESTAMP}
+	 		</if>
+	 		<if test="receiverEndDate != null and receiverEndDate != ''">
+	 			and t_received.receiver_date &lt;= #{receiverEndDate,jdbcType=TIMESTAMP}
+	 		</if>
+	 		<if test="receiverAccount != null and receiverAccount != ''">
+	 			and t_received.receiver_account LIKE CONCAT('%', #{receiverAccount}, '%') 
+	 		</if>
+			order by t_received.receiver_date desc 
+		<if test="offset != null and offset !='' and pageSize != null and pageSize !=''">
+			limit ${offset},${pageSize}
+		</if>	
+
+	</select>
+	<!-- 投资主体、投注人回报统计列表数据总数 -->
+	<select id="getInvestInOutRepayListCount" resultType="Map" parameterType="Map">
+		select count(t_received.pid) count,convert((sum(t_received.receiver_amount+t_received.profit)/10000),decimal(18,2)) as receiver_amount
+			from received t_received 
+			where 1=1 and t_received.status = '1'
+			<if test="receivedType != null and receivedType != ''">
+				and t_received.received_type=#{receivedType ,jdbcType=VARCHAR}
+			</if>
+			<if test="projectId != null and projectId != ''">
+				and t_received.prj_id=#{projectId ,jdbcType=VARCHAR}
+			</if>
+		 	<if test="contributiveId != null and contributiveId != ''">
+				and t_received.contributive_id = #{contributiveId ,jdbcType=VARCHAR}
+			</if>
+			<if test="receiverId != null and receiverId != ''">
+				and t_received.receiver_id = #{receiverId ,jdbcType=VARCHAR}
+			</if>
+			<if test="receivedStatus != null and receivedStatus != ''">
+				and t_received.received_status = #{receivedStatus ,jdbcType=VARCHAR}
+			</if>
+	 		<if test="receiverStartDate != null and receiverStartDate != ''">
+	 			and t_received.receiver_date &gt;= #{receiverStartDate,jdbcType=TIMESTAMP}
+	 		</if>
+	 		<if test="receiverEndDate != null and receiverEndDate != ''">
+	 			and t_received.receiver_date &lt;= #{receiverEndDate,jdbcType=TIMESTAMP}
+	 		</if>
+	</select>
+</mapper>

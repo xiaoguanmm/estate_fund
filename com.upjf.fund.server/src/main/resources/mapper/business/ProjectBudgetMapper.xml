@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.upjf.fund.service.impl.business.mapper.ProjectBudgetMapper" >
+  <resultMap id="BaseResultMap" type="com.upjf.fund.dto.ProjectBudget" >
+    <id column="pid" property="pid" jdbcType="VARCHAR" />
+    <result column="prj_id" property="prjId" jdbcType="VARCHAR" />
+    <result column="budget_name" property="budgetName" jdbcType="VARCHAR" />
+    <result column="project_profit_budget" property="projectProfitBudget" jdbcType="DECIMAL" />
+    <result column="budget_date" property="budgetDate" jdbcType="TIMESTAMP" />
+    <result column="budget_gist" property="budgetGist" jdbcType="VARCHAR" />
+    <result column="status" property="status" jdbcType="INTEGER" />
+    <result column="create_date" property="createDate" jdbcType="TIMESTAMP" />
+    <result column="create_id" property="createId" jdbcType="VARCHAR" />
+    <result column="update_date" property="updateDate" jdbcType="TIMESTAMP" />
+    <result column="update_id" property="updateId" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    pid, prj_id, budget_name, project_profit_budget, budget_date, budget_gist, status, 
+    create_date, create_id, update_date, update_id
+  </sql>
+  
+  
+  <!-- 根据主键获取项目预算信息 -->
+  <select id="getProjectBudgetByKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from project_budget
+    where pid = #{pid,jdbcType=VARCHAR}
+  </select>
+  
+  
+  <!-- 根据项目主键获取所属的最新的项目预算信息 -->
+  <select id="getLatestBudgetByProjectPid" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    SELECT 
+	  a.pid, a.prj_id, a.budget_name, CONVERT(a.project_profit_budget/10000,DECIMAL(18,2)) as project_profit_budget, a.budget_date, a.budget_gist, a.status, 
+      a.create_date, a.create_id, a.update_date, a.update_id
+	FROM
+	  project_budget a 
+	WHERE a.`prj_id` = #{projectPid} 
+	  AND a.`status` = 1 
+	  AND a.`create_date` = 
+	  (SELECT 
+	    MAX(b.`create_date`) 
+	  FROM
+	    project_budget b 
+	  WHERE b.`prj_id` = #{projectPid} 
+	    AND b.`status` = 1)
+  </select>
+  
+  <!-- 根据项目主键,批量获取有效状态的项目预算信息 -->
+  <select id="getBudgetByProjectPids" resultType="com.upjf.fund.dto.ProjectBudget" parameterType="java.util.Map" >
+    select 
+    	<include refid="Base_Column_List" />
+    from project_budget
+    <where>
+    	status = 1
+    	<if test="idList != null">
+    		and prj_id in 
+    		<foreach collection="idList" open="(" separator="," close=")" item="projectPid">
+    			#{projectPid}
+    		</foreach>
+    	</if>
+    </where>
+  </select>
+  
+  <!-- 根据项目预算主键批量变更项目预算状态为无效状态(伪删除) -->
+  <update id="delBudgetByPids" parameterType="java.util.Map">
+    update  project_budget
+    <set>
+    	status = 0,
+    	<if test="updateDate != null">
+    		update_date=#{updateDate},
+    	</if>
+    	<if test="updateId != null and updateId !=''">
+    		update_id=#{updateId},
+    	</if>
+    </set>
+    where pid in
+    <foreach collection="idList" open="(" separator="," close=")" item="pid">
+    	#{pid}
+    </foreach>
+  </update>
+  
+  
+  <!-- 分页获取项目预算记录 -->
+  <select id="getBudgetDataByPage" resultType="com.upjf.fund.dto.ProjectBudgetVo" parameterType="java.util.Map" >
+    SELECT 
+	  a.`budget_name` AS budgetName,
+	  CONVERT(a.`project_profit_budget`/10000,DECIMAL(18,2))  AS projectProfitBudget,
+	  DATE_FORMAT(a.`budget_date`, '%Y-%m-%d') AS budgetDateStr,
+	  a.`budget_gist` AS budgetGist,
+	  CONCAT(d.`real_name`, '.', d.`file_type`) AS fileName,
+	  b.`name` AS operatorName,
+	  a.`create_date` AS operatorTime,
+	  c.`pid` AS budgetAccessoryPid,
+	  d.`file_url` AS fileUrl 
+	FROM
+	  project_budget a 
+	  LEFT JOIN user_info b 
+	    ON a.`create_id` = b.`pid` 
+	  LEFT JOIN project_budget_accessory c 
+	    ON a.`pid` = c.`prj_budget_id` 
+	  LEFT JOIN estate_fund_file d 
+	    ON c.`file_id` = d.`pid` 
+	WHERE a.`prj_id` = #{projectId} 
+	  AND a.`status` = 1 
+	  AND c.`status` = 1 
+	ORDER BY a.`create_date` DESC 
+	LIMIT #{startIndex}, #{pageSize} 
+  </select>
+  
+  <!-- 获取命中总数 -->
+  <select id="getTotalCount" resultType="java.lang.Integer" parameterType="java.util.Map" >
+    SELECT 
+	  count(1)
+	FROM
+	  project_budget a 
+	  LEFT JOIN user_info b 
+	    ON a.`create_id` = b.`pid` 
+	  LEFT JOIN project_budget_accessory c 
+	    ON a.`pid` = c.`prj_budget_id` 
+	  LEFT JOIN estate_fund_file d 
+	    ON c.`file_id` = d.`pid` 
+	WHERE a.`prj_id` = #{projectId}
+	  AND a.`status` = 1 
+	  AND c.`status` = 1
+  </select>
+  
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from project_budget
+    where pid = #{pid,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.upjf.fund.dto.ProjectBudget" >
+    insert into project_budget (pid, prj_id, budget_name, 
+      project_profit_budget, budget_date, budget_gist, 
+      status, create_date, create_id, 
+      update_date, update_id)
+    values (#{pid,jdbcType=VARCHAR}, #{prjId,jdbcType=VARCHAR}, #{budgetName,jdbcType=VARCHAR}, 
+      #{projectProfitBudget,jdbcType=DECIMAL}, #{budgetDate,jdbcType=TIMESTAMP}, #{budgetGist,jdbcType=VARCHAR}, 
+      #{status,jdbcType=INTEGER}, #{createDate,jdbcType=TIMESTAMP}, #{createId,jdbcType=VARCHAR}, 
+      #{updateDate,jdbcType=TIMESTAMP}, #{updateId,jdbcType=VARCHAR})
+  </insert>
+  
+  
+  <!-- 保存项目预算信息 -->
+  <insert id="saveProjectBudget" parameterType="com.upjf.fund.dto.ProjectBudget" >
+    insert into project_budget
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="pid != null and pid !=''" >
+        pid,
+      </if>
+      <if test="prjId != null and prjId !=''" >
+        prj_id,
+      </if>
+      <if test="budgetName != null and budgetName !=''" >
+        budget_name,
+      </if>
+      <if test="projectProfitBudget != null" >
+        project_profit_budget,
+      </if>
+      <if test="budgetDate != null" >
+        budget_date,
+      </if>
+      <if test="budgetGist != null and budgetGist != ''" >
+        budget_gist,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+      <if test="createDate != null" >
+        create_date,
+      </if>
+      <if test="createId != null and createId !=''" >
+        create_id,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="pid != null and pid !=''" >
+        #{pid,jdbcType=VARCHAR},
+      </if>
+      <if test="prjId != null and prjId !=''" >
+        #{prjId,jdbcType=VARCHAR},
+      </if>
+      <if test="budgetName != null and budgetName !=''" >
+        #{budgetName,jdbcType=VARCHAR},
+      </if>
+      <if test="projectProfitBudget != null" >
+        #{projectProfitBudget,jdbcType=DECIMAL},
+      </if>
+      <if test="budgetDate != null" >
+        #{budgetDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="budgetGist != null and budgetGist !=''" >
+        #{budgetGist,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=INTEGER},
+      </if>
+      <if test="createDate != null" >
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createId != null and createId !=''" >
+        #{createId,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  
+  
+  <!-- 根据主键更新项目预算信息 -->
+  <update id="updateProjectBudgetByPid" parameterType="com.upjf.fund.dto.ProjectBudget" >
+    update project_budget
+    <set >
+      <if test="prjId != null and prjId !=''" >
+        prj_id = #{prjId,jdbcType=VARCHAR},
+      </if>
+      <if test="budgetName != null and budgetName !=''" >
+        budget_name = #{budgetName,jdbcType=VARCHAR},
+      </if>
+      <if test="projectProfitBudget != null" >
+        project_profit_budget = #{projectProfitBudget,jdbcType=DECIMAL},
+      </if>
+      <if test="budgetDate != null" >
+        budget_date = #{budgetDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="budgetGist != null and budgetGist !=''" >
+        budget_gist = #{budgetGist,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=INTEGER},
+      </if>
+      <if test="updateDate != null" >
+        update_date = #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateId != null and updateId !=''" >
+        update_id = #{updateId,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where pid = #{pid,jdbcType=VARCHAR}
+  </update>
+  
+  
+  
+  <update id="updateByPrimaryKey" parameterType="com.upjf.fund.dto.ProjectBudget" >
+    update project_budget
+    set prj_id = #{prjId,jdbcType=VARCHAR},
+      budget_name = #{budgetName,jdbcType=VARCHAR},
+      project_profit_budget = #{projectProfitBudget,jdbcType=DECIMAL},
+      budget_date = #{budgetDate,jdbcType=TIMESTAMP},
+      budget_gist = #{budgetGist,jdbcType=VARCHAR},
+      status = #{status,jdbcType=INTEGER},
+      create_date = #{createDate,jdbcType=TIMESTAMP},
+      create_id = #{createId,jdbcType=VARCHAR},
+      update_date = #{updateDate,jdbcType=TIMESTAMP},
+      update_id = #{updateId,jdbcType=VARCHAR}
+    where pid = #{pid,jdbcType=VARCHAR}
+  </update>
+</mapper>

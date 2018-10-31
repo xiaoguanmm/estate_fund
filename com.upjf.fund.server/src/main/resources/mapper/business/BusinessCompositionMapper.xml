@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.upjf.fund.service.impl.business.mapper.BusinessCompositionMapper" >
+  <resultMap id="BaseResultMap" type="com.upjf.fund.dto.BusinessComposition" >
+    <id column="pid" property="pid" jdbcType="VARCHAR" />
+    <result column="business_type" property="businessType" jdbcType="VARCHAR" />
+    <result column="sale_area" property="saleArea" jdbcType="DECIMAL" />
+    <result column="sale_per_meter" property="salePerMeter" jdbcType="DECIMAL" />
+    <result column="composition_area" property="compositionArea" jdbcType="DECIMAL" />
+    <result column="project_value" property="projectValue" jdbcType="DECIMAL" />
+    <result column="project_id" property="projectId" jdbcType="VARCHAR" />
+    <result column="status" property="status" jdbcType="INTEGER" />
+    <result column="create_id" property="createId" jdbcType="VARCHAR" />
+    <result column="create_date" property="createDate" jdbcType="TIMESTAMP" />
+    <result column="update_id" property="updateId" jdbcType="VARCHAR" />
+    <result column="update_date" property="updateDate" jdbcType="TIMESTAMP" />
+    
+    <!-- 本次非数据库所有,为满足业务需求增加 -->
+    <result column="sortNum" property="sortNum" jdbcType="VARCHAR" />
+    <result column="value_des" property="businessTypeName" jdbcType="VARCHAR" />
+  </resultMap>
+  
+  <sql id="Base_Column_List" >
+    pid, business_type, sale_area, sale_per_meter, composition_area, project_value, project_id, 
+    status, create_id, create_date, update_id, update_date
+  </sql>
+  
+  
+  <!-- 根据主键获取项目业态组成信息 -->
+  <select id="getBusCompoByKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from business_composition
+    where pid = #{pid,jdbcType=VARCHAR}
+  </select>
+  
+  <!-- 根据项目主键获取满足条件的所有的处于有效状态的项目业态主键 -->
+  <select id="getBusCompoPidByProjectPids" resultType="java.lang.String" parameterType="java.util.Map" >
+    select 
+    	pid
+    from business_composition
+    <where>
+    	status = 1
+    	<if test="idList != null">
+    		and project_id in 
+    		<foreach collection="idList" open="(" separator="," close=")" item="projectPid">
+    			#{projectPid}
+    		</foreach>
+    	</if>
+    </where>
+  </select>
+  
+  <!-- 根据项目主键批量变更项目动态的状态信息(伪删除) -->
+  <update id="delBusCompoByPids" parameterType="java.util.Map">
+    update  business_composition
+    <set>
+    	status = 0,
+    	<if test="updateDate != null">
+    		update_date=#{updateDate},
+    	</if>
+    	<if test="updateId != null and updateId !=''">
+    		update_id=#{updateId},
+    	</if>
+    </set>
+    where pid in 
+    <foreach collection="idList" open="(" separator="," close=")" item="pid">
+    	#{pid}
+    </foreach>
+  </update>
+  
+  <!-- 分页获取项目业态组成信息 -->
+  <select id="getBusCompoListByPage" resultMap="BaseResultMap" parameterType="java.util.Map" >
+    select 
+    	(@i:=@i+1) AS sortNum ,
+    	c.* from 
+    (
+    	select 
+	    	a.pid, a.business_type, a.sale_area, a.sale_per_meter, a.composition_area, CONVERT(a.project_value/10000,DECIMAL(18,2)) as project_value, a.project_id, 
+    		a.status, a.create_id, a.create_date, a.update_id, a.update_date,b.value_des
+	    from business_composition a 
+	    left join dict_detail b on
+	    a.business_type = b.pid
+	    where a.project_id = #{projectId} and a.status = #{status} 
+	    ORDER BY a.`update_date` DESC,a.`create_date` DESC
+	    LIMIT #{startIndex},#{pageSize}
+    ) c,(SELECT   @i:=0)   AS   it
+  </select>
+  
+  <!-- 获取所有满足条件的企业业态信息数量 -->
+  <select id="getTotalCount"  parameterType="java.util.Map" resultType="java.lang.Integer">
+    select 
+    	count(1)
+    from business_composition a 
+    left join dict_detail b on
+    a.business_type = b.pid
+    where a.project_id = #{projectId} and a.status = #{status} 
+  </select>
+  
+  
+  <!-- 根据主键物理删除项目业态组成信息 -->
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from business_composition
+    where pid = #{pid,jdbcType=VARCHAR}
+  </delete>
+  
+  
+  <!-- 新增保存项目业态组成信息 -->
+  <insert id="saveBusCompoInfo" parameterType="com.upjf.fund.dto.BusinessComposition" >
+    insert into business_composition
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="pid != null and pid !=''" >
+        pid,
+      </if>
+      <if test="businessType != null and businessType !=''" >
+        business_type,
+      </if>
+      <if test="saleArea != null" >
+        sale_area,
+      </if>
+      <if test="salePerMeter != null" >
+        sale_per_meter,
+      </if>
+      <if test="compositionArea != null" >
+        composition_area,
+      </if>
+      <if test="projectValue != null" >
+        project_value,
+      </if>
+      <if test="projectId != null and projectId !=''" >
+        project_id,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+      <if test="createId != null and createId !=''" >
+        create_id,
+      </if>
+      <if test="createDate != null" >
+        create_date,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="pid != null and pid !=''" >
+        #{pid,jdbcType=VARCHAR},
+      </if>
+      <if test="businessType != null and businessType !=''" >
+        #{businessType,jdbcType=VARCHAR},
+      </if>
+      <if test="saleArea != null" >
+        #{saleArea,jdbcType=DECIMAL},
+      </if>
+      <if test="salePerMeter != null" >
+        #{salePerMeter,jdbcType=DECIMAL},
+      </if>
+      <if test="compositionArea != null" >
+        #{compositionArea,jdbcType=DECIMAL},
+      </if>
+      <if test="projectValue != null" >
+        #{projectValue,jdbcType=DECIMAL},
+      </if>
+      <if test="projectId != null and projectId !=''" >
+        #{projectId,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=INTEGER},
+      </if>
+      <if test="createId != null and createId !=''" >
+        #{createId,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null" >
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  
+  
+  <!-- 根据主键更新保存项目业态组成信息 -->
+  <update id="updateBusCompoByKey" parameterType="com.upjf.fund.dto.BusinessComposition">
+    update business_composition 
+    <set>
+      <if test="businessType != null and businessType !=''" >
+         business_type = #{businessType,jdbcType=VARCHAR},
+      </if>
+      <if test="saleArea != null" >
+         sale_area = #{saleArea,jdbcType=DECIMAL},
+      </if>
+      <if test="salePerMeter != null" >
+         sale_per_meter = #{salePerMeter,jdbcType=DECIMAL},
+      </if>
+      <if test="compositionArea != null" >
+         composition_area = #{compositionArea,jdbcType=DECIMAL},
+      </if>
+      <if test="projectValue != null" >
+         project_value = #{projectValue,jdbcType=DECIMAL},
+      </if>
+      <if test="projectId != null and projectId !=''" >
+         project_id = #{projectId,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+         status = #{status,jdbcType=INTEGER},
+      </if>
+      <if test="updateId != null and updateId !=''" >
+        update_id = #{updateId,jdbcType=VARCHAR},
+      </if>
+      <if test="updateDate != null" >
+        update_date = #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    	where pid = #{pid,jdbcType=VARCHAR}
+  </update>
+  
+  
+</mapper>

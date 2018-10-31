@@ -1,0 +1,268 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.upjf.fund.service.impl.system.mapper.AuthorityMapper" >
+  <resultMap id="BaseResultMap" type="com.upjf.fund.dto.Authority" >
+    <id column="pid" property="pid" jdbcType="VARCHAR" />
+    <result column="authority_code" property="authorityCode" jdbcType="VARCHAR" />
+    <result column="name" property="name" jdbcType="VARCHAR" />
+    <result column="type" property="type" jdbcType="CHAR" />
+    <result column="resourceId" property="resource_id" jdbcType="VARCHAR" />
+    <result column="parent_id" property="parentId" jdbcType="VARCHAR" />
+    <result column="description" property="description" jdbcType="VARCHAR" />
+    <result column="create_id" property="createId" jdbcType="VARCHAR" />
+    <result column="create_date" property="createDate" jdbcType="TIMESTAMP" />
+    <result column="update_id" property="updateId" jdbcType="VARCHAR" />
+    <result column="update_date" property="updateDate" jdbcType="TIMESTAMP" />
+    <result column="status" property="status" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    pid, authority_code,name, type, resource_id, parent_id, description, create_id, create_date, update_id, 
+    update_date, status
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from authority
+    where pid = #{pid,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from authority
+    where pid = #{pid,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.upjf.fund.dto.Authority" >
+    insert into authority (pid, authority_code,name, type, resource_id,
+      parent_id, description, create_id, 
+      create_date, update_id, update_date, 
+      status)
+    values (#{pid,jdbcType=VARCHAR}, #{authorityCode,jdbcType=VARCHAR},#{name,jdbcType=VARCHAR}, #{type,jdbcType=CHAR}, 
+      #{resourceId,jdbcType=VARCHAR}, #{parentId,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, #{createId,jdbcType=VARCHAR}, 
+      #{createDate,jdbcType=TIMESTAMP}, #{updateId,jdbcType=VARCHAR}, #{updateDate,jdbcType=TIMESTAMP}, 
+      #{status,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.upjf.fund.dto.Authority" >
+    insert into authority
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+        pid,
+      <if test="authorityCode != null" >
+        authority_code,
+      </if>
+      <if test="name != null" >
+        name,
+      </if>
+      <if test="type != null" >
+        type,
+      </if>
+      <if test="resourceId != null" >
+        resource_id,
+      </if>
+      <if test="parentId != null" >
+        parent_id,
+      </if>
+      <if test="description != null" >
+        description,
+      </if>
+      <if test="createId != null" >
+        create_id,
+      </if>
+      <if test="createDate != null" >
+        create_date,
+      </if>
+      <if test="updateId != null" >
+        update_id,
+      </if>
+      <if test="updateDate != null" >
+        update_date,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+       <if test="pid != null" >
+        #{pid,jdbcType=VARCHAR},
+      </if>
+      <if test="authorityCode != null" >
+        #{authorityCode,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null" >
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="type != null" >
+        #{type,jdbcType=CHAR},
+      </if>
+      <if test="resourceId != null" >
+        #{resourceId,jdbcType=VARCHAR},
+      </if>
+      <if test="parentId != null" >
+        #{parentId,jdbcType=VARCHAR},
+      </if>
+      <if test="description != null" >
+        #{description,jdbcType=VARCHAR},
+      </if>
+      <if test="createId != null" >
+        #{createId,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null" >
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateId != null" >
+        #{updateId,jdbcType=VARCHAR},
+      </if>
+      <if test="updateDate != null" >
+        #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.upjf.fund.dto.Authority" >
+    update authority
+    <set >
+      <if test="authorityCode != null" >
+        authority_code = #{authorityCode,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null" >
+        name = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="type != null" >
+        type = #{type,jdbcType=CHAR},
+      </if>
+       <if test="resourceId != null" >
+        resource_id = #{resourceId,jdbcType=VARCHAR},
+      </if>
+      <if test="parentId != null" >
+        parent_id = #{parentId,jdbcType=VARCHAR},
+      </if>
+      <if test="description != null" >
+        description = #{description,jdbcType=VARCHAR},
+      </if>
+      <if test="createId != null" >
+        create_id = #{createId,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null" >
+        create_date = #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateId != null" >
+        update_id = #{updateId,jdbcType=VARCHAR},
+      </if>
+      <if test="updateDate != null" >
+        update_date = #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=CHAR},
+      </if>
+    </set>
+    where pid = #{pid,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.upjf.fund.dto.Authority" >
+    update authority
+    set authority_code = #{authorityCode,jdbcType=VARCHAR},
+      name = #{name,jdbcType=VARCHAR},
+      type = #{type,jdbcType=CHAR},
+      resource_id = #{resourceId,jdbcType=VARCHAR},
+      parent_id = #{parentId,jdbcType=VARCHAR},
+      description = #{description,jdbcType=VARCHAR},
+      create_id = #{createId,jdbcType=VARCHAR},
+      create_date = #{createDate,jdbcType=TIMESTAMP},
+      update_id = #{updateId,jdbcType=VARCHAR},
+      update_date = #{updateDate,jdbcType=TIMESTAMP},
+      status = #{status,jdbcType=VARCHAR}
+    where pid = #{pid,jdbcType=VARCHAR}
+  </update>
+  
+  <select id="getAuthoriyByCondition" resultType="map">
+	select t1.pid, 
+	t1.name, 
+	t1.type, 
+	t1.parent_id,
+	t1.resource_id,
+	(select t2.name from resource_info t2 where t1.resource_id = t2.pid) as resource_name,
+	(select t2.name from authority t2 where t1.parent_id = t2.pid) as parent_name,
+	t1.description, 
+	t1.authority_code,
+ 	(select t2.user_name from user_info t2 where t1.create_id = t2.pid) as create_user_name, 
+ 	t1.create_date, 
+	(select t2.user_name from user_info t2 where t1.update_id = t2.pid) as update_user_name, 
+	update_date,status
+from authority t1 where 1=1 
+	<if test="authority.name != null and authority.name != ''">
+       and t1.name like concat('%',#{authority.name,jdbcType=VARCHAR},'%')
+      </if>
+      <if test="authority.type != null and authority.type !=''">
+       and t1.type = #{authority.type,jdbcType=CHAR}
+      </if>
+      <if test="authority.parentId != null and authority.parentId != ''">
+       and t1.parent_id = #{authority.parentId}
+      </if>
+      order by t1.create_date desc,t1.update_date desc limit ${offset},${pageRows}
+</select>
+
+<select id="countAuthoriyByCondition" resultType="integer">
+	select count(1) from authority
+	where 1=1
+	<if test="authority.name != null and authority.name != ''">
+       and name like concat('%',#{authority.name,jdbcType=VARCHAR},'%')
+      </if>
+      <if test="authority.type != null and authority.type !=''">
+       and type = #{authority.type,jdbcType=CHAR}
+      </if>
+      <if test="authority.parentId != null and authority.parentId != ''">
+       and parent_id = #{authority.parentId}
+      </if>
+</select>
+
+<!-- 根据pid统计子菜单数量 -->
+<select id="countSubAuthority" resultType="integer">
+
+	select count(1) from authority start with pid = #{pid,jdbcType=VARCHAR}
+	connect by prior pid = parent_id
+
+</select>
+
+<select id="getSubAuthorityByParentId" resultMap="BaseResultMap" parameterType="string">
+	select <include refid="Base_Column_List"/> from authority where parent_id = #{pid,jdbcType=VARCHAR}
+</select>
+
+<!-- 获取所有权限信息 -->
+<select id="getAllAuthorities" resultType="map">
+	select <include refid="Base_Column_List"/> from authority
+</select>
+
+<select id="getAuthoritiesByName" resultType="map">
+	select 
+		t1.pid, 
+		t1.name
+	from authority t1 where t1.name like concat('%',#{name,jdbcType=VARCHAR},'%')
+      order by t1.create_date desc,t1.update_date desc limit 0,${maxRows}
+</select>
+
+	<select id="getAuthoritiesByUserId" resultType="map" parameterType="java.lang.String">
+		select DISTINCT(t2.resource_operator_id),t2.role_id,(SELECT t0.authority_code from authority t0 where t0.pid =t2.resource_operator_id) authority_code  
+		from role_resource_operator t2 where t2.role_id in (select t1.role_id from user_role t1 where t1.user_id=#{userId,jdbcType=VARCHAR} )
+	</select>
+
+	<select id="getAuthoritiesMenuByUserId" resultType="map" parameterType="java.lang.String">
+		SELECT t0.pid,t0.authority_code,t0.`name` from authority t0 where t0.type='0' and t0.pid in (select DISTINCT(t2.resource_operator_id)
+		from role_resource_operator t2 where t2.role_id in (select t1.role_id from user_role t1 where t1.user_id=#{userId,jdbcType=VARCHAR} )) 
+	</select>
+	
+	<select id="getSimpleResourceByName" resultType="map">
+	select 
+		t1.pid, 
+		t1.name
+	from resource_info t1 where t1.name like concat('%',#{name,jdbcType=VARCHAR},'%')
+      order by t1.create_date desc limit 0,${maxRows}
+	
+	</select>
+	
+	<select id="getAuthorityByAuthName" resultMap="BaseResultMap">
+		select <include refid="Base_Column_List"/> from authority where name = #{name,jdbcType=VARCHAR}
+	</select>
+	<select id="getAuthorityByAuthId" resultMap="BaseResultMap">
+		select <include refid="Base_Column_List"/> from authority where authority_code = #{authorityCode,jdbcType=VARCHAR}
+	</select>
+	<select id="getParentAuthorityByNameAndId" resultMap="BaseResultMap">
+		select <include refid="Base_Column_List"/> from authority where name = #{parentName,jdbcType=VARCHAR} and pid = #{parentId,jdbcType=VARCHAR}
+	</select>
+</mapper>

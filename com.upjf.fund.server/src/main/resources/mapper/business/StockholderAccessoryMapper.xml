@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.upjf.fund.service.impl.business.mapper.StockholderAccessoryMapper">
+  <resultMap id="BaseResultMap" type="com.upjf.fund.dto.StockholderAccessory">
+    <id column="pid" jdbcType="VARCHAR" property="pid" />
+    <result column="stockholder_id" jdbcType="VARCHAR" property="stockholderId" />
+    <result column="file_id" jdbcType="VARCHAR" property="fileId" />
+    <result column="create_date" jdbcType="TIMESTAMP" property="createDate" />
+    <result column="create_id" jdbcType="VARCHAR" property="createId" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    pid, stockholder_id, file_id, create_date
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from stockholder_accessory
+    where pid = #{pid,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from stockholder_accessory
+    where pid = #{pid,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.upjf.fund.dto.StockholderAccessory">
+    <selectKey keyProperty="pid" order="AFTER" resultType="java.lang.String">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into stockholder_accessory (stockholder_id, file_id, create_date
+      )
+    values (#{stockholderId,jdbcType=VARCHAR}, #{fileId,jdbcType=VARCHAR}, #{createDate,jdbcType=TIMESTAMP}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.upjf.fund.dto.StockholderAccessory">
+    <selectKey keyProperty="pid" order="AFTER" resultType="java.lang.String">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into stockholder_accessory
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="stockholderId != null">
+        stockholder_id,
+      </if>
+      <if test="fileId != null">
+        file_id,
+      </if>
+      <if test="createDate != null">
+        create_date,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="stockholderId != null">
+        #{stockholderId,jdbcType=VARCHAR},
+      </if>
+      <if test="fileId != null">
+        #{fileId,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null">
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.upjf.fund.dto.StockholderAccessory">
+    update stockholder_accessory
+    <set>
+      <if test="stockholderId != null">
+        stockholder_id = #{stockholderId,jdbcType=VARCHAR},
+      </if>
+      <if test="fileId != null">
+        file_id = #{fileId,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null">
+        create_date = #{createDate,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where pid = #{pid,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.upjf.fund.dto.StockholderAccessory">
+    update stockholder_accessory
+    set stockholder_id = #{stockholderId,jdbcType=VARCHAR},
+      file_id = #{fileId,jdbcType=VARCHAR},
+      create_date = #{createDate,jdbcType=TIMESTAMP}
+    where pid = #{pid,jdbcType=VARCHAR}
+  </update>
+  
+  <insert id="batchInsertStockholderAccessory" parameterType="com.upjf.fund.dto.StockholderAccessory">
+  	insert into stockholder_accessory (
+  		pid, 
+  		stockholder_id, 
+  		file_id, 
+  		create_date,
+  		create_id
+  	) values
+  	<foreach collection="accessoryList" item="accessory" separator=",">
+  		(
+			#{accessory.pid},
+			#{accessory.stockholderId},
+			#{accessory.fileId},
+			#{accessory.createDate},
+			#{accessory.createId}
+  		)
+  	</foreach>
+  </insert>
+  
+  <select id="getStockholderAccessoryByStockholderId" resultType="map">
+  	select 
+	  	sa.pid,
+	  	sa.stockholder_id,
+  		sa.file_id,
+  		sa.create_date,
+  		concat(eff.file_name,'.',eff.file_type) as file_all_name,
+  	    (select ui.user_name from user_info ui where ui.pid = eff.create_id) as user_name,
+  		eff.file_url
+  	from stockholder_accessory sa inner join estate_fund_file eff on sa.file_id = eff.pid
+  	where sa.stockholder_id = #{stockholderId,jdbcType=VARCHAR}
+		order by create_date desc 
+	limit ${offset},${pageRows}
+  </select>
+  
+  <select id="countStockholderAccessoryByStockholderId" resultType="integer" parameterType="string">
+  	select count(1) 
+  	from stockholder_accessory sa inner join estate_fund_file eff on sa.file_id = eff.pid
+  	where sa.stockholder_id = #{stockholderId,jdbcType=VARCHAR}
+  </select>
+  
+</mapper>

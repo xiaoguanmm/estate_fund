@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.upjf.fund.service.impl.system.mapper.RoleInfoMapper">
+  <resultMap id="BaseResultMap" type="com.upjf.fund.dto.RoleInfo">
+    <id column="pid" jdbcType="VARCHAR" property="pid" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="code" jdbcType="VARCHAR" property="code" />
+    <result column="description" jdbcType="VARCHAR" property="description" />
+    <result column="create_id" jdbcType="VARCHAR" property="createId" />
+    <result column="update_id" jdbcType="VARCHAR" property="updateId" />
+    <result column="create_date" jdbcType="TIMESTAMP" property="createDate" />
+    <result column="update_date" jdbcType="TIMESTAMP" property="updateDate" />
+    <result column="status" jdbcType="CHAR" property="status" />
+    <result column="remark" jdbcType="VARCHAR" property="remark" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    pid, name, code, description, create_id, update_id, create_date, update_date, status, remark
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from role_info
+    where pid = #{pid,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from role_info
+    where pid = #{pid,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.upjf.fund.dto.RoleInfo">
+    insert into role_info (pid, name, description, code, 
+      create_id, update_id, create_date, 
+      update_date, status, remark
+      )
+    values (#{pid,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{code,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, 
+      #{createId,jdbcType=VARCHAR}, #{updateId,jdbcType=VARCHAR}, #{createDate,jdbcType=TIMESTAMP}, 
+      #{updateDate,jdbcType=TIMESTAMP}, #{status,jdbcType=CHAR}, #{remark,jdbcType=VARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.upjf.fund.dto.RoleInfo">
+    insert into role_info
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+        pid,
+      <if test="name != null">
+        name,
+      </if>
+      <if test="code != null">
+        code,
+      </if>
+      <if test="description != null">
+        description,
+      </if>
+      <if test="createId != null">
+        create_id,
+      </if>
+      <if test="updateId != null">
+        update_id,
+      </if>
+      <if test="createDate != null">
+        create_date,
+      </if>
+      <if test="updateDate != null">
+        update_date,
+      </if>
+      <if test="status != null">
+        status,
+      </if>
+      <if test="remark != null">
+        remark,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="pid != null">
+        #{pid,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null">
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="code != null">
+        #{code,jdbcType=VARCHAR},
+      </if>
+      <if test="description != null">
+        #{description,jdbcType=VARCHAR},
+      </if>
+      <if test="createId != null">
+        #{createId,jdbcType=VARCHAR},
+      </if>
+      <if test="updateId != null">
+        #{updateId,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null">
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateDate != null">
+        #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=CHAR},
+      </if>
+      <if test="remark != null">
+        #{remark,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.upjf.fund.dto.RoleInfo">
+    update role_info
+    <set>
+      <if test="name != null">
+        name = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="code != null">
+        code = #{code,jdbcType=VARCHAR},
+      </if>
+      <if test="description != null">
+        description = #{description,jdbcType=VARCHAR},
+      </if>
+      <if test="createId != null">
+        create_id = #{createId,jdbcType=VARCHAR},
+      </if>
+      <if test="updateId != null">
+        update_id = #{updateId,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null">
+        create_date = #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateDate != null">
+        update_date = #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="status != null">
+        status = #{status,jdbcType=CHAR},
+      </if>
+      <if test="remark != null">
+        remark = #{remark,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where pid = #{pid,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.upjf.fund.dto.RoleInfo">
+    update role_info
+    set name = #{name,jdbcType=VARCHAR},
+      code = #{code,jdbcType=VARCHAR},
+      description = #{description,jdbcType=VARCHAR},
+      create_id = #{createId,jdbcType=VARCHAR},
+      update_id = #{updateId,jdbcType=VARCHAR},
+      create_date = #{createDate,jdbcType=TIMESTAMP},
+      update_date = #{updateDate,jdbcType=TIMESTAMP},
+      status = #{status,jdbcType=CHAR},
+      remark = #{remark,jdbcType=VARCHAR}
+    where pid = #{pid,jdbcType=VARCHAR}
+  </update>
+  
+  <select id="getAllSimpleRoleInfos" resultType="map">
+  	select 
+   	pid,name
+    from role_info
+  </select>
+  <select id="getUserRoleInfosByPid" parameterType="string" resultType="map">
+  	select 
+   		role_id
+    from user_role
+    where user_id = #{pid,jdbcType=VARCHAR}
+  </select>
+  
+  <!-- 根据条件获取角色信息 -->  
+  <select id="getRolesByCondition" resultType="map">
+	  select 
+	  	t1.pid, 
+	  	t1.name,
+		t1.code, 
+		t1.description, 
+	 (select t2.user_name from user_info t2 where t1.create_id = t2.pid) as create_user_name, 
+	 	t1.create_date, 
+	(select t2.user_name from user_info t2 where t1.update_id = t2.pid) as update_user_name,
+	 t1.update_date
+	 from role_info t1
+	 where 1=1
+	 	<if test="roleInfo.name != null and roleInfo.name != ''">
+	       and t1.name like concat('%',#{roleInfo.name,jdbcType=VARCHAR},'%')
+	    </if>
+	      order by t1.create_date desc,t1.update_date desc limit ${offset},${pageRows}
+  </select>
+  
+  <!-- 根据条件统计角色数量 -->
+  <select id="countRolesByCondition" resultType="integer">
+  	select count(1) from role_info
+	where 1=1
+	<if test="name != null and name != ''">
+       and name like concat('%',#{name,jdbcType=VARCHAR},'%')
+    </if>
+  </select>
+  
+  <select id="getRoleNamesByRoleName" resultType="String">
+  	 select
+	  	t1.name
+	 from role_info t1
+	 where t1.name like concat('%',#{roleName,jdbcType=VARCHAR},'%')
+	      order by t1.create_date desc,t1.update_date desc limit 0,${maxRows}
+  </select>
+  
+  <select id="getRoleInfoByRoleName" resultMap="BaseResultMap">
+  	select <include refid="Base_Column_List"/> from role_info where name = #{name,jdbcType=VARCHAR}
+  </select>
+  <select id="getRoleInfoByRoleCode" resultMap="BaseResultMap">
+  	select <include refid="Base_Column_List"/> from role_info where code = #{code,jdbcType=VARCHAR}
+  </select>
+  
+  <select id="coutRoleUser" resultType="integer">
+  	select count(1) from user_role where role_id = #{pid,jdbcType=VARCHAR}
+  </select>
+  
+</mapper>

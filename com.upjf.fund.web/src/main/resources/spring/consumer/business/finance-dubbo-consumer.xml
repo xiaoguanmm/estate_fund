@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd   
+       http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.3.xsd   
+       http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.3.xsd   
+       http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd
+       http://code.alibabatech.com/schema/dubbo
+       http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
+	
+     	<!-- 出资管理(项目股东出资审核管理，投资主体出资管理，投资人出资管理) -->
+     	<dubbo:reference interface="com.upjf.fund.service.business.InvesterManageService"  id="investerManageService" />
+     	<!-- 回款管理(项目股东回款，投资主体回款，投资人回款) -->
+     	<dubbo:reference interface="com.upjf.fund.service.business.ReceivedManageService"  id="receivedManageService" />
+     	
+     	<!-- 财务模块-项目相关信息统计等查询 -->
+     	<dubbo:reference interface="com.upjf.fund.service.business.ProjectStatisticsService"  id="projectStatisticsService" /> 
+
+     	<!-- 报表统计等查询 -->
+     	<dubbo:reference interface="com.upjf.fund.service.business.ReportService"  id="reportService" /> 
+
+     	<!-- 投资主体财务管理服务接口 -->
+     	<dubbo:reference interface="com.upjf.fund.service.business.InvestSubjectFinanceService"  id="investSubjectFinanceService" /> 
+     	
+     	<!-- 投资人财务管理服务接口 -->
+     	<dubbo:reference interface="com.upjf.fund.service.business.InvestorFinanceService"  id="investorFinanceService" /> 
+
+</beans>

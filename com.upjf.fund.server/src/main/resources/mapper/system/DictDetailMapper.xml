@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.upjf.fund.service.impl.system.mapper.DictDetailMapper">
+  <resultMap id="BaseResultMap" type="com.upjf.fund.dto.DictDetail">
+    <id column="pid" jdbcType="VARCHAR" property="pid" />
+    <result column="dict_info_id" jdbcType="VARCHAR" property="dictInfoId" />
+    <result column="value" jdbcType="VARCHAR" property="value" />
+    <result column="value_des" jdbcType="VARCHAR" property="valueDes" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    pid, dict_info_id, value, value_des
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from dict_detail
+    where pid = #{pid,jdbcType=VARCHAR}
+  </select>
+  
+  <!-- 根据字典编码,查询获取对应的字典详情信息 -->
+  <select id="getDictDetailsByCode" parameterType="java.lang.String" resultMap="BaseResultMap">
+    SELECT 
+	  b.*
+	FROM
+	  dict_info a,
+	  dict_detail b 
+	WHERE a.`status` = '1' 
+	  AND a.`code` = #{code} 
+	  AND a.`pid` = b.`dict_info_id`
+  </select>
+  
+  
+  
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from dict_detail
+    where pid = #{pid,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.upjf.fund.dto.DictDetail">
+    insert into dict_detail (pid,dict_info_id, value, value_des
+      )
+    values (#{pid,jdbcType=VARCHAR},#{dictInfoId,jdbcType=VARCHAR}, #{value,jdbcType=VARCHAR}, #{valueDes,jdbcType=VARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.upjf.fund.dto.DictDetail">
+    
+    insert into dict_detail
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+    	<if test="pid != null">
+        pid,
+      </if>
+      <if test="dictInfoId != null">
+        dict_info_id,
+      </if>
+      <if test="value != null">
+        value,
+      </if>
+      <if test="valueDes != null">
+        value_des,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+     <if test="pid != null">
+        #{pid,jdbcType=VARCHAR},
+      </if>
+      <if test="dictInfoId != null">
+        #{dictInfoId,jdbcType=VARCHAR},
+      </if>
+      <if test="value != null">
+        #{value,jdbcType=VARCHAR},
+      </if>
+      <if test="valueDes != null">
+        #{valueDes,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.upjf.fund.dto.DictDetail">
+    update dict_detail
+    <set>
+      <if test="dictInfoId != null">
+        dict_info_id = #{dictInfoId,jdbcType=VARCHAR},
+      </if>
+      <if test="value != null">
+        value = #{value,jdbcType=VARCHAR},
+      </if>
+      <if test="valueDes != null">
+        value_des = #{valueDes,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where pid = #{pid,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.upjf.fund.dto.DictDetail">
+    update dict_detail
+    set dict_info_id = #{dictInfoId,jdbcType=VARCHAR},
+      value = #{value,jdbcType=VARCHAR},
+      value_des = #{valueDes,jdbcType=VARCHAR}
+    where pid = #{pid,jdbcType=VARCHAR}
+  </update>
+  
+  <insert id="batchInserDictDetail">
+  	insert into dict_detail(
+  		pid, 
+  		dict_info_id, 
+  		value, 
+  		value_des
+  	)
+  	values
+  	<foreach collection="dictDetails" item="dict" separator=",">
+  		(
+  			#{dict.pid},
+  			#{dict.dictInfoId},
+  			#{dict.value},
+  			#{dict.valueDes}
+  		)
+  	</foreach>
+  </insert>
+  
+  <select id="getDictDetailsByPid" parameterType="string" resultType="com.upjf.fund.dto.DictDetail">
+  	select 
+  	d1.pid as pid,
+  	d1.dict_info_id as dictInfoId, 
+  	d1.value as value,
+  	d1.value_des as valueDes
+  	from dict_detail d1 ,dict_info d2 where d1.dict_info_id = d2.pid and d2.pid = #{pid,jdbcType=VARCHAR}
+  
+  </select>
+  
+ <delete id="deleteByDictId" parameterType="string">
+ 	delete from dict_detail where dict_info_id = #{dictInfoId,jdbcType=VARCHAR} 
+ </delete>
+  
+</mapper>

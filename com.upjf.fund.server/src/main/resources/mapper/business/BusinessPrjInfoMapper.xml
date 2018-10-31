@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.upjf.fund.service.impl.business.mapper.BusinessPrjInfoMapper">
+  <resultMap id="BaseResultMap" type="com.upjf.fund.dto.BusinessPrjInfo">
+    <id column="pid" jdbcType="VARCHAR" property="pid" />
+    <result column="prj_corp_name" jdbcType="VARCHAR" property="prjCorpName" />
+    <result column="corporation_info_id" jdbcType="VARCHAR" property="corporationInfoId" />
+    <result column="create_date" jdbcType="TIMESTAMP" property="createDate" />
+    <result column="create_id" jdbcType="VARCHAR" property="createId" />
+    <result column="update_date" jdbcType="TIMESTAMP" property="updateDate" />
+    <result column="update_id" jdbcType="VARCHAR" property="updateId" />
+    <result column="status" jdbcType="VARCHAR" property="status" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    pid, prj_corp_name, corporation_info_id, create_date, create_id, update_date, update_id,status
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from business_prj_info
+    where pid = #{pid,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from business_prj_info
+    where pid = #{pid,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.upjf.fund.dto.BusinessPrjInfo">
+    <selectKey keyProperty="pid" order="AFTER" resultType="java.lang.String">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into business_prj_info (prj_corp_name, corporation_info_id, create_date, 
+      create_id, update_date, update_id
+      )
+    values (#{prjCorpName,jdbcType=VARCHAR}, #{corporationInfoId,jdbcType=VARCHAR}, #{createDate,jdbcType=TIMESTAMP}, 
+      #{createId,jdbcType=VARCHAR}, #{updateDate,jdbcType=TIMESTAMP}, #{updateId,jdbcType=VARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.upjf.fund.dto.BusinessPrjInfo">
+    insert into business_prj_info
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="pid != null and prjCorpName != ''">
+        pid,
+      </if>
+      <if test="prjCorpName != null and prjCorpName != ''">
+        prj_corp_name,
+      </if>
+      <if test="corporationInfoId != null and corporationInfoId != ''">
+        corporation_info_id,
+      </if>
+      <if test="createDate != null">
+        create_date,
+      </if>
+      <if test="createId != null and createId != ''">
+        create_id,
+      </if>
+      <if test="updateDate != null">
+        update_date,
+      </if>
+      <if test="updateId != null and updateId != ''">
+        update_id,
+      </if>
+      <if test="status != null and status != ''">
+        status,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="pid != null and pid !=''">
+      	#{pid,jdbcType=VARCHAR},
+      </if>
+      <if test="prjCorpName != null and prjCorpName != ''">
+        #{prjCorpName,jdbcType=VARCHAR},
+      </if>
+      <if test="corporationInfoId != null and corporationInfoId != ''">
+        #{corporationInfoId,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null">
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createId != null and createId != ''">
+        #{createId,jdbcType=VARCHAR},
+      </if>
+      <if test="updateDate != null">
+        #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateId != null and updateId != ''">
+        #{updateId,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null and status != ''">
+        #{status,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateBusinessPrjInfo" parameterType="com.upjf.fund.dto.BusinessPrjInfo">
+    update business_prj_info
+    <set>
+      <if test="prjCorpName != null and prjCorpName != ''">
+        prj_corp_name = #{prjCorpName,jdbcType=VARCHAR},
+      </if>
+      <if test="corporationInfoId != null and corporationInfoId != ''">
+        corporation_info_id = #{corporationInfoId,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null">
+        create_date = #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createId != null and createId != ''">
+        create_id = #{createId,jdbcType=VARCHAR},
+      </if>
+      <if test="updateDate != null">
+        update_date = #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateId != null and updateId != ''">
+        update_id = #{updateId,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null and status != ''">
+        status = #{status,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where pid = #{pid,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.upjf.fund.dto.BusinessPrjInfo">
+    update business_prj_info
+    set prj_corp_name = #{prjCorpName,jdbcType=VARCHAR},
+      corporation_info_id = #{corporationInfoId,jdbcType=VARCHAR},
+      create_date = #{createDate,jdbcType=TIMESTAMP},
+      create_id = #{createId,jdbcType=VARCHAR},
+      update_date = #{updateDate,jdbcType=TIMESTAMP},
+      update_id = #{updateId,jdbcType=VARCHAR}
+    where pid = #{pid,jdbcType=VARCHAR}
+  </update>
+  
+  <select id="getProjCompanyByConditon" resultType="map">
+    SELECT bpi.pid AS businessPrjPid,bpi.prj_corp_name,pi.project_name,ci.simple_name,ci.org_code_cert,ci.business_licence_code
+		,ci.register_capital,ci.legal_representative,ci.phone,pi.pid AS projectInfoPid
+		,(select count(1) from stockholder_info si WHERE si.business_prj_info_id = bpi.pid 
+				AND (si.prj_id = pi.pid OR si.prj_id IS NULL) AND si.`status` = '1') AS stockholderCount
+	FROM business_prj_info bpi
+	LEFT JOIN corporation_info ci ON bpi.corporation_info_id = ci.pid AND ci.`status` = 1
+	LEFT JOIN project_info pi ON pi.business_prj_info_id = bpi.pid AND pi.`status` = 1
+	WHERE 1 = 1
+	AND bpi.`status` = 1
+		<if test="condtions.businessPrjInfoPid != null and condtions.businessPrjInfoPid != ''">
+	       AND bpi.pid = #{condtions.businessPrjInfoPid,jdbcType=VARCHAR}
+	    </if>
+	    <if test="condtions.orgCodeCert != null and condtions.orgCodeCert != ''">
+	       AND ci.org_code_cert = #{condtions.orgCodeCert,jdbcType=VARCHAR}
+	    </if>
+	    <if test="condtions.businessLicenceCode != null and condtions.businessLicenceCode != ''">
+	       AND ci.business_licence_code = #{condtions.businessLicenceCode,jdbcType=VARCHAR}
+	    </if>
+	    <if test="condtions.projectInfoPid != null and condtions.projectInfoPid != ''">
+	       AND pi.pid = #{condtions.projectInfoPid,jdbcType=VARCHAR}
+	    </if>
+	    <if test="condtions.legalRepresentative != null and condtions.legalRepresentative != ''">
+	       AND ci.legal_representative like concat('%',#{condtions.legalRepresentative,jdbcType=VARCHAR},'%')
+	    </if>
+	ORDER BY
+		bpi.update_date DESC,bpi.create_date DESC limit ${offset},${pageRows} 	    
+  </select>
+  
+  <select id="countProjCompanyByCondition" resultType="integer">
+  	SELECT COUNT(1) FROM (
+	  	SELECT bpi.pid AS businessPrjPid,bpi.prj_corp_name,pi.project_name,ci.simple_name,ci.org_code_cert,ci.business_licence_code
+			,ci.register_capital,ci.legal_representative,ci.phone,pi.pid AS projectInfoPid
+			,(select count(1) from stockholder_info si WHERE si.business_prj_info_id = bpi.pid 
+					AND (si.prj_id = pi.pid OR si.prj_id IS NULL) AND si.`status` = '1') AS stockholderCount
+		FROM business_prj_info bpi
+		LEFT JOIN corporation_info ci ON bpi.corporation_info_id = ci.pid AND ci.`status` = 1
+		LEFT JOIN project_info pi ON pi.business_prj_info_id = bpi.pid AND pi.`status` = 1
+		WHERE 1 = 1
+		AND bpi.`status` = 1
+			<if test="condtions.businessPrjInfoPid != null and condtions.businessPrjInfoPid != ''">
+		       AND bpi.pid = #{condtions.businessPrjInfoPid,jdbcType=VARCHAR}
+		    </if>
+		    <if test="condtions.orgCodeCert != null and condtions.orgCodeCert != ''">
+		       AND ci.org_code_cert = #{condtions.orgCodeCert,jdbcType=VARCHAR}
+		    </if>
+		    <if test="condtions.businessLicenceCode != null and condtions.businessLicenceCode != ''">
+		       AND ci.business_licence_code = #{condtions.businessLicenceCode,jdbcType=VARCHAR}
+		    </if>
+		    <if test="condtions.projectInfoPid != null and condtions.projectInfoPid != ''">
+		       AND pi.pid = #{condtions.projectInfoPid,jdbcType=VARCHAR}
+		    </if>
+		    <if test="condtions.legalRepresentative != null and condtions.legalRepresentative != ''">
+		       AND ci.legal_representative like concat('%',#{condtions.legalRepresentative,jdbcType=VARCHAR},'%')
+		    </if>
+		ORDER BY
+			bpi.update_date DESC,bpi.create_date DESC 
+	) p
+  </select>
+  
+  <select id="getBusinessPrjInfoByCorPid" parameterType="java.lang.String" resultMap="BaseResultMap">
+	    select 
+	    <include refid="Base_Column_List" />
+	    from business_prj_info
+	    where 1 = 1
+    	<if test="corporationInfoId != null and corporationInfoId != ''">
+        	and corporation_info_id = #{corporationInfoId,jdbcType=VARCHAR}
+      	</if>
+  </select>
+  
+  <!-- 根据条件获取所有处于该条件下的项目公司信息 -->
+  <select id="getBusProjInfoByCondition" parameterType="com.upjf.fund.dto.BusinessPrjInfo" resultMap="BaseResultMap">
+	    select 
+	    <include refid="Base_Column_List" />
+	    from business_prj_info
+	    <where>
+	    	<if test="pid != null and pid !=''">
+	    		pid = #{pid}
+	    	</if>
+	    	<if test="prjCorpName != null and prjCorpName !=''">
+	    		prj_corp_name like  "%"#{prjCorpName}"%"
+	    	</if>
+	    	<if test="corporationInfoId != null and corporationInfoId !=''">
+	    		corporation_info_id = #{corporationInfoId}
+	    	</if>
+	    	<if test="status != null and status !=''">
+	    		status = #{status}
+	    	</if>
+	    </where>
+  </select>
+  
+  <!-- 批量删除项目公司信息(伪删除) -->
+  <update id="delBusinessPrjInfoByPids" parameterType="java.util.Map">
+    update business_prj_info
+    <set>
+    	<if test="status != null">
+    		status=#{status},
+    	</if>
+    	<if test="updateDate != null">
+    		update_date=#{updateDate},
+    	</if>
+    	<if test="updateId != null and updateId !=''">
+    		update_id=#{updateId}
+    	</if>
+    </set>
+    where pid in 
+    <foreach collection="pids" open="(" separator="," close=")" item="pid">
+    	#{pid}
+    </foreach>
+  </update>
+  
+</mapper>

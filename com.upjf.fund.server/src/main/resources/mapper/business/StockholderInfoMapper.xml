@@ -1,0 +1,438 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.upjf.fund.service.impl.business.mapper.StockholderInfoMapper">
+  <resultMap id="BaseResultMap" type="com.upjf.fund.dto.StockholderInfo">
+    <id column="pid" jdbcType="VARCHAR" property="pid" />
+    <result column="prj_id" jdbcType="VARCHAR" property="prjId" />
+    <result column="corp_id" jdbcType="VARCHAR" property="corpId" />
+    <result column="business_prj_info_id" jdbcType="VARCHAR" property="businessPrjInfoId" />
+    <result column="stockholder_type" jdbcType="VARCHAR" property="stockholderType" />
+    <result column="register_capital" jdbcType="DECIMAL" property="registerCapital" />
+    <result column="stockholder_contacts" jdbcType="DECIMAL" property="stockholderContacts" />
+    <result column="hold_stock_ratio" jdbcType="DECIMAL" property="holdStockRatio" />
+    <result column="stock_rights_status" jdbcType="VARCHAR" property="stockRightsStatus" />
+    <result column="stock_rights_remark" jdbcType="VARCHAR" property="stockRightsRemark" />
+    <result column="reality_invest_total" jdbcType="DECIMAL" property="realityInvestTotal" />
+    <result column="received_payback_total" jdbcType="DECIMAL" property="receivedPaybackTotal" />
+    <result column="received_principal_total" jdbcType="DECIMAL" property="receivedPrincipalTotal" />
+    <result column="remark" jdbcType="VARCHAR" property="remark" />
+    <result column="create_date" jdbcType="TIMESTAMP" property="createDate" />
+    <result column="create_id" jdbcType="VARCHAR" property="createId" />
+    <result column="update_date" jdbcType="TIMESTAMP" property="updateDate" />
+    <result column="update_id" jdbcType="VARCHAR" property="updateId" />
+    <result column="confirm_date" jdbcType="TIMESTAMP" property="confirmDate" />
+    <result column="confirm_id" jdbcType="VARCHAR" property="confirmId" />
+    <result column="status" jdbcType="VARCHAR" property="status" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    pid, corp_id, business_prj_info_id, stockholder_type, register_capital, stockholder_contacts, 
+    hold_stock_ratio, stock_rights_status, stock_rights_remark, reality_invest_total, 
+    received_payback_total, received_principal_total, remark, create_date, create_id, 
+    update_date, update_id
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from stockholder_info
+    where pid = #{pid,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from stockholder_info
+    where pid = #{pid,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.upjf.fund.dto.StockholderInfo">
+    <selectKey keyProperty="pid" order="AFTER" resultType="java.lang.String">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into stockholder_info (corp_id, business_prj_info_id, stockholder_type, 
+      register_capital, stockholder_contacts, hold_stock_ratio, 
+      stock_rights_status, stock_rights_remark, reality_invest_total, 
+      received_payback_total, received_principal_total, 
+      remark, create_date, create_id, 
+      update_date, update_id)
+    values (#{corpId,jdbcType=VARCHAR}, #{businessPrjInfoId,jdbcType=VARCHAR}, #{stockholderType,jdbcType=VARCHAR}, 
+      #{registerCapital,jdbcType=DECIMAL}, #{stockholderContacts,jdbcType=DECIMAL}, #{holdStockRatio,jdbcType=DECIMAL}, 
+      #{stockRightsStatus,jdbcType=VARCHAR}, #{stockRightsRemark,jdbcType=VARCHAR}, #{realityInvestTotal,jdbcType=DECIMAL}, 
+      #{receivedPaybackTotal,jdbcType=DECIMAL}, #{receivedPrincipalTotal,jdbcType=DECIMAL}, 
+      #{remark,jdbcType=VARCHAR}, #{createDate,jdbcType=TIMESTAMP}, #{createId,jdbcType=VARCHAR}, 
+      #{updateDate,jdbcType=TIMESTAMP}, #{updateId,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.upjf.fund.dto.StockholderInfo">
+    insert into stockholder_info
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="pid != null and pid !=''">
+      	pid,
+      </if>
+      <if test="prjId != null and prjId !=''">
+        prj_id,
+      </if>
+      <if test="corpId != null and corpId !=''">
+        corp_id,
+      </if>
+      <if test="businessPrjInfoId != null and businessPrjInfoId !=''">
+        business_prj_info_id,
+      </if>
+      <if test="stockholderType != null and stockholderType !=''">
+        stockholder_type,
+      </if>
+      <if test="registerCapital != null and registerCapital !=''">
+        register_capital,
+      </if>
+      <if test="stockholderContacts != null and stockholderContacts !=''">
+        stockholder_contacts,
+      </if>
+      <if test="holdStockRatio != null and holdStockRatio !=''">
+        hold_stock_ratio,
+      </if>
+      <if test="stockRightsStatus != null and stockRightsStatus !=''">
+        stock_rights_status,
+      </if>
+      <if test="stockRightsRemark != null and stockRightsRemark !=''">
+        stock_rights_remark,
+      </if>
+      <if test="realityInvestTotal != null and realityInvestTotal !=''">
+        reality_invest_total,
+      </if>
+      <if test="receivedPaybackTotal != null and receivedPaybackTotal !=''">
+        received_payback_total,
+      </if>
+      <if test="receivedPrincipalTotal != null and receivedPrincipalTotal !=''">
+        received_principal_total,
+      </if>
+      <if test="remark != null and remark !=''">
+        remark,
+      </if>
+      <if test="createDate != null">
+        create_date,
+      </if>
+      <if test="createId != null and createId !=''">
+        create_id,
+      </if>
+      <if test="updateDate != null">
+        update_date,
+      </if>
+      <if test="updateId != null and updateId !=''">
+        update_id,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="pid != null and pid !=''">
+      	#{pid,jdbcType=VARCHAR},
+      </if>
+      <if test="prjId != null and prjId !=''">
+        #{prjId,jdbcType=VARCHAR},
+      </if>
+      <if test="corpId != null and corpId !=''">
+        #{corpId,jdbcType=VARCHAR},
+      </if>
+      <if test="businessPrjInfoId != null and businessPrjInfoId !=''">
+        #{businessPrjInfoId,jdbcType=VARCHAR},
+      </if>
+      <if test="stockholderType != null and stockholderType !=''">
+        #{stockholderType,jdbcType=VARCHAR},
+      </if>
+      <if test="registerCapital != null and registerCapital !=''">
+        #{registerCapital,jdbcType=DECIMAL},
+      </if>
+      <if test="stockholderContacts != null and stockholderContacts !=''">
+        #{stockholderContacts,jdbcType=DECIMAL},
+      </if>
+      <if test="holdStockRatio != null and holdStockRatio !=''">
+        #{holdStockRatio,jdbcType=DECIMAL},
+      </if>
+      <if test="stockRightsStatus != null and stockRightsStatus !=''">
+        #{stockRightsStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="stockRightsRemark != null and stockRightsRemark !=''">
+        #{stockRightsRemark,jdbcType=VARCHAR},
+      </if>
+      <if test="realityInvestTotal != null and realityInvestTotal !=''">
+        #{realityInvestTotal,jdbcType=DECIMAL},
+      </if>
+      <if test="receivedPaybackTotal != null and receivedPaybackTotal !=''">
+        #{receivedPaybackTotal,jdbcType=DECIMAL},
+      </if>
+      <if test="receivedPrincipalTotal != null and receivedPrincipalTotal !=''">
+        #{receivedPrincipalTotal,jdbcType=DECIMAL},
+      </if>
+      <if test="remark != null and remark !=''">
+        #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null">
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createId != null and createId !=''">
+        #{createId,jdbcType=VARCHAR},
+      </if>
+      <if test="updateDate != null">
+        #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateId != null and updateId !=''">
+        #{updateId,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.upjf.fund.dto.StockholderInfo">
+    update stockholder_info
+    <set>
+      <if test="corpId != null and corpId !=''">
+        corp_id = #{corpId,jdbcType=VARCHAR},
+      </if>
+      <if test="prjId != null and prjId !=''">
+        prj_id = #{prjId,jdbcType=VARCHAR},
+      </if>
+      <if test="businessPrjInfoId != null and businessPrjInfoId !=''">
+        business_prj_info_id = #{businessPrjInfoId,jdbcType=VARCHAR},
+      </if>
+      <if test="stockholderType != null and stockholderType !=''">
+        stockholder_type = #{stockholderType,jdbcType=VARCHAR},
+      </if>
+      <if test="registerCapital != null and registerCapital !=''">
+        register_capital = #{registerCapital,jdbcType=DECIMAL},
+      </if>
+      <if test="stockholderContacts != null and stockholderContacts !=''">
+        stockholder_contacts = #{stockholderContacts,jdbcType=DECIMAL},
+      </if>
+      <if test="holdStockRatio != null and holdStockRatio !=''">
+        hold_stock_ratio = #{holdStockRatio,jdbcType=DECIMAL},
+      </if>
+      <if test="stockRightsStatus != null and stockRightsStatus !=''">
+        stock_rights_status = #{stockRightsStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="stockRightsRemark != null and stockRightsRemark !=''">
+        stock_rights_remark = #{stockRightsRemark,jdbcType=VARCHAR},
+      </if>
+      <if test="realityInvestTotal != null and realityInvestTotal !=''">
+        reality_invest_total = #{realityInvestTotal,jdbcType=DECIMAL},
+      </if>
+      <if test="receivedPaybackTotal != null and receivedPaybackTotal !=''">
+        received_payback_total = #{receivedPaybackTotal,jdbcType=DECIMAL},
+      </if>
+      <if test="receivedPrincipalTotal != null and receivedPrincipalTotal !=''">
+        received_principal_total = #{receivedPrincipalTotal,jdbcType=DECIMAL},
+      </if>
+      <if test="remark != null and remark !=''">
+        remark = #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null">
+        create_date = #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createId != null and createId !=''">
+        create_id = #{createId,jdbcType=VARCHAR},
+      </if>
+      <if test="updateDate != null">
+        update_date = #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateId != null and updateId !=''">
+        update_id = #{updateId,jdbcType=VARCHAR},
+      </if>
+      <if test="confirmDate != null">
+        confirm_date = #{confirmDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="confirmId != null and confirmId !=''">
+        confirm_id = #{confirmId,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where pid = #{pid,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.upjf.fund.dto.StockholderInfo">
+    update stockholder_info
+    set corp_id = #{corpId,jdbcType=VARCHAR},
+      business_prj_info_id = #{businessPrjInfoId,jdbcType=VARCHAR},
+      stockholder_type = #{stockholderType,jdbcType=VARCHAR},
+      register_capital = #{registerCapital,jdbcType=DECIMAL},
+      stockholder_contacts = #{stockholderContacts,jdbcType=DECIMAL},
+      hold_stock_ratio = #{holdStockRatio,jdbcType=DECIMAL},
+      stock_rights_status = #{stockRightsStatus,jdbcType=VARCHAR},
+      stock_rights_remark = #{stockRightsRemark,jdbcType=VARCHAR},
+      reality_invest_total = #{realityInvestTotal,jdbcType=DECIMAL},
+      received_payback_total = #{receivedPaybackTotal,jdbcType=DECIMAL},
+      received_principal_total = #{receivedPrincipalTotal,jdbcType=DECIMAL},
+      remark = #{remark,jdbcType=VARCHAR},
+      create_date = #{createDate,jdbcType=TIMESTAMP},
+      create_id = #{createId,jdbcType=VARCHAR},
+      update_date = #{updateDate,jdbcType=TIMESTAMP},
+      update_id = #{updateId,jdbcType=VARCHAR}
+    where pid = #{pid,jdbcType=VARCHAR}
+  </update>
+  
+  <!-- 查询项目公司股东信息列表 -->
+  <select id="queryProjCompanyStockholderList" resultType="map">
+    SELECT si.pid AS stockholderPid,ci.pid AS corp_id,bpi.pid AS businessPrjInfoPid,pi.pid AS projectInfoPid,si.stockholder_type
+			,bpi.corporation_info_id AS businessPrjInfoCorpPid
+    	,(select t1.value_des FROM dict_detail t1 WHERE t1.pid = si.stockholder_type) AS stockholder_type_name
+    	,ci.name,convert((si.register_capital/10000),decimal(18,2)) as register_capital
+			,si.hold_stock_ratio,si.stock_rights_status
+			,(CASE WHEN si.stock_rights_status = '0' THEN '未确认' 
+						 WHEN si.stock_rights_status = '1' THEN '确认'
+						 ELSE '其他' END) AS stock_rights_status_name
+			,convert((si.stockholder_contacts/10000),decimal(18,2)) as stockholder_contacts,si.remark
+			,p.prj_id,(CASE WHEN p.payment_type = '1' AND p.finance_confirm_status = '1' 
+				THEN convert((SUM(p.receiver_amount)/10000),decimal(18,2)) ELSE 0 END) AS reality_invest_total
+			,(CASE WHEN p.payment_type = '1' AND p.finance_confirm_status = '1' 
+				THEN convert((MAX(p.pay_term)/10000),decimal(18,2)) ELSE 0 END) AS sum_periods
+		FROM stockholder_info si 
+		LEFT JOIN business_prj_info bpi ON bpi.pid = si.business_prj_info_id AND bpi.`status` = '1'
+		LEFT JOIN project_info pi ON pi.pid = si.prj_id AND pi.`STATUS` = 1
+		LEFT JOIN corporation_info ci ON si.corp_id = ci.pid AND ci.`status` = 1
+		LEFT JOIN payment p ON p.contributive_id = ci.pid AND p.payment_type = '1'
+	WHERE 1 = 1
+		<if test="businessPrjInfoId != null and businessPrjInfoId !=''">
+	        AND bpi.pid = #{businessPrjInfoId,jdbcType=VARCHAR}
+        </if>
+        <if test="projectInfoPid != null and projectInfoPid !=''">
+	        AND pi.pid = #{projectInfoPid,jdbcType=VARCHAR}
+        </if>
+	GROUP BY si.pid
+	ORDER BY si.update_date DESC,si.create_date DESC
+	limit ${offset},${pageRows}
+  </select>
+  
+  <select id="countProjCompanyStockholderList" resultType="integer">
+  	SELECT COUNT(1) FROM (
+		SELECT si.pid AS stockholderPid,ci.pid AS corp_id,bpi.pid AS businessPrjInfoPid,pi.pid AS projectInfoPid,si.stockholder_type
+				,bpi.corporation_info_id AS businessPrjInfoCorpPid
+	    	,(select t1.value_des FROM dict_detail t1 WHERE t1.pid = si.stockholder_type) AS stockholder_type_name
+	    	,ci.name,convert((si.register_capital/10000),decimal(18,2)) as register_capital
+				,si.hold_stock_ratio,si.stock_rights_status
+				,(CASE WHEN si.stock_rights_status = '0' THEN '未确认' 
+							 WHEN si.stock_rights_status = '1' THEN '确认'
+							 ELSE '其他' END) AS stock_rights_status_name
+				,convert((si.stockholder_contacts/10000),decimal(18,2)) as stockholder_contacts,si.remark
+				,p.prj_id,(CASE WHEN p.payment_type = '1' AND p.finance_confirm_status = '1' 
+					THEN convert((SUM(p.receiver_amount)/10000),decimal(18,2)) ELSE 0 END) AS reality_invest_total
+				,(CASE WHEN p.payment_type = '1' AND p.finance_confirm_status = '1' 
+					THEN convert((MAX(p.pay_term)/10000),decimal(18,2)) ELSE 0 END) AS sum_periods
+		FROM stockholder_info si 
+		LEFT JOIN business_prj_info bpi ON bpi.pid = si.business_prj_info_id AND bpi.`status` = '1'
+		LEFT JOIN project_info pi ON pi.pid = si.prj_id AND pi.`STATUS` = 1
+		LEFT JOIN corporation_info ci ON si.corp_id = ci.pid AND ci.`status` = 1
+		LEFT JOIN payment p ON p.contributive_id = ci.pid AND p.payment_type = '1'
+		WHERE 1 = 1
+		<if test="businessPrjInfoId != null and businessPrjInfoId !=''">
+	        AND bpi.pid = #{businessPrjInfoId,jdbcType=VARCHAR}
+        </if>
+        <if test="projectInfoPid != null and projectInfoPid !=''">
+	        AND pi.pid = #{projectInfoPid,jdbcType=VARCHAR}
+        </if>
+		GROUP BY si.pid
+		ORDER BY si.update_date DESC,si.create_date DESC 
+	) P
+  </select>
+  
+   <select id="getStockholderByCorpId" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from stockholder_info si
+    <where>
+	        AND si.business_prj_info_id = #{businessPrjInfoId,jdbcType=VARCHAR}
+    	<if test="corpId != null and corpId !=''">
+	        AND si.corp_id = #{corpId,jdbcType=VARCHAR}
+        </if>
+    	<if test="prjId != null and prjId !=''">
+	        AND si.prj_id = #{prjId,jdbcType=VARCHAR}
+        </if>
+    </where>
+  </select>
+  
+   <!-- 批量删除股东信息(伪删除) -->
+  <update id="delStockholderInfoByPids" parameterType="java.util.Map">
+    update stockholder_info
+    <set>
+    	<if test="status != null">
+    		status=#{status},
+    	</if>
+    	<if test="updateDate != null">
+    		update_date=#{updateDate},
+    	</if>
+    	<if test="updateId != null and updateId !=''">
+    		update_id=#{updateId}
+    	</if>
+    </set>
+    where pid in 
+    <foreach collection="pids" open="(" separator="," close=")" item="pid">
+    	#{pid}
+    </foreach>
+  </update>
+  
+  <!-- 根据项目公司id查询股东信息 -->
+  <select id="getStockholderPidByBusinessPrjPid" resultType="map" parameterType="string">
+  	SELECT si.pid AS stockholderInfoPid,ci.`name` AS stockholderInfoName
+		FROM stockholder_info si 
+		LEFT JOIN corporation_info ci ON ci.pid = si.corp_id
+	<where>
+		si.`status` = '1'
+		AND ci.`status` = 1
+		AND si.business_prj_info_id = #{businessPrjInfoPid,jdbcType=VARCHAR}
+		AND si.prj_id = #{projectInfoPid,jdbcType=VARCHAR}
+	</where>
+  </select>
+  
+  
+  <!-- 根据项目公司主键及项目主键,查询获取有效状态下的股东信息 -->
+  <select id="getStockHolderByProjectComPanyPid" resultType="java.util.Map" parameterType="java.lang.String">
+  	SELECT 
+	  b.`pid` AS dataValue,
+	  b.`name` AS dataText,
+	  a.pid as dataTitle 
+	FROM
+	  stockholder_info a 
+	  INNER JOIN corporation_info b 
+	    ON a.`corp_id` = b.`pid` 
+	    AND b.`status` = 1 
+	WHERE a.`business_prj_info_id` = #{projectCompanyPid}
+	  AND a.`status` = '1'
+	  AND a.prj_id = #{projectId}
+  </select>
+  
+  <select id="queryStockholderInfo" resultType="java.lang.String" parameterType="java.lang.String">
+  	select si.pid from stockholder_info si
+	WHERE si.`business_prj_info_id` = #{businessPrjPid}
+	 	 AND si.`status` = '1'
+	  <if test="prjId != null and prjId !=''">
+	  	 AND si.prj_id = #{prjId}
+	  </if>
+  </select>
+  
+  <!-- 根据项目公司主键,查询获取项目公司主键为空的股东信息 -->
+  <select id="getStockholderInfoOfNullPrjId" resultType="java.lang.String" parameterType="java.lang.String">
+  	select si.pid from stockholder_info si
+	WHERE si.`business_prj_info_id` = #{businessPrjPid}
+	 	 AND si.`status` = '1'
+	  	 AND si.prj_id is null OR si.`prj_id` = ''
+  </select>
+  
+   <!-- 批量更新股东信息（prj_id） -->
+  <update id="updateStockholderInfoByPids" parameterType="java.util.Map">
+    update stockholder_info
+    <set>
+    	<if test="paramsMap.prjId != null and paramsMap.prjId != ''">
+    		prj_id=#{paramsMap.prjId},
+    	</if>
+    	<if test="paramsMap.updateDate != null">
+    		update_date=#{paramsMap.updateDate},
+    	</if>
+    	<if test="paramsMap.updateId != null and paramsMap.updateId !=''">
+    		update_id=#{paramsMap.updateId}
+    	</if>
+    </set>
+    where pid in 
+    <foreach collection="paramsMap.pids" open="(" separator="," close=")" item="pid">
+    	#{pid}
+    </foreach>
+  </update>
+  
+  <select id="getStockInfoByPrjId" resultType="map" parameterType="string">
+  	SELECT ci.pid AS stockholderCorpId,ci.`name`,si.pid AS stockholderPid
+  		FROM stockholder_info si
+	LEFT JOIN corporation_info ci ON ci.pid = si.corp_id
+	LEFT JOIN business_prj_info bpi ON bpi.pid = si.business_prj_info_id
+	LEFT JOIN project_info pi ON pi.business_prj_info_id = bpi.pid AND si.prj_id = pi.pid
+	<where>
+		pi.pid = #{projectInfoPid,jdbcType=VARCHAR}
+	</where>
+  	
+  </select>
+  
+  
+</mapper>

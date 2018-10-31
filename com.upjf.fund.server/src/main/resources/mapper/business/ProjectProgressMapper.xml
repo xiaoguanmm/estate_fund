@@ -1,0 +1,386 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.upjf.fund.service.impl.business.mapper.ProjectProgressMapper" >
+  <resultMap id="BaseResultMap" type="com.upjf.fund.dto.ProjectProgress" >
+    <id column="pid" property="pid" jdbcType="VARCHAR" />
+    <result column="prj_id" property="prjId" jdbcType="VARCHAR" />
+    <result column="expect_resumption_date" property="expectResumptionDate" jdbcType="TIMESTAMP" />
+    <result column="reality_resumption_date" property="realityResumptionDate" jdbcType="TIMESTAMP" />
+    <result column="expect_construction_date" property="expectConstructionDate" jdbcType="TIMESTAMP" />
+    <result column="reality_construction_date" property="realityConstructionDate" jdbcType="TIMESTAMP" />
+    <result column="expect_sale_certify_date" property="expectSaleCertifyDate" jdbcType="TIMESTAMP" />
+    <result column="reality_sale_certify_date" property="realitySaleCertifyDate" jdbcType="TIMESTAMP" />
+    <result column="expect_liquidation_date" property="expectLiquidationDate" jdbcType="TIMESTAMP" />
+    <result column="reality_liquidation_date" property="realityLiquidationDate" jdbcType="TIMESTAMP" />
+    <result column="project_progress" property="projectProgress" jdbcType="VARCHAR" />
+    <result column="acquire_sale_certify" property="acquireSaleCertify" jdbcType="INTEGER" />
+    <result column="has_push_value" property="hasPushValue" jdbcType="DECIMAL" />
+    <result column="cert_build_area" property="certBuildArea" jdbcType="VARCHAR" />
+    <result column="surplus_pubsh_value" property="surplusPubshValue" jdbcType="DECIMAL" />
+    <result column="remark" property="remark" jdbcType="VARCHAR" />
+    <result column="status" property="status" jdbcType="INTEGER" />
+    <result column="create_date" property="createDate" jdbcType="TIMESTAMP" />
+    <result column="create_id" property="createId" jdbcType="VARCHAR" />
+    <result column="update_date" property="updateDate" jdbcType="TIMESTAMP" />
+    <result column="update_id" property="updateId" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    pid, prj_id, expect_resumption_date, reality_resumption_date, expect_construction_date, 
+    reality_construction_date, expect_sale_certify_date, reality_sale_certify_date, expect_liquidation_date, 
+    reality_liquidation_date, project_progress, acquire_sale_certify, CONVERT(has_push_value/10000,DECIMAL(18,2)) as has_push_value, 
+    cert_build_area, CONVERT(surplus_pubsh_value/10000,DECIMAL(18,2)) as surplus_pubsh_value, remark, status, create_date, create_id, update_date, 
+    update_id
+  </sql>
+  
+  
+  
+  <!-- 根据主键获取项目进度信息 -->
+  <select id="selectProProgressByKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from project_progress
+    where pid = #{pid,jdbcType=VARCHAR}
+  </select>
+  
+  <!-- 根据项目主键查询获取处于有效状态的项目进度信息  -->
+  <select id="getProgressByProjectPids" resultType="com.upjf.fund.dto.ProjectProgress" parameterType="java.util.Map" >
+    select 
+    	<include refid="Base_Column_List" />
+    from project_progress
+    <where>
+    	status = 1
+    	<if test="idList != null">
+    		and prj_id in 
+    		<foreach collection="idList" open="(" separator="," close=")" item="projectPid">
+    			#{projectPid}
+    		</foreach>
+    	</if>
+    </where>
+  </select>
+  
+  
+  <!-- 根据项目进度主键批量变更项目进度状态为无效状态(伪删除) -->
+  <update id="delProgressByPids" parameterType="java.util.Map">
+    update  project_progress
+    <set>
+    	status = 0,
+    	<if test="updateDate != null">
+    		update_date=#{updateDate},
+    	</if>
+    	<if test="updateId != null and updateId !=''">
+    		update_id=#{updateId},
+    	</if>
+    </set>
+    where pid in 
+    <foreach collection="idList" open="(" separator="," close=")" item="pid">
+    	#{pid}
+    </foreach>
+  </update>
+  
+  
+  <!-- 根据项目主键加载所属的最新的项目进度记录 -->
+  <select id="getLatestProgressByProjectPid" resultMap="BaseResultMap" parameterType="java.lang.String" >
+   SELECT 
+	    a.pid, a.prj_id, a.expect_resumption_date, a.reality_resumption_date, a.expect_construction_date, 
+	    a.reality_construction_date, a.expect_sale_certify_date, a.reality_sale_certify_date, a.expect_liquidation_date, 
+	    a.reality_liquidation_date, a.project_progress, a.acquire_sale_certify, CONVERT(a.has_push_value/10000,DECIMAL(18,2)) as has_push_value, 
+	    a.cert_build_area, CONVERT(a.surplus_pubsh_value/10000,DECIMAL(18,2)) as surplus_pubsh_value, a.remark, a.status, a.create_date, a.create_id, a.update_date, 
+	    a.update_id 
+	FROM
+	  project_progress a 
+	WHERE a.`prj_id` = #{projectPid} 
+	  AND a.`status` = 1 
+	  AND a.`create_date` = 
+	  (SELECT 
+	    MAX(b.`create_date`) 
+	  FROM
+	    project_progress b 
+	  WHERE b.`prj_id` = #{projectPid} 
+	    AND b.`status` = 1)
+  </select>
+  
+  
+  <!-- 分页查询获取项目进度附件列表 -->
+  <select id="getProgressFileByPage"  parameterType="java.util.Map" resultType="com.upjf.fund.dto.ProjectProgressFileVo">
+    SELECT 
+	  d.`value_des` AS progressStatusName,
+	  a.`remark` AS progressRemark,
+	  DATE_FORMAT(
+	    a.`create_date`,
+	    '%Y-%m-%d %H:%i:%s'
+	  ) AS progressUpdateTime,
+	  e.`name` AS operatorName,
+	  b.`pid`  AS progressFilePid,
+	  c.real_name AS progressFileName,
+	  c.`file_type` AS progressFileType,
+	  c.`file_url` AS progressFileUrl
+	FROM
+	  dict_detail d 
+	  LEFT JOIN project_progress a 
+	    ON a.`project_progress` = d.`pid` 
+	  LEFT JOIN user_info e 
+	    ON a.`create_id` = e.`pid` 
+	  LEFT JOIN project_progress_accessory b 
+	    ON a.`pid` = b.`prj_progress_id` 
+	  LEFT JOIN estate_fund_file c 
+	    ON c.`pid` = b.`file_id` 
+	WHERE a.`prj_id` = #{projectId} 
+	  AND a.`status` = 1
+	  AND b.`status` = 1  
+	ORDER BY a.`create_date` desc,
+	   d.`value_des`
+	LIMIT #{startIndex}, #{pageSize}
+  </select>
+  
+  <!-- 统计命中的数量 -->
+  <select id="getTotalCount"  parameterType="java.util.Map" resultType="java.lang.Integer">
+    SELECT 
+	  count(1)
+	FROM
+	  dict_detail d 
+	  LEFT JOIN project_progress a 
+	    ON a.`project_progress` = d.`pid` 
+	  LEFT JOIN user_info e 
+	    ON a.`create_id` = e.`pid` 
+	  LEFT JOIN project_progress_accessory b 
+	    ON a.`pid` = b.`prj_progress_id` 
+	  LEFT JOIN estate_fund_file c 
+	    ON c.`pid` = b.`file_id` 
+	WHERE a.`prj_id` = #{projectId} 
+	  AND a.`status` = 1
+	  AND b.`status` = 1
+  </select>
+  
+  
+  <!-- 校验变动的项目进度信息是否与最新一条记录一致 -->
+  <select id="cheackProProgress"  parameterType="com.upjf.fund.dto.ProjectProgress" resultType="java.lang.Integer">
+    select 
+    	count(1)
+    from project_progress
+    <where>
+    	<if test="status != null">
+    		status = #{status}
+    	</if>
+    	<if test="pid != null and pid !=''">
+    		and pid = #{pid}
+    	</if>
+    	<if test="projectProgress != null and projectProgress !=''" >
+        	and project_progress = #{projectProgress}
+      	</if>
+    </where>
+  </select>
+  
+  
+  <!-- 根据主键物理删除项目进度信息 -->
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from project_progress
+    where pid = #{pid,jdbcType=VARCHAR}
+  </delete>
+  
+  
+  
+  <!-- 保存项目进度信息 -->
+  <insert id="saveProProgress" parameterType="com.upjf.fund.dto.ProjectProgress" >
+    insert into project_progress
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="pid != null and pid !=''" >
+        pid,
+      </if>
+      <if test="prjId != null and prjId != ''" >
+        prj_id,
+      </if>
+      <if test="expectResumptionDate != null" >
+        expect_resumption_date,
+      </if>
+      <if test="realityResumptionDate != null" >
+        reality_resumption_date,
+      </if>
+      <if test="expectConstructionDate != null" >
+        expect_construction_date,
+      </if>
+      <if test="realityConstructionDate != null" >
+        reality_construction_date,
+      </if>
+      <if test="expectSaleCertifyDate != null" >
+        expect_sale_certify_date,
+      </if>
+      <if test="realitySaleCertifyDate != null" >
+        reality_sale_certify_date,
+      </if>
+      <if test="expectLiquidationDate != null" >
+        expect_liquidation_date,
+      </if>
+      <if test="realityLiquidationDate != null" >
+        reality_liquidation_date,
+      </if>
+      <if test="projectProgress != null and projectProgress !=''" >
+        project_progress,
+      </if>
+      <if test="acquireSaleCertify != null" >
+        acquire_sale_certify,
+      </if>
+      <if test="hasPushValue != null" >
+        has_push_value,
+      </if>
+      <if test="certBuildArea != null and certBuildArea !=''" >
+        cert_build_area,
+      </if>
+      <if test="surplusPubshValue != null" >
+        surplus_pubsh_value,
+      </if>
+      <if test="remark != null and remark !=''" >
+        remark,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+      <if test="createDate != null" >
+        create_date,
+      </if>
+      <if test="createId != null and createId !=''" >
+        create_id,
+      </if>
+      <if test="updateDate != null" >
+        update_date,
+      </if>
+      <if test="updateId != null and updateId !=''" >
+        update_id,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="pid != null and pid !=''" >
+        #{pid,jdbcType=VARCHAR},
+      </if>
+      <if test="prjId != null and prjId !=''" >
+        #{prjId,jdbcType=VARCHAR},
+      </if>
+      <if test="expectResumptionDate != null" >
+        #{expectResumptionDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="realityResumptionDate != null" >
+        #{realityResumptionDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="expectConstructionDate != null" >
+        #{expectConstructionDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="realityConstructionDate != null" >
+        #{realityConstructionDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="expectSaleCertifyDate != null" >
+        #{expectSaleCertifyDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="realitySaleCertifyDate != null" >
+        #{realitySaleCertifyDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="expectLiquidationDate != null" >
+        #{expectLiquidationDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="realityLiquidationDate != null" >
+        #{realityLiquidationDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="projectProgress != null and projectProgress !=''" >
+        #{projectProgress,jdbcType=VARCHAR},
+      </if>
+      <if test="acquireSaleCertify != null" >
+        #{acquireSaleCertify,jdbcType=INTEGER},
+      </if>
+      <if test="hasPushValue != null" >
+        #{hasPushValue,jdbcType=DECIMAL},
+      </if>
+      <if test="certBuildArea != null and certBuildArea !=''" >
+        #{certBuildArea,jdbcType=VARCHAR},
+      </if>
+      <if test="surplusPubshValue != null" >
+        #{surplusPubshValue,jdbcType=DECIMAL},
+      </if>
+      <if test="remark != null and remark !=''" >
+        #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=INTEGER},
+      </if>
+      <if test="createDate != null" >
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createId != null and createId !=''" >
+        #{createId,jdbcType=VARCHAR},
+      </if>
+      <if test="updateDate != null" >
+        #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateId != null and updateId !=''" >
+        #{updateId,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  
+  
+  <!-- 根据主键变更项目进度信息 -->
+  <update id="updateProProgressByKey" parameterType="com.upjf.fund.dto.ProjectProgress" >
+    update project_progress
+    <set >
+      <if test="prjId != null and prjId !=''" >
+        prj_id = #{prjId,jdbcType=VARCHAR},
+      </if>
+      <if test="expectResumptionDate != null" >
+        expect_resumption_date = #{expectResumptionDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="realityResumptionDate != null" >
+        reality_resumption_date = #{realityResumptionDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="expectConstructionDate != null" >
+        expect_construction_date = #{expectConstructionDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="realityConstructionDate != null" >
+        reality_construction_date = #{realityConstructionDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="expectSaleCertifyDate != null" >
+        expect_sale_certify_date = #{expectSaleCertifyDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="realitySaleCertifyDate != null" >
+        reality_sale_certify_date = #{realitySaleCertifyDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="expectLiquidationDate != null" >
+        expect_liquidation_date = #{expectLiquidationDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="realityLiquidationDate != null" >
+        reality_liquidation_date = #{realityLiquidationDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="projectProgress != null and projectProgress !=''" >
+        project_progress = #{projectProgress,jdbcType=VARCHAR},
+      </if>
+      <if test="acquireSaleCertify != null" >
+        acquire_sale_certify = #{acquireSaleCertify,jdbcType=INTEGER},
+      </if>
+      <if test="hasPushValue != null" >
+        has_push_value = #{hasPushValue,jdbcType=DECIMAL},
+      </if>
+      <if test="certBuildArea != null and certBuildArea !=''" >
+        cert_build_area = #{certBuildArea,jdbcType=VARCHAR},
+      </if>
+      <if test="surplusPubshValue != null" >
+        surplus_pubsh_value = #{surplusPubshValue,jdbcType=DECIMAL},
+      </if>
+      <if test="remark != null and remark !=''" >
+        remark = #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=INTEGER},
+      </if>
+      <if test="createDate != null" >
+        create_date = #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createId != null and createId !=''" >
+        create_id = #{createId,jdbcType=VARCHAR},
+      </if>
+      <if test="updateDate != null" >
+        update_date = #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateId != null and updateId !=''" >
+        update_id = #{updateId,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where pid = #{pid,jdbcType=VARCHAR}
+  </update>
+  
+</mapper>

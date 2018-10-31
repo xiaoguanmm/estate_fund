@@ -1,0 +1,262 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.upjf.fund.service.impl.business.mapper.StockRightsChangeMapper">
+  <resultMap id="BaseResultMap" type="com.upjf.fund.dto.StockRightsChange">
+    <id column="pid" jdbcType="VARCHAR" property="pid" />
+    <result column="stockholder_id" jdbcType="VARCHAR" property="stockholderId" />
+    <result column="corp_id" jdbcType="VARCHAR" property="corpId" />
+    <result column="prj_id" jdbcType="VARCHAR" property="prjId" />
+    <result column="stockholder_type" jdbcType="VARCHAR" property="stockholderType" />
+    <result column="register_capital" jdbcType="DECIMAL" property="registerCapital" />
+    <result column="stockholder_contacts" jdbcType="DECIMAL" property="stockholderContacts" />
+    <result column="hold_stock_ratio" jdbcType="DECIMAL" property="holdStockRatio" />
+    <result column="stock_rights_status" jdbcType="VARCHAR" property="stockRightsStatus" />
+    <result column="stock_rights_remark" jdbcType="VARCHAR" property="stockRightsRemark" />
+    <result column="remark" jdbcType="VARCHAR" property="remark" />
+    <result column="create_date" jdbcType="TIMESTAMP" property="createDate" />
+    <result column="create_id" jdbcType="VARCHAR" property="createId" />
+    <result column="term" jdbcType="DECIMAL" property="term" />
+    <result column="actual_funding" jdbcType="DECIMAL" property="actualFunding" />
+    <result column="change_date" jdbcType="TIMESTAMP" property="changeDate" />
+    <result column="change_id" jdbcType="VARCHAR" property="changeId" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    pid, stockholder_id, corp_id, prj_id, stockholder_type, register_capital, stockholder_contacts, 
+    hold_stock_ratio, stock_rights_status, stock_rights_remark, remark, create_date, 
+    create_id, term, actual_funding
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from stock_rights_change
+    where pid = #{pid,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from stock_rights_change
+    where pid = #{pid,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.upjf.fund.dto.StockRightsChange">
+    <selectKey keyProperty="pid" order="AFTER" resultType="java.lang.String">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into stock_rights_change (stockholder_id, corp_id, prj_id, 
+      stockholder_type, register_capital, stockholder_contacts, 
+      hold_stock_ratio, stock_rights_status, stock_rights_remark, 
+      remark, create_date, create_id, 
+      term, actual_funding)
+    values (#{stockholderId,jdbcType=VARCHAR}, #{corpId,jdbcType=VARCHAR}, #{prjId,jdbcType=VARCHAR}, 
+      #{stockholderType,jdbcType=VARCHAR}, #{registerCapital,jdbcType=DECIMAL}, #{stockholderContacts,jdbcType=DECIMAL}, 
+      #{holdStockRatio,jdbcType=DECIMAL}, #{stockRightsStatus,jdbcType=VARCHAR}, #{stockRightsRemark,jdbcType=VARCHAR}, 
+      #{remark,jdbcType=VARCHAR}, #{createDate,jdbcType=TIMESTAMP}, #{createId,jdbcType=VARCHAR}, 
+      #{term,jdbcType=DECIMAL}, #{actualFunding,jdbcType=DECIMAL})
+  </insert>
+  <insert id="insertSelective" parameterType="com.upjf.fund.dto.StockRightsChange">
+    insert into stock_rights_change
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="pid != null and pid !=''">
+        pid,
+      </if>
+      <if test="stockholderId != null and stockholderId != ''">
+        stockholder_id,
+      </if>
+      <if test="corpId != null and corpId != ''">
+        corp_id,
+      </if>
+      <if test="prjId != null and prjId != ''">
+        prj_id,
+      </if>
+      <if test="stockholderType != null and stockholderType != ''">
+        stockholder_type,
+      </if>
+      <if test="registerCapital != null and registerCapital != ''">
+        register_capital,
+      </if>
+      <if test="stockholderContacts != null and stockholderContacts != ''">
+        stockholder_contacts,
+      </if>
+      <if test="holdStockRatio != null and holdStockRatio != ''">
+        hold_stock_ratio,
+      </if>
+      <if test="stockRightsStatus != null and stockRightsStatus != ''">
+        stock_rights_status,
+      </if>
+      <if test="stockRightsRemark != null and stockRightsRemark != ''">
+        stock_rights_remark,
+      </if>
+      <if test="remark != null and remark != ''">
+        remark,
+      </if>
+      <if test="createDate != null ">
+        create_date,
+      </if>
+      <if test="createId != null and createId != ''">
+        create_id,
+      </if>
+      <if test="term != null and term != ''">
+        term,
+      </if>
+      <if test="actualFunding != null and actualFunding != ''">
+        actual_funding,
+      </if>
+      <if test="changeDate != null ">
+        change_date,
+      </if>
+      <if test="changeId != null and changeId != ''">
+        change_id,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="pid != null and pid !=''">
+      	#{pid,jdbcType=VARCHAR},
+      </if>
+      <if test="stockholderId != null and stockholderId !=''">
+        #{stockholderId,jdbcType=VARCHAR},
+      </if>
+      <if test="corpId != null and corpId !=''">
+        #{corpId,jdbcType=VARCHAR},
+      </if>
+      <if test="prjId != null and prjId !=''">
+        #{prjId,jdbcType=VARCHAR},
+      </if>
+      <if test="stockholderType != null and stockholderType !=''">
+        #{stockholderType,jdbcType=VARCHAR},
+      </if>
+      <if test="registerCapital != null and registerCapital !=''">
+        #{registerCapital,jdbcType=DECIMAL},
+      </if>
+      <if test="stockholderContacts != null and stockholderContacts !=''">
+        #{stockholderContacts,jdbcType=DECIMAL},
+      </if>
+      <if test="holdStockRatio != null and holdStockRatio !=''">
+        #{holdStockRatio,jdbcType=DECIMAL},
+      </if>
+      <if test="stockRightsStatus != null and stockRightsStatus !=''">
+        #{stockRightsStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="stockRightsRemark != null and stockRightsRemark !=''">
+        #{stockRightsRemark,jdbcType=VARCHAR},
+      </if>
+      <if test="remark != null and remark !=''">
+        #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null">
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createId != null and createId !=''">
+        #{createId,jdbcType=VARCHAR},
+      </if>
+      <if test="term != null and term !=''">
+        #{term,jdbcType=DECIMAL},
+      </if>
+      <if test="actualFunding != null and actualFunding !=''">
+        #{actualFunding,jdbcType=DECIMAL},
+      </if>
+      <if test="changeDate != null ">
+        #{changeDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="changeId != null and changeId != ''">
+        #{changeId,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.upjf.fund.dto.StockRightsChange">
+    update stock_rights_change
+    <set>
+      <if test="stockholderId != null">
+        stockholder_id = #{stockholderId,jdbcType=VARCHAR},
+      </if>
+      <if test="corpId != null">
+        corp_id = #{corpId,jdbcType=VARCHAR},
+      </if>
+      <if test="prjId != null">
+        prj_id = #{prjId,jdbcType=VARCHAR},
+      </if>
+      <if test="stockholderType != null">
+        stockholder_type = #{stockholderType,jdbcType=VARCHAR},
+      </if>
+      <if test="registerCapital != null">
+        register_capital = #{registerCapital,jdbcType=DECIMAL},
+      </if>
+      <if test="stockholderContacts != null">
+        stockholder_contacts = #{stockholderContacts,jdbcType=DECIMAL},
+      </if>
+      <if test="holdStockRatio != null">
+        hold_stock_ratio = #{holdStockRatio,jdbcType=DECIMAL},
+      </if>
+      <if test="stockRightsStatus != null">
+        stock_rights_status = #{stockRightsStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="stockRightsRemark != null">
+        stock_rights_remark = #{stockRightsRemark,jdbcType=VARCHAR},
+      </if>
+      <if test="remark != null">
+        remark = #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null">
+        create_date = #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createId != null">
+        create_id = #{createId,jdbcType=VARCHAR},
+      </if>
+      <if test="term != null">
+        term = #{term,jdbcType=DECIMAL},
+      </if>
+      <if test="actualFunding != null">
+        actual_funding = #{actualFunding,jdbcType=DECIMAL},
+      </if>
+    </set>
+    where pid = #{pid,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.upjf.fund.dto.StockRightsChange">
+    update stock_rights_change
+    set stockholder_id = #{stockholderId,jdbcType=VARCHAR},
+      corp_id = #{corpId,jdbcType=VARCHAR},
+      prj_id = #{prjId,jdbcType=VARCHAR},
+      stockholder_type = #{stockholderType,jdbcType=VARCHAR},
+      register_capital = #{registerCapital,jdbcType=DECIMAL},
+      stockholder_contacts = #{stockholderContacts,jdbcType=DECIMAL},
+      hold_stock_ratio = #{holdStockRatio,jdbcType=DECIMAL},
+      stock_rights_status = #{stockRightsStatus,jdbcType=VARCHAR},
+      stock_rights_remark = #{stockRightsRemark,jdbcType=VARCHAR},
+      remark = #{remark,jdbcType=VARCHAR},
+      create_date = #{createDate,jdbcType=TIMESTAMP},
+      create_id = #{createId,jdbcType=VARCHAR},
+      term = #{term,jdbcType=DECIMAL},
+      actual_funding = #{actualFunding,jdbcType=DECIMAL}
+    where pid = #{pid,jdbcType=VARCHAR}
+  </update>
+  
+  <select id="queryStockRightsChangeByStockholderId" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from stock_rights_change
+    where stockholder_id = #{stockholderId,jdbcType=VARCHAR}
+  </select>
+  
+  <select id="queryStockChangeHisList" parameterType="java.lang.String" resultType="map">
+	SELECT src.`pid` AS stockRightsChangePid,src.`create_date`,src.`create_id`
+		,(select ui.user_name from user_info ui where ui.pid = src.create_id) AS create_name
+		,src.`stockholder_type`,si.`pid` AS stockholderPid,ci.`pid` AS corp_id,src.stockholder_contacts,src.remark
+		,(select t1.value_des FROM dict_detail t1 WHERE t1.pid = src.stockholder_type) AS stockholder_type_name
+		,ci.`name`,src.`register_capital`,src.`hold_stock_ratio`
+		,si.`stock_rights_status`,src.`change_date`,src.`change_id`,src.`stock_rights_remark`
+		,(CASE WHEN si.stock_rights_status = '0' THEN '未确认' 
+						 WHEN si.stock_rights_status = '1' THEN '确认'
+						 ELSE '其他' END) AS stock_rights_status_name
+		,(select ui.user_name from user_info ui where ui.pid = src.change_id) AS change_name
+	FROM stock_rights_change src  
+	LEFT JOIN stockholder_info si ON src.stockholder_id = si.pid
+	LEFT JOIN corporation_info ci ON si.corp_id = ci.pid
+	WHERE src.stockholder_id = #{stockholderId,jdbcType=VARCHAR}
+	ORDER BY src.change_date DESC,src.create_date DESC
+	limit ${offset},${pageRows}
+  </select>
+  
+  <select id="countStockChangeHisList" parameterType="java.lang.String" resultType="java.lang.Integer">
+  	SELECT COUNT(src.pid) FROM stock_rights_change src  
+		LEFT JOIN stockholder_info si ON src.stockholder_id = si.pid
+		LEFT JOIN corporation_info ci ON si.corp_id = ci.pid
+	WHERE src.stockholder_id = #{stockholderId,jdbcType=VARCHAR}
+		ORDER BY src.change_date DESC,src.create_date DESC
+  </select>
+</mapper>

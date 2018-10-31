@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.upjf.fund.service.impl.business.mapper.ReceivedAccessoryMapper">
+  <resultMap id="BaseResultMap" type="com.upjf.fund.dto.ReceivedAccessory">
+    <id column="pid" jdbcType="VARCHAR" property="pid" />
+    <result column="received_id" jdbcType="VARCHAR" property="receivedId" />
+    <result column="accessory_type" jdbcType="CHAR" property="accessoryType" />
+    <result column="file_id" jdbcType="VARCHAR" property="fileId" />
+    <result column="create_date" jdbcType="TIMESTAMP" property="createDate" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    pid, received_id, accessory_type, file_id, create_date
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from received_accessory
+    where pid = #{pid,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from received_accessory
+    where pid = #{pid,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.upjf.fund.dto.ReceivedAccessory">
+    <selectKey keyProperty="pid" order="AFTER" resultType="java.lang.String">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into received_accessory (received_id, accessory_type, file_id, 
+      create_date)
+    values (#{receivedId,jdbcType=VARCHAR}, #{accessoryType,jdbcType=CHAR}, #{fileId,jdbcType=VARCHAR}, 
+      #{createDate,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.upjf.fund.dto.ReceivedAccessory">
+    <selectKey keyProperty="pid" order="AFTER" resultType="java.lang.String">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into received_accessory
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="receivedId != null">
+        received_id,
+      </if>
+      <if test="accessoryType != null">
+        accessory_type,
+      </if>
+      <if test="fileId != null">
+        file_id,
+      </if>
+      <if test="createDate != null">
+        create_date,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="receivedId != null">
+        #{receivedId,jdbcType=VARCHAR},
+      </if>
+      <if test="accessoryType != null">
+        #{accessoryType,jdbcType=CHAR},
+      </if>
+      <if test="fileId != null">
+        #{fileId,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null">
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.upjf.fund.dto.ReceivedAccessory">
+    update received_accessory
+    <set>
+      <if test="receivedId != null">
+        received_id = #{receivedId,jdbcType=VARCHAR},
+      </if>
+      <if test="accessoryType != null">
+        accessory_type = #{accessoryType,jdbcType=CHAR},
+      </if>
+      <if test="fileId != null">
+        file_id = #{fileId,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null">
+        create_date = #{createDate,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where pid = #{pid,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.upjf.fund.dto.ReceivedAccessory">
+    update received_accessory
+    set received_id = #{receivedId,jdbcType=VARCHAR},
+      accessory_type = #{accessoryType,jdbcType=CHAR},
+      file_id = #{fileId,jdbcType=VARCHAR},
+      create_date = #{createDate,jdbcType=TIMESTAMP}
+    where pid = #{pid,jdbcType=VARCHAR}
+  </update>
+  
+  <insert id="batchInsertPaybackAccessory" parameterType="com.upjf.fund.dto.ReceivedAccessory">
+  	insert into  received_accessory (
+  		pid, 
+  		received_id, 
+  		accessory_type, 
+  		file_id, 
+  		create_date
+  	) values
+  	<foreach collection="accessoryList" item="accessory" separator=",">
+  		(
+			#{accessory.pid},
+			#{accessory.receivedId},
+			#{accessory.accessoryType},
+			#{accessory.fileId},
+			#{accessory.createDate}
+  		)
+  	</foreach>
+  </insert>
+  
+  <select id="getPaybackAccessoriesByPaybackId" resultType="map">
+  	select 
+	  	received_accessory.pid,
+	  	estate_fund_file.pid as file_pid,
+	  	received_accessory.received_id,
+  		received_accessory.accessory_type,
+  		(case accessory_type when '1' then'收款凭证' when '0' then '付款凭证' else '其他' end) as accessory_type_name,
+  		received_accessory.file_id,
+  		received_accessory.create_date,
+  		concat(estate_fund_file.real_name,'.',estate_fund_file.file_type) as file_all_name,
+  	    (select user_info.user_name from user_info user_info where user_info.pid = estate_fund_file.create_id) as user_name,
+  		estate_fund_file.file_url
+  	from received_accessory received_accessory inner join estate_fund_file estate_fund_file on received_accessory.file_id = estate_fund_file.pid
+  	where received_accessory.received_id =#{paybackId,jdbcType=VARCHAR} and estate_fund_file.status = '1'	order by create_date desc limit ${offset},${pageRows}
+  </select>
+  <select id="countPaybackAccessoriesByPaybackId" resultType="integer" parameterType="string">
+  	select
+  		count(1) 
+  	from received_accessory received_accessory inner join estate_fund_file estate_fund_file on received_accessory.file_id = estate_fund_file.pid
+  	where received_accessory.received_id =#{paybackId,jdbcType=VARCHAR} and estate_fund_file.status = '1'
+  </select>
+  
+  
+  
+  
+  
+  
+  
+</mapper>

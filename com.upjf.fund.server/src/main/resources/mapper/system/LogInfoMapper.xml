@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.upjf.fund.service.impl.system.mapper.LogInfoMapper">
+  <resultMap id="baseResultMap" type="com.upjf.fund.dto.LogInfo">
+    <id column="pid" jdbcType="VARCHAR" property="pid" />
+    <result property="operatorId" jdbcType="VARCHAR" column="operator_id" />
+    <result property="moduleName" jdbcType="VARCHAR" column="module_name" />
+    <result property="uri" jdbcType="VARCHAR" column="uri" />
+    <result property="ip" jdbcType="VARCHAR" column="ip" />
+    <result property="remark" jdbcType="VARCHAR" column="remark" />
+    <result property="paramValue" jdbcType="CLOB" column="param_value" />
+    <result property="operateDate" jdbcType="TIMESTAMP" column="operate_date" />
+    
+    <result property="operatorName" jdbcType="VARCHAR" column="operator_name" />
+  </resultMap>
+  
+	<sql id="Base_Column_List">
+	  pid, operator_id, module_name, uri, ip,remark,operate_date
+	</sql>
+	
+	<insert id="addLogInfo" parameterType="com.upjf.fund.dto.LogInfo">
+	  insert into log_info
+	    <trim prefix="(" suffix=")" suffixOverrides=",">
+	      <if test="pid != null">
+	        pid,
+	      </if>
+	      <if test="operatorId != null">
+	        operator_id,
+	      </if>
+	      <if test="moduleName != null">
+	        module_name,
+	      </if>
+	      <if test="uri != null">
+	        uri,
+	      </if>
+	      <if test="ip != null">
+	        ip,
+	      </if>
+	      <if test="remark != null">
+	        remark,
+	      </if>
+	      <if test="paramValue != null">
+	        param_value,
+	      </if>
+	      <if test="operateDate != null">
+	        operate_date,
+	      </if>
+	    </trim>
+	    <trim prefix="values (" suffix=")" suffixOverrides=",">
+	      <if test="pid != null">
+	        #{pid,jdbcType=VARCHAR},
+	      </if>
+	      <if test="operatorId != null">
+	        #{operatorId,jdbcType=VARCHAR},
+	      </if>
+	      <if test="moduleName != null">
+	        #{moduleName,jdbcType=VARCHAR},
+	      </if>
+	      <if test="uri != null">
+	        #{uri,jdbcType=VARCHAR},
+	      </if>
+	      <if test="ip != null">
+	        #{ip,jdbcType=VARCHAR},
+	      </if>
+	      <if test="remark != null">
+	        #{remark,jdbcType=VARCHAR},
+	      </if>
+	      <if test="paramValue != null">
+	        #{paramValue,jdbcType=CLOB},
+	      </if>
+	      <if test="operateDate != null">
+	        #{operateDate,jdbcType=TIMESTAMP},
+	      </if>
+	    </trim>
+	</insert>
+  
+	<!-- 查询列表 -->
+	<select id="getLogInfoList" resultMap="baseResultMap" parameterType="Map">
+		 SELECT t1.*,t2.`name` as operator_name from log_info t1 inner  join user_info t2 on t1.operator_id=t2.pid
+		 WHERE 	1 = 1 
+		<if test="operatorId != null and operatorId != ''">
+	    		and t1.operator_id = #{operatorId}
+	    </if>
+		<if test="moduleName != null and moduleName != ''">
+	    		and t1.module_name LIKE CONCAT('%', '${moduleName}', '%') 
+	    </if>
+	    <if test="remark != null and remark != ''">
+	    		and t1.remark LIKE CONCAT('%', '${remark}', '%') 
+	    </if>
+	    <if test="operatorName != null and operatorName != ''">
+	    		and t2.`name` LIKE CONCAT('%', '${operatorName}', '%') 
+	    </if>
+		<if test="beginDate != null and beginDate != ''">
+			<![CDATA[
+			and t1.operate_date>=#{beginDate}
+			]]>
+		</if>
+		<if test="endDate != null and endDate != ''">
+			<![CDATA[
+			and t1.operate_date<=#{endDate}
+			]]>
+		</if>
+		order by t1.operate_date desc
+		<if test="offset != null and offset !='' and pageSize != null and pageSize !=''">
+			limit ${offset},${pageSize}
+		</if>	
+	</select>
+	
+	<select id="getLogInfoListCount" resultType="java.lang.Integer" parameterType="Map">
+		 SELECT count(t1.pid) from log_info t1 inner  join user_info t2 on t1.operator_id=t2.pid
+		 WHERE 	1 = 1 
+		<if test="operatorId != null and operatorId != ''">
+	    		and t1.operator_id = #{operatorId}
+	    </if>
+		<if test="moduleName != null and moduleName != ''">
+	    		and t1.module_name LIKE CONCAT('%', '${moduleName}', '%') 
+	    </if>
+	    <if test="remark != null and remark != ''">
+	    		and t1.remark LIKE CONCAT('%', '${remark}', '%') 
+	    </if>
+	    <if test="operatorName != null and operatorName != ''">
+	    		and t2.`name` LIKE CONCAT('%', '${operatorName}', '%') 
+	    </if>
+		<if test="beginDate != null and beginDate != ''">
+			<![CDATA[
+			and t1.operate_date>=#{beginDate}
+			]]>
+		</if>
+		<if test="endDate != null and endDate != ''">
+			<![CDATA[
+			and t1.operate_date<=#{endDate}
+			]]>
+		</if>
+	</select>
+	<select id="getLogInfo" resultMap="baseResultMap" parameterType="java.lang.String">
+		 SELECT t1.*,t2.`name` as operator_name from log_info t1 inner join user_info t2 on t1.operator_id=t2.pid 
+		 WHERE 	t1.pid = #{logInfoId}
+	</select>
+	
+</mapper>
